@@ -2,7 +2,7 @@
 // Version du cache : à incrémenter à chaque mise à jour
 const CACHE_VERSION = 'lettrepro-v1';
 const STATIC_CACHE  = `${CACHE_VERSION}-static`;
-const API_BASE      = 'http://localhost:5000';
+const API_BASE      = 'https://lettrepro-production.up.railway.app';
 
 // Fichiers à mettre en cache pour le mode offline
 const STATIC_FILES = [
