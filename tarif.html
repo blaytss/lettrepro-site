@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LettrePro — Tarifs</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0F0D0A; --surface: #1A1612; --card: #231E17; --border: #3A2F22;
+      --orange: #E8692A; --orange-light: #F5A462; --text: #F5F0E8; --muted: #9A8A78; --white: #ffffff;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; }
+    nav { display: flex; align-items: center; justify-content: space-between; padding: 1rem 2rem; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(15,13,10,0.92); backdrop-filter: blur(12px); z-index: 100; }
+    .nav-logo { font-family: 'Sora', sans-serif; font-weight: 800; font-size: 1.2rem; color: var(--white); text-decoration: none; }
+    .nav-logo span { color: var(--orange); }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--orange); }
+    .nav-cta { background: var(--orange); color: white; border: none; border-radius: 8px; padding: 0.5rem 1.2rem; font-size: 0.9rem; font-weight: 600; text-decoration: none; }
+
+    .hero { padding: 5rem 2rem 1rem; text-align: center; }
+    .section-tag { display: inline-block; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--orange); margin-bottom: 0.75rem; }
+    .hero h1 { font-family: 'Sora', sans-serif; font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; color: #F5F0E8; margin-bottom: 0.75rem; }
+    .hero p { color: var(--muted); font-size: 1rem; max-width: 480px; margin: 0 auto 2rem; line-height: 1.6; }
+
+    .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; max-width: 980px; margin: 0 auto; padding: 2rem 2rem 5rem; align-items: start; }
+    .plan { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 2rem; position: relative; transition: transform 0.2s; }
+    .plan:hover { transform: translateY(-5px); }
+    .plan.popular { border-color: var(--orange); background: linear-gradient(160deg, rgba(232,105,42,0.07), var(--surface)); }
+    .plan-badge { position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: var(--orange); color: white; font-size: 0.72rem; font-weight: 700; padding: 0.25rem 0.9rem; border-radius: 999px; white-space: nowrap; }
+    .plan-name { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.75rem; }
+    .plan-price { font-family: 'Sora', sans-serif; font-size: 3rem; font-weight: 800; color: #F5F0E8; line-height: 1; }
+    .plan-price sub { font-size: 1rem; font-weight: 500; color: var(--muted); }
+    .plan-period { color: var(--muted); font-size: 0.82rem; margin: 0.4rem 0 1rem; }
+    .plan-desc { color: var(--muted); font-size: 0.85rem; margin-bottom: 1.5rem; line-height: 1.6; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+    .plan-features { list-style: none; margin-bottom: 1.75rem; }
+    .plan-features li { display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.88rem; color: var(--text); padding: 0.45rem 0; }
+    .plan-features li::before { content: '✓'; color: var(--orange); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+    .plan-features li.off { color: var(--muted); }
+    .plan-features li.off::before { content: '–'; color: var(--border); }
+    .plan-features li strong { color: var(--orange-light); }
+    .plan-btn { width: 100%; padding: 0.85rem; border-radius: 10px; font-size: 0.95rem; font-weight: 700; font-family: 'Sora', sans-serif; cursor: pointer; transition: all 0.2s; text-decoration: none; display: block; text-align: center; }
+    .plan-btn.outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .plan-btn.outline:hover { border-color: var(--orange); color: var(--orange); }
+    .plan-btn.filled { background: linear-gradient(135deg, var(--orange), #C0501A); border: none; color: white; box-shadow: 0 4px 20px rgba(232,105,42,0.35); }
+    .plan-btn.filled:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(232,105,42,0.5); }
+
+    .compare-section { max-width: 900px; margin: 0 auto; padding: 0 2rem 5rem; }
+    .compare-section h2 { font-family: 'Sora', sans-serif; font-size: 1.6rem; font-weight: 700; color: #F5F0E8; margin-bottom: 1.5rem; text-align: center; }
+    table { width: 100%; border-collapse: collapse; }
+    th { padding: 1rem; text-align: left; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); border-bottom: 1px solid var(--border); }
+    th:not(:first-child) { text-align: center; }
+    td { padding: 0.9rem 1rem; font-size: 0.88rem; border-bottom: 1px solid rgba(58,47,34,0.5); color: var(--text); }
+    td:not(:first-child) { text-align: center; }
+    tr:last-child td { border-bottom: none; }
+    .check { color: var(--orange); font-size: 1.1rem; }
+    .cross { color: var(--border); }
+    td.highlight { background: rgba(232,105,42,0.05); }
+    th.highlight { background: rgba(232,105,42,0.05); color: var(--orange); }
+
+    .faq-section { background: var(--surface); border-top: 1px solid var(--border); padding: 4rem 2rem; }
+    .faq-inner { max-width: 680px; margin: 0 auto; }
+    .faq-inner h2 { font-family: 'Sora', sans-serif; font-size: 1.6rem; font-weight: 700; color: #F5F0E8; margin-bottom: 2rem; text-align: center; }
+    .faq-item { border-bottom: 1px solid var(--border); padding: 1.2rem 0; }
+    .faq-q { font-weight: 600; color: #F5F0E8; font-size: 0.95rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+    .faq-q::after { content: '+'; color: var(--orange); font-size: 1.2rem; flex-shrink: 0; }
+    .faq-item.open .faq-q::after { content: '–'; }
+    .faq-a { color: var(--muted); font-size: 0.88rem; line-height: 1.7; max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s; }
+    .faq-item.open .faq-a { max-height: 200px; padding-top: 0.75rem; }
+
+    footer { border-top: 1px solid var(--border); padding: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    footer .logo { font-family: 'Sora', sans-serif; font-weight: 800; color: #F5F0E8; font-size: 1rem; }
+    footer .logo span { color: var(--orange); }
+    footer p { color: var(--muted); font-size: 0.8rem; }
+    footer nav { display: flex; gap: 1.5rem; }
+    footer nav a { color: var(--muted); font-size: 0.8rem; text-decoration: none; }
+
+    @media (max-width: 768px) { .pricing-grid { grid-template-columns: 1fr; } .nav-links { display: none; } table { font-size: 0.78rem; } }
+  </style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">Lettre<span>Pro</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html">Accueil</a></li>
+    <li><a href="tarifs.html" class="active">Tarifs</a></li>
+    <li><a href="login.html">Connexion</a></li>
+  </ul>
+  <a href="inscription.html" class="nav-cta">Commencer gratuitement</a>
+</nav>
+
+<div class="hero">
+  <div class="section-tag">Tarifs</div>
+  <h1>Simple, transparent, abordable.</h1>
+  <p>Commence gratuitement. Passe au niveau supérieur quand tu en as besoin. Résilie à tout moment.</p>
+</div>
+
+<div class="pricing-grid">
+
+  <div class="plan">
+    <div class="plan-name">Gratuit</div>
+    <div class="plan-price">0€</div>
+    <div class="plan-period">Pour toujours</div>
+    <p class="plan-desc">Pour tester et générer quelques lettres occasionnellement.</p>
+    <ul class="plan-features">
+      <li><strong>3 lettres</strong> par mois</li>
+      <li>Langue française uniquement</li>
+      <li>Historique (5 lettres max)</li>
+      <li class="off">Correction de lettre</li>
+      <li class="off">Multilingue</li>
+      <li class="off">Téléchargement PDF</li>
+      <li class="off">Support prioritaire</li>
+    </ul>
+    <a href="inscription.html" class="plan-btn outline">Commencer gratuitement</a>
+  </div>
+
+  <div class="plan popular">
+    <div class="plan-badge">⚡ Le plus populaire</div>
+    <div class="plan-name">Starter</div>
+    <div class="plan-price">3€<sub>/mois</sub></div>
+    <div class="plan-period">Résiliable à tout moment</div>
+    <p class="plan-desc">Pour les étudiants qui candidatent régulièrement et veulent plus de contrôle.</p>
+    <ul class="plan-features">
+      <li><strong>20 lettres</strong> par mois</li>
+      <li><strong>5 langues</strong> (FR, EN, ES, DE, IT)</li>
+      <li>Historique illimité</li>
+      <li>Correction de lettre ✓</li>
+      <li>Téléchargement PDF</li>
+      <li class="off">Support prioritaire</li>
+      <li class="off">Accès aux nouvelles fonctions</li>
+    </ul>
+    <a href="inscription.html?plan=starter" class="plan-btn filled">Passer Starter</a>
+  </div>
+
+  <div class="plan">
+    <div class="plan-name">Premium</div>
+    <div class="plan-price">5€<sub>/mois</sub></div>
+    <div class="plan-period">Résiliable à tout moment</div>
+    <p class="plan-desc">Pour ceux qui veulent le meilleur sans aucune limite.</p>
+    <ul class="plan-features">
+      <li><strong>Lettres illimitées</strong> ∞</li>
+      <li><strong>8 langues</strong> dont arabe, portugais...</li>
+      <li>Historique illimité</li>
+      <li>Correction de lettre ✓</li>
+      <li>Téléchargement PDF</li>
+      <li>Support prioritaire</li>
+      <li>Accès aux nouvelles fonctions</li>
+    </ul>
+    <a href="inscription.html?plan=premium" class="plan-btn outline">Passer Premium</a>
+  </div>
+
+</div>
+
+<div class="compare-section">
+  <h2>Comparaison complète</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Fonctionnalité</th>
+        <th>Gratuit</th>
+        <th class="highlight">Starter</th>
+        <th>Premium</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Lettres par mois</td><td>3</td><td class="highlight">20</td><td>Illimitées</td></tr>
+      <tr><td>Langues disponibles</td><td>1 (FR)</td><td class="highlight">5</td><td>8</td></tr>
+      <tr><td>Correction de lettre</td><td><span class="cross">–</span></td><td class="highlight"><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>Historique</td><td>5 max</td><td class="highlight">Illimité</td><td>Illimité</td></tr>
+      <tr><td>Téléchargement PDF</td><td><span class="cross">–</span></td><td class="highlight"><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>Support prioritaire</td><td><span class="cross">–</span></td><td class="highlight"><span class="cross">–</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>Nouvelles fonctions en avant-première</td><td><span class="cross">–</span></td><td class="highlight"><span class="cross">–</span></td><td><span class="check">✓</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="faq-section">
+  <div class="faq-inner">
+    <h2>Questions fréquentes</h2>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">Puis-je passer de Gratuit à Starter ou Premium à tout moment ?</div>
+      <div class="faq-a">Oui, tu peux upgrader à tout moment depuis ton espace compte. Le changement est immédiat.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">Comment fonctionne la correction de lettre ?</div>
+      <div class="faq-a">Tu colles ta lettre existante, tu choisis le type d'amélioration (style, fautes, plus impactant...) et l'IA te retourne une version améliorée en quelques secondes.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">Les lettres en plusieurs langues sont-elles vraiment de qualité ?</div>
+      <div class="faq-a">Oui. L'IA génère directement dans la langue cible avec un niveau natif, pas une traduction. Parfait pour candidater à l'international.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">Puis-je résilier à tout moment ?</div>
+      <div class="faq-a">Oui, sans engagement ni frais. Tu gardes l'accès à ton plan jusqu'à la fin de la période payée.</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="logo">Lettre<span>Pro</span></div>
+  <p>© 2026 LettrePro. Tous droits réservés.</p>
+  <nav>
+    <a href="#">Mentions légales</a>
+    <a href="#">Confidentialité</a>
+    <a href="#">Contact</a>
+  </nav>
+</footer>
+</body>
+</html>

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LettrePro — Inscription Professeur</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#0F0D0A;--surface:#1A1612;--card:#231E17;--border:#3A2F22;--orange:#E8692A;--text:#F5F0E8;--muted:#9A8A78}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;display:flex;flex-direction:column}
+    nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;border-bottom:1px solid var(--border)}
+    .nav-logo{font-family:'Sora',sans-serif;font-weight:800;font-size:1.2rem;color:var(--text);text-decoration:none}
+    .nav-logo span{color:var(--orange)}
+    .nav-back{color:var(--muted);text-decoration:none;font-size:.88rem;display:flex;align-items:center;gap:.4rem;transition:color .2s}
+    .nav-back:hover{color:var(--orange)}
+    .container{flex:1;display:flex;align-items:center;justify-content:center;padding:2rem;position:relative;overflow:hidden}
+    .container::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(232,105,42,.08) 0%,transparent 70%);pointer-events:none}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:2.5rem;width:100%;max-width:540px;position:relative}
+    .card::before{content:'';position:absolute;inset:-1px;border-radius:21px;background:linear-gradient(135deg,rgba(232,105,42,.2),transparent 50%);z-index:-1}
+
+    /* ÉTAPES */
+    .steps-indicator{display:flex;align-items:center;gap:.5rem;margin-bottom:2rem}
+    .step-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;font-family:'Sora',sans-serif;flex-shrink:0;transition:all .3s}
+    .step-dot.done{background:var(--orange);color:white}
+    .step-dot.active{background:var(--orange);color:white;box-shadow:0 0 0 4px rgba(232,105,42,.2)}
+    .step-dot.pending{background:var(--card);border:1px solid var(--border);color:var(--muted)}
+    .step-line{flex:1;height:1px;background:var(--border);transition:background .3s}
+    .step-line.done{background:var(--orange)}
+    .step-label{font-size:.75rem;font-weight:600;color:var(--muted);text-align:center;margin-top:.3rem}
+
+    h2{font-family:'Sora',sans-serif;font-weight:800;font-size:1.4rem;color:var(--text);margin-bottom:.3rem}
+    .sub{color:var(--muted);font-size:.88rem;margin-bottom:1.5rem}
+    .field{margin-bottom:1rem}
+    .field label{display:block;font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:.4rem}
+    .field input,.field textarea,.field select{width:100%;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.8rem 1rem;color:var(--text);font-size:.92rem;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s;resize:vertical}
+    .field input:focus,.field textarea:focus,.field select:focus{border-color:var(--orange)}
+    .field input::placeholder,.field textarea::placeholder{color:var(--muted)}
+    .field select option{background:var(--card);color:var(--text)}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+    .subjects-wrap{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.5rem}
+    .sc{background:var(--card);border:1px solid var(--border);border-radius:999px;padding:.3rem .85rem;font-size:.8rem;color:var(--muted);cursor:pointer;transition:all .2s}
+    .sc.on{background:rgba(232,105,42,.15);border-color:rgba(232,105,42,.4);color:var(--orange)}
+    .btn{width:100%;padding:.9rem;background:linear-gradient(135deg,var(--orange),#C0501A);color:white;border:none;border-radius:10px;font-size:1rem;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer;box-shadow:0 4px 20px rgba(232,105,42,.3);transition:all .2s;margin-top:.5rem}
+    .btn:hover{transform:translateY(-2px)}
+    .btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+    .btn-back{width:100%;padding:.75rem;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:10px;font-size:.92rem;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;margin-top:.5rem}
+    .btn-back:hover{border-color:var(--orange);color:var(--orange)}
+    .msg{padding:.75rem 1rem;border-radius:8px;font-size:.85rem;margin-bottom:1rem;display:none}
+    .msg.error{background:rgba(220,50,50,.1);border:1px solid rgba(220,50,50,.3);color:#FF6B6B;display:block}
+    .msg.success{background:rgba(50,200,100,.1);border:1px solid rgba(50,200,100,.3);color:#5CDB95;display:block}
+    .auth-footer{text-align:center;margin-top:1.25rem;font-size:.88rem;color:var(--muted)}
+    .auth-footer a{color:var(--orange);text-decoration:none;font-weight:600}
+  </style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">Lettre<span>Pro</span></a>
+  <a href="inscription.html" class="nav-back">← Retour au choix</a>
+</nav>
+
+<div class="container">
+  <div class="card">
+
+    <!-- INDICATEUR ÉTAPES -->
+    <div class="steps-indicator">
+      <div>
+        <div class="step-dot active" id="dot-1">1</div>
+      </div>
+      <div class="step-line" id="line-1"></div>
+      <div>
+        <div class="step-dot pending" id="dot-2">2</div>
+      </div>
+    </div>
+
+    <!-- ÉTAPE 1 : Compte -->
+    <div id="step-1">
+      <h2>Crée ton compte</h2>
+      <p class="sub">D'abord les informations de connexion.</p>
+      <div id="msg1" class="msg"></div>
+      <div class="two-col">
+        <div class="field"><label>Prénom *</label><input type="text" id="prenom" placeholder="Marie"/></div>
+        <div class="field"><label>Nom *</label><input type="text" id="nom" placeholder="Dupont"/></div>
+      </div>
+      <div class="field"><label>Adresse email *</label><input type="email" id="email" placeholder="marie.dupont@ac-nice.fr"/></div>
+      <div class="field"><label>Mot de passe *</label><input type="password" id="password" placeholder="8 caractères minimum"/></div>
+      <button class="btn" id="btn-step1" onclick="nextStep()">Continuer →</button>
+      <div class="auth-footer">Déjà un compte ? <a href="login.html">Se connecter</a></div>
+    </div>
+
+    <!-- ÉTAPE 2 : Profil prof -->
+    <div id="step-2" style="display:none">
+      <h2>Ton profil professeur</h2>
+      <p class="sub">Ces informations seront visibles par les élèves.</p>
+      <div id="msg2" class="msg"></div>
+      <div class="field"><label>Bio / Présentation *</label><textarea id="bio" rows="3" placeholder="Professeur de mathématiques depuis 5 ans, spécialisé en lycée..."></textarea></div>
+      <div class="field"><label>Établissement</label><input type="text" id="etab" placeholder="Lycée Victor Hugo, Nice"/></div>
+      <div class="field">
+        <label>Matières enseignées</label>
+        <div class="subjects-wrap" id="sw"></div>
+      </div>
+      <div class="two-col">
+        <div class="field" style="margin:0"><label>Abonnement (crédits/mois)</label><input type="number" id="sub-price" value="0" min="0" step="1" placeholder="0 = gratuit"/></div>
+        <div class="field" style="margin:0"><label>Tarif visio (crédits/h)</label><input type="number" id="hourly" value="15" min="0" step="1"/></div>
+      </div>
+      <p style="color:var(--muted);font-size:.75rem;margin-top:.4rem;margin-bottom:1rem">💡 Mets 0 pour proposer l'accès gratuitement.</p>
+      <button class="btn" id="btn-step2" onclick="submitProfRegistration()">Créer mon espace professeur 🎓</button>
+      <button class="btn-back" onclick="goBack()">← Retour</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const API_BASE = 'http://localhost:5000';
+  const SUBJECTS = ['Mathématiques','Physique-Chimie','SVT','Histoire-Géo','Français',
+                    'Philosophie','NSI','Anglais','Espagnol','Économie','SES','Arts','EPS','Autre'];
+  const selected = new Set();
+  let authToken = null;
+
+  function renderSubjects(){
+    document.getElementById('sw').innerHTML = SUBJECTS.map(s =>
+      `<div class="sc ${selected.has(s)?'on':''}" onclick="toggle('${s}')">${s}</div>`
+    ).join('');
+  }
+  function toggle(s){ selected.has(s)?selected.delete(s):selected.add(s); renderSubjects(); }
+
+  // ── ÉTAPE 1 : Créer le compte ──
+  async function nextStep(){
+    const prenom   = document.getElementById('prenom').value.trim();
+    const nom      = document.getElementById('nom').value.trim();
+    const email    = document.getElementById('email').value.trim().toLowerCase();
+    const password = document.getElementById('password').value;
+    const msg      = document.getElementById('msg1');
+    const btn      = document.getElementById('btn-step1');
+    msg.className  = 'msg';
+
+    if (!prenom||!nom||!email||!password){ msg.className='msg error'; msg.textContent='Remplis tous les champs.'; return; }
+    if (!email.includes('@')||!email.includes('.')){ msg.className='msg error'; msg.textContent='Email invalide.'; return; }
+    if (password.length<8){ msg.className='msg error'; msg.textContent='Mot de passe trop court (8 caractères min).'; return; }
+
+    btn.disabled=true; btn.textContent='Création du compte…';
+    try{
+      const res = await fetch(API_BASE+'/api/register',{
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ prenom, nom, email, password, plan:'prof' })
+      });
+      const data = await res.json();
+      if(!res.ok){ msg.className='msg error'; msg.textContent=data.error||'Erreur.'; return; }
+      authToken = data.token;
+      localStorage.setItem('lp_token', authToken);
+      // Passer à l'étape 2
+      showStep2();
+    }catch{
+      msg.className='msg error'; msg.textContent='Impossible de contacter le serveur.';
+    }finally{
+      btn.disabled=false; btn.textContent='Continuer →';
+    }
+  }
+
+  function showStep2(){
+    document.getElementById('step-1').style.display='none';
+    document.getElementById('step-2').style.display='block';
+    document.getElementById('dot-1').textContent='✓';
+    document.getElementById('line-1').classList.add('done');
+    document.getElementById('dot-2').classList.remove('pending');
+    document.getElementById('dot-2').classList.add('active');
+    renderSubjects();
+  }
+
+  function goBack(){
+    document.getElementById('step-2').style.display='none';
+    document.getElementById('step-1').style.display='block';
+    document.getElementById('dot-1').classList.add('active');
+    document.getElementById('dot-2').classList.remove('active');
+    document.getElementById('dot-2').classList.add('pending');
+    document.getElementById('line-1').classList.remove('done');
+    document.getElementById('dot-1').textContent='1';
+  }
+
+  // ── ÉTAPE 2 : Créer le profil prof ──
+  async function submitProfRegistration(){
+    const bio  = document.getElementById('bio').value.trim();
+    const msg  = document.getElementById('msg2');
+    const btn  = document.getElementById('btn-step2');
+    msg.className = 'msg';
+    if(!bio){ msg.className='msg error'; msg.textContent='La bio est obligatoire.'; return; }
+
+    btn.disabled=true; btn.textContent='Création du profil…';
+    try{
+      const res = await fetch(API_BASE+'/api/prof/register',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':`Bearer ${authToken}`},
+        body: JSON.stringify({
+          bio,
+          etablissement: document.getElementById('etab').value,
+          subjects: [...selected],
+          subscriptionPrice: parseFloat(document.getElementById('sub-price').value)||0,
+          hourlyRate: parseFloat(document.getElementById('hourly').value)||15
+        })
+      });
+      const data = await res.json();
+      if(!res.ok){ msg.className='msg error'; msg.textContent=data.error||'Erreur.'; return; }
+      msg.className='msg success'; msg.textContent='✓ Compte professeur créé ! Redirection…';
+      setTimeout(()=>window.location.href='prof-dashboard.html', 1200);
+    }catch{
+      msg.className='msg error'; msg.textContent='Impossible de contacter le serveur.';
+    }finally{
+      btn.disabled=false; btn.textContent='Créer mon espace professeur 🎓';
+    }
+  }
+
+  // Si déjà connecté comme prof → rediriger directement
+  const token = localStorage.getItem('lp_token');
+  if(token){
+    fetch(API_BASE+'/api/me',{headers:{'Authorization':`Bearer ${token}`}})
+      .then(r=>r.json())
+      .then(data=>{ if(data.user?.plan==='prof') window.location.href='prof-dashboard.html'; })
+      .catch(()=>{});
+  }
+
+  renderSubjects();
+</script>
+</body>
+</html>

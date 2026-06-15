@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LettrePro — Explorer les cours</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:#0F0D0A; --surface:#1A1612; --card:#231E17; --border:#3A2F22;
+      --orange:#E8692A; --orange-light:#F5A462; --orange-glow:rgba(232,105,42,0.15);
+      --text:#F5F0E8; --muted:#9A8A78; --white:#ffffff;
+    }
+    body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; }
+
+    nav { display:flex; align-items:center; justify-content:space-between; padding:1rem 2rem; border-bottom:1px solid var(--border); background:rgba(15,13,10,0.92); backdrop-filter:blur(12px); position:sticky; top:0; z-index:100; }
+    .nav-logo { font-family:'Sora',sans-serif; font-weight:800; font-size:1.2rem; color:var(--text); text-decoration:none; }
+    .nav-logo span { color:var(--orange); }
+    .nav-links { display:flex; gap:1.5rem; }
+    .nav-links a { color:var(--muted); text-decoration:none; font-size:0.9rem; transition:color 0.2s; }
+    .nav-links a:hover, .nav-links a.active { color:var(--orange); }
+    .nav-cta { background:var(--orange); color:white; border:none; border-radius:8px; padding:0.5rem 1.2rem; font-size:0.9rem; font-weight:600; cursor:pointer; text-decoration:none; }
+
+    .hero { padding:4rem 2rem 3rem; text-align:center; position:relative; overflow:hidden; }
+    .hero::before { content:''; position:absolute; top:50%; left:50%; transform:translate(-50%,-60%); width:600px; height:400px; background:radial-gradient(ellipse, rgba(232,105,42,0.1), transparent 70%); pointer-events:none; }
+    .hero h1 { font-family:'Sora',sans-serif; font-size:clamp(1.8rem,4vw,2.8rem); font-weight:800; color:var(--text); margin-bottom:0.75rem; }
+    .hero h1 span { color:var(--orange); }
+    .hero p { color:var(--muted); font-size:1rem; max-width:500px; margin:0 auto 2rem; }
+
+    .search-bar { max-width:640px; margin:0 auto; display:flex; gap:0.75rem; position:relative; }
+    .search-bar input { flex:1; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:0.9rem 1.25rem; color:var(--text); font-size:1rem; font-family:'Inter',sans-serif; outline:none; transition:border-color 0.2s; }
+    .search-bar input:focus { border-color:var(--orange); }
+    .search-bar input::placeholder { color:var(--muted); }
+    .search-bar button { background:linear-gradient(135deg,var(--orange),#C0501A); color:white; border:none; border-radius:10px; padding:0 1.5rem; font-size:0.92rem; font-weight:700; cursor:pointer; font-family:'Sora',sans-serif; transition:all 0.2s; white-space:nowrap; }
+    .search-bar button:hover { transform:translateY(-1px); }
+
+    .filters { display:flex; gap:0.5rem; justify-content:center; flex-wrap:wrap; margin:1.5rem 0; }
+    .filter-chip { background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:0.35rem 1rem; font-size:0.82rem; color:var(--muted); cursor:pointer; transition:all 0.2s; }
+    .filter-chip:hover { border-color:var(--orange); color:var(--orange); }
+    .filter-chip.active { background:var(--orange-glow); border-color:rgba(232,105,42,0.4); color:var(--orange); }
+
+    .tabs { display:flex; gap:0.25rem; background:var(--card); border-radius:10px; padding:4px; max-width:400px; margin:0 auto 2rem; }
+    .tab { flex:1; padding:0.6rem; border-radius:7px; font-size:0.88rem; font-weight:600; cursor:pointer; color:var(--muted); transition:all 0.2s; border:none; background:none; font-family:'Inter',sans-serif; }
+    .tab.active { background:var(--orange); color:white; }
+
+    .container { max-width:1100px; margin:0 auto; padding:0 2rem 4rem; }
+
+    /* GRILLE PROFS */
+    .profs-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem; }
+    .prof-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:1.75rem; transition:all 0.2s; cursor:pointer; }
+    .prof-card:hover { border-color:var(--orange); transform:translateY(-3px); }
+    .prof-avatar { width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg,var(--orange),#C0501A); display:flex; align-items:center; justify-content:center; font-family:'Sora',sans-serif; font-weight:800; font-size:1.4rem; color:white; margin-bottom:1rem; }
+    .prof-name { font-family:'Sora',sans-serif; font-weight:700; font-size:1.05rem; color:var(--text); margin-bottom:0.25rem; }
+    .prof-etablissement { font-size:0.8rem; color:var(--muted); margin-bottom:0.75rem; }
+    .prof-subjects { display:flex; flex-wrap:wrap; gap:0.35rem; margin-bottom:0.75rem; }
+    .subject-tag { background:var(--orange-glow); border:1px solid rgba(232,105,42,0.25); color:var(--orange); font-size:0.72rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:999px; }
+    .prof-bio { font-size:0.85rem; color:var(--muted); line-height:1.5; margin-bottom:1rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .prof-footer { display:flex; align-items:center; justify-content:space-between; }
+    .prof-price { font-size:0.82rem; color:var(--muted); }
+    .prof-price strong { color:var(--orange); font-family:'Sora',sans-serif; }
+    .sub-btn { background:linear-gradient(135deg,var(--orange),#C0501A); color:white; border:none; border-radius:8px; padding:0.45rem 1rem; font-size:0.82rem; font-weight:700; cursor:pointer; transition:all 0.2s; font-family:'Sora',sans-serif; }
+    .sub-btn:hover { transform:translateY(-1px); }
+    .sub-btn.subscribed { background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.3); color:#10B981; }
+
+    /* GRILLE COURS */
+    .courses-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem; }
+    .course-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:1.5rem; transition:all 0.2s; }
+    .course-card:hover { border-color:var(--orange); transform:translateY(-2px); }
+    .course-matiere { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--orange); margin-bottom:0.5rem; }
+    .course-title { font-family:'Sora',sans-serif; font-weight:700; font-size:0.95rem; color:var(--text); margin-bottom:0.4rem; }
+    .course-desc { font-size:0.82rem; color:var(--muted); margin-bottom:0.85rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .course-footer { display:flex; align-items:center; justify-content:space-between; }
+    .course-prof { font-size:0.78rem; color:var(--muted); }
+    .access-btn { background:var(--orange-glow); border:1px solid rgba(232,105,42,0.3); color:var(--orange); font-size:0.78rem; font-weight:700; padding:0.3rem 0.75rem; border-radius:7px; cursor:pointer; border:none; transition:all 0.2s; font-family:'Inter',sans-serif; }
+    .access-btn:hover { background:var(--orange); color:white; }
+    .locked-icon { color:var(--muted); font-size:0.78rem; }
+    .free-badge { background:rgba(94,234,212,0.1); border:1px solid rgba(94,234,212,0.3); color:#5EEAD4; font-size:0.7rem; font-weight:700; padding:0.15rem 0.5rem; border-radius:999px; }
+
+    .empty-state { text-align:center; padding:4rem; color:var(--muted); }
+    .empty-state .icon { font-size:2.5rem; margin-bottom:1rem; }
+
+    .loading-state { text-align:center; padding:3rem; color:var(--muted); }
+    .spinner { width:24px; height:24px; border:2px solid var(--border); border-top-color:var(--orange); border-radius:50%; animation:spin 0.7s linear infinite; margin:0 auto 1rem; }
+    @keyframes spin { to{transform:rotate(360deg)} }
+
+    /* MODAL PROF */
+    .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:200; display:none; align-items:center; justify-content:center; padding:1rem; }
+    .modal-overlay.visible { display:flex; }
+    .modal { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:2rem; max-width:680px; width:100%; position:relative; max-height:90vh; overflow-y:auto; }
+    .modal-close { position:absolute; top:1rem; right:1rem; background:var(--card); border:none; color:var(--muted); width:28px; height:28px; border-radius:6px; cursor:pointer; font-size:1rem; }
+    .modal-prof-header { display:flex; gap:1.25rem; align-items:flex-start; margin-bottom:1.5rem; }
+    .modal-prof-header .avatar { width:64px; height:64px; border-radius:50%; background:linear-gradient(135deg,var(--orange),#C0501A); display:flex; align-items:center; justify-content:center; font-family:'Sora',sans-serif; font-weight:800; font-size:1.6rem; color:white; flex-shrink:0; }
+    .modal-prof-header h2 { font-family:'Sora',sans-serif; font-weight:800; font-size:1.3rem; color:var(--text); margin-bottom:0.25rem; }
+    .modal-prof-header p { color:var(--muted); font-size:0.88rem; }
+    .modal-section { margin-bottom:1.5rem; }
+    .modal-section h3 { font-family:'Sora',sans-serif; font-weight:700; font-size:0.92rem; color:var(--text); margin-bottom:0.85rem; padding-bottom:0.6rem; border-bottom:1px solid var(--border); }
+    .modal-course-item { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:1rem; margin-bottom:0.6rem; }
+    .modal-course-item h4 { font-weight:600; font-size:0.9rem; color:var(--text); margin-bottom:0.2rem; }
+    .modal-course-item p { color:var(--muted); font-size:0.8rem; }
+    .session-slot { background:var(--card); border:1px solid rgba(232,105,42,0.2); border-radius:10px; padding:1rem; margin-bottom:0.6rem; display:flex; justify-content:space-between; align-items:center; }
+    .session-slot p { color:var(--muted); font-size:0.82rem; }
+    .session-slot strong { color:var(--text); }
+    .book-btn { background:linear-gradient(135deg,var(--orange),#C0501A); color:white; border:none; border-radius:8px; padding:0.5rem 1rem; font-size:0.82rem; font-weight:700; cursor:pointer; font-family:'Sora',sans-serif; transition:all 0.2s; white-space:nowrap; }
+    .book-btn:hover { transform:translateY(-1px); }
+
+    .toast { position:fixed; bottom:2rem; right:2rem; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:0.85rem 1.25rem; font-size:0.88rem; color:var(--text); z-index:300; box-shadow:0 8px 32px rgba(0,0,0,0.4); transform:translateY(20px); opacity:0; transition:all 0.3s; pointer-events:none; }
+    .toast.visible { transform:translateY(0); opacity:1; }
+    .toast.success { border-color:rgba(50,200,100,0.3); }
+    .toast.error { border-color:rgba(220,50,50,0.3); }
+
+    @media(max-width:768px) { .profs-grid,.courses-grid { grid-template-columns:1fr; } .nav-links { display:none; } }
+  </style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">Lettre<span>Pro</span></a>
+  <div class="nav-links">
+    <a href="index.html">Lettres</a>
+    <a href="explorer.html" class="active">Explorer</a>
+    <a href="dashboard.html">Mon espace</a>
+  </div>
+  <a href="dashboard.html" class="nav-cta">Mon espace</a>
+</nav>
+
+<div class="hero">
+  <h1>Trouve ton <span>prof idéal</span></h1>
+  <p>Des enseignants vérifiés partagent leurs cours et proposent des visios pour t'aider.</p>
+  <div class="search-bar">
+    <input type="text" id="search-input" placeholder="Recherche un prof, une matière, un cours..." oninput="onSearch()" onkeydown="if(event.key==='Enter') search()" />
+    <button onclick="search()">Rechercher</button>
+  </div>
+</div>
+
+<div class="container">
+  <div class="filters" id="matiere-filters"></div>
+
+  <div class="tabs">
+    <button class="tab active" id="tab-profs" onclick="switchTab('profs')">👤 Professeurs</button>
+    <button class="tab" id="tab-courses" onclick="switchTab('courses')">📚 Cours</button>
+  </div>
+
+  <div id="tab-content-profs">
+    <div class="loading-state" id="profs-loading"><div class="spinner"></div><p>Chargement...</p></div>
+    <div class="profs-grid" id="profs-grid" style="display:none"></div>
+    <div class="empty-state" id="profs-empty" style="display:none"><div class="icon">👤</div><p>Aucun professeur trouvé.</p></div>
+  </div>
+
+  <div id="tab-content-courses" style="display:none">
+    <div class="loading-state" id="courses-loading"><div class="spinner"></div><p>Chargement...</p></div>
+    <div class="courses-grid" id="courses-grid" style="display:none"></div>
+    <div class="empty-state" id="courses-empty" style="display:none"><div class="icon">📚</div><p>Aucun cours trouvé.</p></div>
+  </div>
+</div>
+
+<!-- MODAL PROF PROFILE -->
+<div class="modal-overlay" id="prof-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeProfModal()">✕</button>
+    <div id="prof-modal-content"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const API_BASE = 'http://localhost:5000';
+  const MATIERES = ['Mathématiques','Physique-Chimie','SVT','Histoire-Géo','Français',
+                    'Philosophie','NSI','Anglais','Espagnol','Économie','SES','Arts','EPS'];
+  let currentTab    = 'profs';
+  let activeMatiere = '';
+  let mySubscriptions = [];
+  let searchTimer   = null;
+
+  async function api(method, path, body=null) {
+    const token = localStorage.getItem('lp_token');
+    const res = await fetch(API_BASE + path, {
+      method, headers: {'Content-Type':'application/json', ...(token?{'Authorization':`Bearer ${token}`}:{})},
+      ...(body ? {body:JSON.stringify(body)} : {})
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Erreur');
+    return data;
+  }
+
+  async function init() {
+    renderMatiereFilters();
+    loadProfs();
+    // Charger les abonnements si connecté
+    if (localStorage.getItem('lp_token')) {
+      try { mySubscriptions = await api('GET', '/api/subscriptions'); } catch {}
+    }
+  }
+
+  function renderMatiereFilters() {
+    const wrap = document.getElementById('matiere-filters');
+    wrap.innerHTML = `<div class="filter-chip active" onclick="setMatiere('')">Toutes</div>` +
+      MATIERES.map(m => `<div class="filter-chip" onclick="setMatiere('${m}')">${m}</div>`).join('');
+  }
+
+  function setMatiere(m) {
+    activeMatiere = m;
+    document.querySelectorAll('.filter-chip').forEach(c => {
+      c.classList.toggle('active', c.textContent === (m||'Toutes'));
+    });
+    if (currentTab === 'profs') loadProfs();
+    else loadCourses();
+  }
+
+  function onSearch() {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(search, 400);
+  }
+
+  function search() {
+    if (currentTab === 'profs') loadProfs();
+    else loadCourses();
+  }
+
+  async function loadProfs() {
+    const q = document.getElementById('search-input').value.trim();
+    document.getElementById('profs-loading').style.display = 'block';
+    document.getElementById('profs-grid').style.display = 'none';
+    document.getElementById('profs-empty').style.display = 'none';
+    try {
+      let url = '/api/explore/profs';
+      const params = [];
+      if (q) params.push(`q=${encodeURIComponent(q)}`);
+      if (activeMatiere) params.push(`matiere=${encodeURIComponent(activeMatiere)}`);
+      if (params.length) url += '?' + params.join('&');
+      const profs = await api('GET', url);
+      renderProfs(profs);
+    } catch(e) {
+      document.getElementById('profs-empty').style.display = 'block';
+      document.getElementById('profs-empty').innerHTML = `<div class="icon">⚠️</div><p>Impossible de charger les professeurs.<br><span style="font-size:0.8rem">Vérifie que le serveur Flask est lancé sur le port 5000.</span></p>`;
+    }
+    document.getElementById('profs-loading').style.display = 'none';
+  }
+
+  function renderProfs(profs) {
+    const grid = document.getElementById('profs-grid');
+    const empty = document.getElementById('profs-empty');
+    if (!profs.length) { grid.style.display='none'; empty.style.display='block'; return; }
+    grid.style.display = 'grid'; empty.style.display = 'none';
+    const mySubProfIds = mySubscriptions.map(s=>s.prof_id);
+    grid.innerHTML = profs.map(p => {
+      const isSubbed = mySubProfIds.includes(p.id);
+      return `<div class="prof-card" onclick="openProfModal(${p.id})">
+        <div class="prof-avatar">${(p.prenom||'?')[0]}</div>
+        <div class="prof-name">${p.prenom} ${p.nom}</div>
+        <div class="prof-etablissement">${p.etablissement || 'Enseignant indépendant'}</div>
+        <div class="prof-subjects">${(p.subjects||[]).slice(0,3).map(s=>`<span class="subject-tag">${s}</span>`).join('')}</div>
+        <div class="prof-bio">${p.bio || 'Aucune description.'}</div>
+        <div class="prof-footer">
+          <div class="prof-price">${p.subscription_price > 0 ? `<strong>${p.subscription_price}€</strong>/mois` : '<strong style="color:#10B981">Gratuit</strong>'}</div>
+          <button class="sub-btn ${isSubbed?'subscribed':''}" onclick="event.stopPropagation();subscribeTo(${p.id},${p.subscription_price})">
+            ${isSubbed ? '✓ Abonné' : "S'abonner"}
+          </button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  async function loadCourses() {
+    const q = document.getElementById('search-input').value.trim();
+    document.getElementById('courses-loading').style.display = 'block';
+    document.getElementById('courses-grid').style.display = 'none';
+    document.getElementById('courses-empty').style.display = 'none';
+    try {
+      let url = '/api/explore/courses';
+      const params = [];
+      if (q) params.push(`q=${encodeURIComponent(q)}`);
+      if (activeMatiere) params.push(`matiere=${encodeURIComponent(activeMatiere)}`);
+      if (params.length) url += '?' + params.join('&');
+      const courses = await api('GET', url);
+      renderCourses(courses);
+    } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
+    document.getElementById('courses-loading').style.display = 'none';
+  }
+
+  function renderCourses(courses) {
+    const grid = document.getElementById('courses-grid');
+    const empty = document.getElementById('courses-empty');
+    if (!courses.length) { grid.style.display='none'; empty.style.display='block'; return; }
+    grid.style.display = 'grid'; empty.style.display = 'none';
+    const mySubProfIds = mySubscriptions.map(s=>s.prof_id);
+    grid.innerHTML = courses.map(c => {
+      const hasAccess = c.is_free || mySubProfIds.includes(c.prof_id);
+      return `<div class="course-card">
+        <div class="course-matiere">${c.matiere}</div>
+        <div class="course-title">${c.titre} ${c.is_free?'<span class="free-badge">Gratuit</span>':''}</div>
+        <div class="course-desc">${c.description || ''}</div>
+        <div class="course-footer">
+          <div class="course-prof">par ${c.prenom} ${c.nom}</div>
+          ${hasAccess
+            ? `<button class="access-btn" onclick="openCourseContent(${c.id},${c.prof_id})">Lire →</button>`
+            : `<span class="locked-icon">🔒 Abonnement requis</span>`}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  async function openProfModal(profId) {
+    document.getElementById('prof-modal').classList.add('visible');
+    document.getElementById('prof-modal-content').innerHTML = '<div class="loading-state"><div class="spinner"></div><p>Chargement...</p></div>';
+    try {
+      const data = await api('GET', `/api/explore/profs/${profId}`);
+      const {prof, courses, sessions} = data;
+      const mySubProfIds = mySubscriptions.map(s=>s.prof_id);
+      const isSubbed = mySubProfIds.includes(profId);
+
+      document.getElementById('prof-modal-content').innerHTML = `
+        <div class="modal-prof-header">
+          <div class="avatar">${(prof.prenom||'?')[0]}</div>
+          <div>
+            <h2>${prof.prenom} ${prof.nom}</h2>
+            <p>${prof.etablissement || 'Enseignant indépendant'}</p>
+            <div style="margin-top:0.5rem;display:flex;gap:0.4rem;flex-wrap:wrap">
+              ${(prof.subjects||[]).map(s=>`<span class="subject-tag">${s}</span>`).join('')}
+            </div>
+          </div>
+        </div>
+        <div style="margin-bottom:1.25rem">
+          <p style="color:var(--muted);font-size:0.9rem;line-height:1.7">${prof.bio || 'Aucune description.'}</p>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--card);border-radius:10px;padding:1rem;margin-bottom:1.5rem">
+          <div>
+            <p style="font-size:0.78rem;color:var(--muted);margin-bottom:0.2rem">Abonnement mensuel</p>
+            <p style="font-family:'Sora',sans-serif;font-weight:800;font-size:1.2rem;color:${prof.subscription_price>0?'var(--orange)':'#10B981'}">
+              ${prof.subscription_price > 0 ? prof.subscription_price+' crédits/mois' : 'Gratuit'}
+            </p>
+          </div>
+          <div>
+            <p style="font-size:0.78rem;color:var(--muted);margin-bottom:0.2rem">Tarif visio</p>
+            <p style="font-family:'Sora',sans-serif;font-weight:800;font-size:1.2rem;color:var(--orange)">${prof.hourly_rate} crédits/h</p>
+          </div>
+          <button class="sub-btn ${isSubbed?'subscribed':''}" onclick="subscribeTo(${profId},${prof.subscription_price})" style="padding:0.7rem 1.5rem">
+            ${isSubbed ? '✓ Abonné' : "S'abonner"}
+          </button>
+        </div>
+
+        <div class="modal-section">
+          <h3>📚 Cours (${courses.length})</h3>
+          ${courses.length ? courses.map(c => `
+            <div class="modal-course-item">
+              <h4>${c.titre} ${c.is_free?'<span class="free-badge">Gratuit</span>':''}</h4>
+              <p>${c.matiere} · ${c.description||''}</p>
+            </div>`).join('') : '<p style="color:var(--muted);font-size:0.85rem">Aucun cours publié.</p>'}
+        </div>
+
+        <div class="modal-section">
+          <h3>📹 Créneaux disponibles (${sessions.length})</h3>
+          ${sessions.length ? sessions.map(s => `
+            <div class="session-slot">
+              <div>
+                <strong>${new Date(s.scheduled_at).toLocaleString('fr-FR',{weekday:'long',day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'})}</strong>
+                <p>${s.duration_hours}h · ${s.price} crédits</p>
+              </div>
+              <button class="book-btn" onclick="bookSession(${s.id})">Réserver</button>
+            </div>`).join('') : '<p style="color:var(--muted);font-size:0.85rem">Aucun créneau disponible.</p>'}
+        </div>`;
+    } catch(e) {
+      document.getElementById('prof-modal-content').innerHTML = `<p style="color:#FF6B6B">${e.message}</p>`;
+    }
+  }
+
+  function closeProfModal() { document.getElementById('prof-modal').classList.remove('visible'); }
+
+  async function subscribeTo(profId, price) {
+    if (!localStorage.getItem('lp_token')) { window.location.href = 'login.html'; return; }
+    try {
+      const data = await api('POST', '/api/subscriptions', { profId });
+      if (data.requiresPayment) {
+        showToast(`Abonnement à ${data.price} crédits/mois — Paiement en crédits à intégrer`, 'success');
+        return;
+      }
+      mySubscriptions = await api('GET', '/api/subscriptions');
+      loadProfs();
+      showToast('✓ Abonné avec succès !', 'success');
+    } catch(e) {
+      if (e.message.includes('Déjà abonné')) showToast('Tu es déjà abonné à ce prof.', 'error');
+      else showToast('Erreur : ' + e.message, 'error');
+    }
+  }
+
+  async function bookSession(sessionId) {
+    if (!localStorage.getItem('lp_token')) { window.location.href = 'login.html'; return; }
+    try {
+      const data = await api('POST', `/api/video-sessions/book/${sessionId}`);
+      showToast('✓ Créneau réservé !', 'success');
+      setTimeout(() => window.open(data.jitsiRoom, '_blank'), 500);
+      closeProfModal();
+    } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
+  }
+
+  async function openCourseContent(courseId, profId) {
+    // Ouvre le contenu du cours dans la modal
+    try {
+      const data = await api('GET', `/api/explore/profs/${profId}`);
+      const course = data.courses.find(c => c.id === courseId);
+      if (!course) return;
+      document.getElementById('prof-modal-content').innerHTML = `
+        <h2 style="font-family:'Sora',sans-serif;color:var(--text);margin-bottom:0.5rem">${course.titre}</h2>
+        <p style="color:var(--orange);font-size:0.82rem;font-weight:600;margin-bottom:1.25rem">${course.matiere}</p>
+        <div style="font-size:0.9rem;line-height:1.8;color:var(--text);white-space:pre-wrap">${course.content || 'Contenu non disponible.'}</div>`;
+      document.getElementById('prof-modal').classList.add('visible');
+    } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
+  }
+
+  function switchTab(tab) {
+    currentTab = tab;
+    document.getElementById('tab-profs').classList.toggle('active', tab==='profs');
+    document.getElementById('tab-courses').classList.toggle('active', tab==='courses');
+    document.getElementById('tab-content-profs').style.display = tab==='profs' ? 'block' : 'none';
+    document.getElementById('tab-content-courses').style.display = tab==='courses' ? 'block' : 'none';
+    if (tab==='courses') loadCourses();
+  }
+
+  let toastTimer;
+  function showToast(msg, type='success') {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.className = 'toast '+type+' visible';
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>t.classList.remove('visible'), 3500);
+  }
+
+  init();
+</script>
+</body>
+</html>

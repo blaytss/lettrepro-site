@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LettrePro — Espace Professeur</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <script>
+    (function(){
+      const t=JSON.parse(localStorage.getItem('lp_theme')||'{}');
+      if(t.primary) document.documentElement.style.setProperty('--orange',t.primary);
+      if(t.bg) document.documentElement.style.setProperty('--bg',t.bg);
+      if(t.surface) document.documentElement.style.setProperty('--surface',t.surface);
+      if(t.card) document.documentElement.style.setProperty('--card',t.card);
+      if(t.border) document.documentElement.style.setProperty('--border',t.border);
+      if(t.text) document.documentElement.style.setProperty('--text',t.text);
+      if(t.muted) document.documentElement.style.setProperty('--muted',t.muted);
+    })();
+  </script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#0F0D0A;--surface:#1A1612;--card:#231E17;--border:#3A2F22;
+      --orange:#E8692A;--orange-light:#F5A462;--orange-glow:rgba(232,105,42,0.15);
+      --text:#F5F0E8;--muted:#9A8A78;--white:#ffffff;
+    }
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;display:flex;flex-direction:column}
+    nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:100}
+    .nav-logo{font-family:'Sora',sans-serif;font-weight:800;font-size:1.2rem;color:var(--text);text-decoration:none}
+    .nav-logo span{color:var(--orange)}
+    .prof-tag{font-size:0.68rem;font-weight:700;background:var(--orange-glow);border:1px solid rgba(232,105,42,0.3);color:var(--orange);border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:middle}
+    .nav-right{display:flex;align-items:center;gap:1rem}
+    .verified-badge{background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#10B981;font-size:0.75rem;font-weight:700;padding:.25rem .75rem;border-radius:999px}
+    .pending-badge{background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:#F59E0B;font-size:0.75rem;font-weight:700;padding:.25rem .75rem;border-radius:999px}
+    .avatar-btn{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--orange),#C0501A);border:none;cursor:pointer;font-weight:700;font-size:.85rem;color:white;display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif}
+    .logout-btn{background:none;border:1px solid var(--border);color:var(--muted);font-size:.82rem;padding:.4rem .8rem;border-radius:7px;cursor:pointer;transition:all .2s}
+    .logout-btn:hover{border-color:var(--orange);color:var(--orange)}
+    .layout{display:flex;flex:1}
+    .sidebar{width:220px;border-right:1px solid var(--border);padding:1.5rem 1rem;display:flex;flex-direction:column;gap:.25rem;background:var(--surface);flex-shrink:0}
+    .sidebar-item{display:flex;align-items:center;gap:.65rem;padding:.65rem .85rem;border-radius:9px;font-size:.88rem;font-weight:500;color:var(--muted);cursor:pointer;transition:all .2s;border:none;background:none;width:100%;text-align:left;font-family:'Inter',sans-serif;text-decoration:none}
+    .sidebar-item:hover{background:var(--card);color:var(--text)}
+    .sidebar-item.active{background:var(--orange-glow);color:var(--orange)}
+    .sidebar-item .icon{width:20px;text-align:center}
+    .sidebar-sep{height:1px;background:var(--border);margin:.75rem 0}
+    .sidebar-stats{background:var(--orange-glow);border:1px solid rgba(232,105,42,0.25);border-radius:10px;padding:1rem;margin-top:auto}
+    .sidebar-stats .ss-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;font-size:.82rem}
+    .sidebar-stats .ss-val{font-family:'Sora',sans-serif;font-weight:700;color:var(--orange)}
+    .main{flex:1;padding:2rem;overflow-y:auto}
+    .page{display:none}.page.active{display:block}
+    .page-header{margin-bottom:1.75rem}
+    .page-header h1{font-family:'Sora',sans-serif;font-weight:700;font-size:1.4rem;color:var(--text);margin-bottom:.25rem}
+    .page-header p{color:var(--muted);font-size:.88rem}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.75rem;margin-bottom:1.25rem}
+    .card h3{font-family:'Sora',sans-serif;font-weight:700;font-size:1rem;color:var(--text);margin-bottom:1.25rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)}
+    .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
+    .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem 1.5rem}
+    .stat-card .lbl{font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:.5rem}
+    .stat-card .val{font-family:'Sora',sans-serif;font-size:1.8rem;font-weight:800;color:var(--text)}
+    .stat-card .sub{font-size:.78rem;color:var(--muted);margin-top:.2rem}
+    .field{margin-bottom:1rem}
+    .field label{display:block;font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:.4rem}
+    .field input,.field textarea,.field select{width:100%;background:var(--card);border:1px solid var(--border);border-radius:9px;padding:.75rem 1rem;color:var(--text);font-size:.9rem;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s;resize:vertical}
+    .field input:focus,.field textarea:focus,.field select:focus{border-color:var(--orange)}
+    .field input::placeholder,.field textarea::placeholder{color:var(--muted)}
+    .field select option{background:var(--card);color:var(--text)}
+    .subjects-wrap{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.5rem}
+    .subject-chip{background:var(--card);border:1px solid var(--border);border-radius:999px;padding:.3rem .85rem;font-size:.8rem;color:var(--muted);cursor:pointer;transition:all .2s}
+    .subject-chip.on{background:var(--orange-glow);border-color:rgba(232,105,42,.4);color:var(--orange)}
+    .btn-primary{background:linear-gradient(135deg,var(--orange),#C0501A);color:white;border:none;border-radius:10px;padding:.8rem 1.75rem;font-size:.92rem;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer;box-shadow:0 4px 20px rgba(232,105,42,.25);transition:all .2s}
+    .btn-primary:hover{transform:translateY(-2px)}
+    .btn-primary:disabled{opacity:.6;cursor:not-allowed;transform:none}
+    .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text);border-radius:10px;padding:.75rem 1.5rem;font-size:.88rem;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif}
+    .btn-outline:hover{border-color:var(--orange);color:var(--orange)}
+    .btn-sm{padding:.4rem .85rem;font-size:.8rem;border-radius:7px;border:1px solid var(--border);color:var(--muted);background:none;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif}
+    .btn-sm:hover{border-color:var(--orange);color:var(--orange)}
+    .btn-danger{background:transparent;border:1px solid rgba(220,50,50,.4);color:#FF6B6B;border-radius:9px;padding:.4rem .85rem;font-size:.8rem;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif}
+    .btn-danger:hover{background:rgba(220,50,50,.1)}
+    .verify-box{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem}
+    .verify-box.verified{background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.3)}
+    .verify-box h4{font-family:'Sora',sans-serif;font-weight:700;color:var(--text);margin-bottom:.5rem}
+    .verify-box p{color:var(--muted);font-size:.88rem;margin-bottom:1rem}
+    .code-inputs{display:flex;gap:.5rem;margin:.75rem 0}
+    .code-input{width:48px;height:52px;text-align:center;font-size:1.3rem;font-weight:700;background:var(--card);border:2px solid var(--border);border-radius:10px;color:var(--text);font-family:'Sora',sans-serif;outline:none}
+    .code-input:focus{border-color:var(--orange)}
+    /* COURS */
+    .course-list{display:flex;flex-direction:column;gap:.75rem}
+    .course-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem 1.5rem;transition:border-color .2s}
+    .course-item:hover{border-color:var(--orange)}
+    .course-item-top{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem}
+    .course-meta h4{font-weight:600;font-size:.95rem;color:var(--text);margin-bottom:.3rem}
+    .course-meta p{color:var(--muted);font-size:.8rem}
+    .course-tags{display:flex;gap:.4rem;margin-top:.5rem;flex-wrap:wrap}
+    .tag{font-size:.7rem;font-weight:700;padding:.2rem .6rem;border-radius:999px}
+    .tag-matiere{background:var(--orange-glow);border:1px solid rgba(232,105,42,.25);color:var(--orange)}
+    .tag-free{background:rgba(94,234,212,.1);border:1px solid rgba(94,234,212,.3);color:#5EEAD4}
+    .tag-video{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);color:#60A5FA}
+    .tag-pdf{background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.3);color:#C084FC}
+    .course-actions{display:flex;gap:.5rem;flex-shrink:0}
+    /* ABONNÉS */
+    .sub-table{width:100%;border-collapse:collapse}
+    .sub-table th{padding:.75rem 1rem;text-align:left;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border);background:var(--card)}
+    .sub-table td{padding:.85rem 1rem;font-size:.88rem;border-bottom:1px solid rgba(58,47,34,.4);color:var(--text)}
+    .sub-table tr:last-child td{border-bottom:none}
+    /* SESSIONS */
+    .session-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem 1.5rem;display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:.75rem}
+    .session-item.available{border-color:rgba(232,105,42,.3)}
+    .session-item.booked{border-color:rgba(59,130,246,.3)}
+    .status-chip{font-size:.72rem;font-weight:700;padding:.2rem .6rem;border-radius:999px}
+    .status-chip.available{background:var(--orange-glow);color:var(--orange)}
+    .status-chip.booked{background:rgba(59,130,246,.1);color:#60A5FA}
+    .status-chip.cancelled{background:rgba(220,50,50,.1);color:#FF6B6B}
+    .jitsi-btn{background:linear-gradient(135deg,var(--orange),#C0501A);color:white;border:none;border-radius:8px;padding:.5rem 1rem;font-size:.82rem;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block;font-family:'Sora',sans-serif}
+    /* CATÉGORIES */
+    .categories-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem}
+    .category-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;text-align:center;cursor:pointer;transition:all .2s;position:relative}
+    .category-card:hover{border-color:var(--orange);transform:translateY(-2px)}
+    .category-card.active{border-color:var(--orange);background:var(--orange-glow)}
+    .category-card .cc-emoji{font-size:1.8rem;margin-bottom:.4rem}
+    .category-card .cc-name{font-weight:600;font-size:.88rem;color:var(--text)}
+    .category-card .cc-count{font-size:.75rem;color:var(--muted);margin-top:.2rem}
+    /* MODAL */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:none;align-items:center;justify-content:center;padding:1rem}
+    .modal-overlay.visible{display:flex}
+    .modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;max-width:600px;width:100%;position:relative;max-height:90vh;overflow-y:auto}
+    .modal h3{font-family:'Sora',sans-serif;font-weight:700;font-size:1.1rem;color:var(--text);margin-bottom:1.25rem}
+    .modal-close{position:absolute;top:1rem;right:1rem;background:var(--card);border:none;color:var(--muted);width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:1rem}
+    .course-type-tabs{display:flex;gap:.25rem;background:var(--card);border-radius:8px;padding:3px;margin-bottom:1rem}
+    .ctt{flex:1;padding:.5rem;border-radius:6px;font-size:.82rem;font-weight:600;cursor:pointer;color:var(--muted);transition:all .2s;border:none;background:none;font-family:'Inter',sans-serif;text-align:center}
+    .ctt.active{background:var(--orange);color:white}
+    .msg{padding:.75rem 1rem;border-radius:8px;font-size:.85rem;margin-bottom:1rem;display:none}
+    .msg.error{background:rgba(220,50,50,.1);border:1px solid rgba(220,50,50,.3);color:#FF6B6B;display:block}
+    .msg.success{background:rgba(50,200,100,.1);border:1px solid rgba(50,200,100,.3);color:#5CDB95;display:block}
+    .empty{text-align:center;padding:3rem;color:var(--muted)}
+    .empty .icon{font-size:2.5rem;margin-bottom:1rem}
+    .warn-box{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:12px;padding:1.25rem;margin-bottom:1.5rem}
+    .toast{position:fixed;bottom:2rem;right:2rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.85rem 1.25rem;font-size:.88rem;color:var(--text);z-index:300;box-shadow:0 8px 32px rgba(0,0,0,.4);transform:translateY(20px);opacity:0;transition:all .3s;pointer-events:none}
+    .toast.visible{transform:translateY(0);opacity:1}
+    .toast.success{border-color:rgba(50,200,100,.3)}
+    .toast.error{border-color:rgba(220,50,50,.3)}
+    @media(max-width:900px){.sidebar{display:none}.stats-row{grid-template-columns:1fr 1fr}.categories-grid{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">Lettre<span>Pro</span><span class="prof-tag">PROF</span></a>
+  <div class="nav-right">
+    <span id="nav-badge" class="pending-badge" style="display:none"></span>
+    <div class="avatar-btn" id="nav-avatar">?</div>
+    <button class="logout-btn" onclick="logout()">Déconnexion</button>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar">
+    <button class="sidebar-item active" onclick="showPage('overview',this)"><span class="icon">📊</span> Vue d'ensemble</button>
+    <button class="sidebar-item" onclick="showPage('courses',this)"><span class="icon">📚</span> Mes cours</button>
+    <button class="sidebar-item" onclick="showPage('sessions',this)"><span class="icon">📹</span> Visios</button>
+    <button class="sidebar-item" onclick="showPage('subscribers',this)"><span class="icon">👥</span> Mes abonnés</button>
+    <button class="sidebar-item" onclick="showPage('earnings',this)"><span class="icon">💰</span> Mes gains</button>
+    <div class="sidebar-sep"></div>
+    <button class="sidebar-item" onclick="showPage('verification',this)"><span class="icon">🔐</span> Vérification</button>
+    <button class="sidebar-item" onclick="showPage('profile',this)"><span class="icon">👤</span> Mon profil</button>
+    <a class="sidebar-item" href="explorer.html"><span class="icon">🔍</span> Explorer</a>
+    <div class="sidebar-sep"></div>
+    <div class="sidebar-stats">
+      <div class="ss-row"><span>Abonnés</span><span class="ss-val" id="ss-subs">—</span></div>
+      <div class="ss-row"><span>Cours publiés</span><span class="ss-val" id="ss-courses">—</span></div>
+      <div class="ss-row"><span>Visios dispo</span><span class="ss-val" id="ss-sessions">—</span></div>
+      <div class="ss-row" style="border-top:1px solid rgba(232,105,42,0.2);margin-top:.5rem;padding-top:.5rem">
+        <span style="color:var(--orange)">💰 Gains</span>
+        <span class="ss-val" id="ss-earnings">—</span>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- VUE D'ENSEMBLE -->
+    <div class="page active" id="page-overview">
+      <div class="page-header"><h1 id="welcome-title">Bonjour !</h1><p>Tableau de bord professeur.</p></div>
+      <div id="overview-warn" style="display:none" class="warn-box">
+        <strong style="color:#F59E0B">⚠ Compte non vérifié</strong>
+        <p style="color:var(--muted);font-size:.88rem;margin-top:.35rem">Vérifie ton statut enseignant pour publier des cours.</p>
+        <button class="btn-primary" style="margin-top:.75rem;padding:.55rem 1.25rem;font-size:.85rem" onclick="showPage('verification',document.querySelectorAll('.sidebar-item')[5])">Vérifier →</button>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="lbl">Abonnés</div><div class="val" id="stat-subs">—</div><div class="sub">élèves abonnés</div></div>
+        <div class="stat-card"><div class="lbl">Cours publiés</div><div class="val" id="stat-courses">—</div><div class="sub">texte, vidéo, PDF</div></div>
+        <div class="stat-card"><div class="lbl">Visios planifiées</div><div class="val" id="stat-sessions">—</div><div class="sub">créneaux disponibles</div></div>
+        <div class="stat-card"><div class="lbl">Statut</div><div class="val" id="stat-status" style="font-size:1rem;margin-top:4px">—</div></div>
+      </div>
+      <div class="card">
+        <h3>⚡ Actions rapides</h3>
+        <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+          <button class="btn-primary" onclick="openCourseModal()">+ Nouveau cours</button>
+          <button class="btn-outline" onclick="openSessionModal()">+ Créneau visio</button>
+          <button class="btn-outline" onclick="showPage('subscribers',document.querySelectorAll('.sidebar-item')[3])">Voir mes abonnés</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MES COURS -->
+    <div class="page" id="page-courses">
+      <div class="page-header"><h1>Mes cours</h1><p>Publie des cours texte, des vidéos ou des documents PDF.</p></div>
+      <div style="display:flex;gap:.75rem;margin-bottom:1.5rem;flex-wrap:wrap">
+        <button class="btn-primary" onclick="openCourseModal()">+ Nouveau cours</button>
+        <div id="matiere-filter-wrap" style="display:flex;gap:.5rem;flex-wrap:wrap"></div>
+      </div>
+      <div id="courses-content"><div class="empty"><div class="icon">📚</div><p>Aucun cours publié.</p></div></div>
+    </div>
+
+    <!-- VISIOS -->
+    <div class="page" id="page-sessions">
+      <div class="page-header"><h1>Visioconférences</h1><p>Planifie des créneaux. Un lien Jitsi Meet est généré automatiquement.</p></div>
+      <button class="btn-primary" style="margin-bottom:1.5rem" onclick="openSessionModal()">+ Nouveau créneau</button>
+      <div id="sessions-content"><div class="empty"><div class="icon">📹</div><p>Aucun créneau créé.</p></div></div>
+    </div>
+
+    <!-- ABONNÉS -->
+    <div class="page" id="page-subscribers">
+      <div class="page-header"><h1>Mes abonnés</h1><p>Élèves abonnés à ton profil.</p></div>
+      <div id="subscribers-content"><div class="empty"><div class="icon">👥</div><p>Aucun abonné pour l'instant.</p></div></div>
+    </div>
+
+    <!-- GAINS -->
+    <div class="page" id="page-earnings">
+      <div class="page-header"><h1>Mes gains</h1><p>Crédits reçus de tes élèves abonnés et visios.</p></div>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2rem">
+        <div class="stat-card" style="background:linear-gradient(135deg,rgba(232,105,42,0.12),var(--surface));border-color:rgba(232,105,42,0.3)">
+          <div class="lbl">Total gagné</div>
+          <div class="val" id="earn-total" style="color:var(--orange)">—</div>
+          <div class="sub">crédits cumulés</div>
+        </div>
+        <div class="stat-card">
+          <div class="lbl">Via abonnements</div>
+          <div class="val" id="earn-subs">—</div>
+          <div class="sub">abonnés actifs</div>
+        </div>
+        <div class="stat-card">
+          <div class="lbl">Via visios</div>
+          <div class="val" id="earn-visio">—</div>
+          <div class="sub">visios effectuées</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>💳 Solde de crédits actuel</h3>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+          <div>
+            <div style="font-family:'Sora',sans-serif;font-size:3rem;font-weight:800;color:var(--orange);line-height:1" id="earn-balance">—</div>
+            <div style="color:var(--muted);font-size:.85rem;margin-top:.25rem">crédits disponibles sur ton compte</div>
+          </div>
+          <div style="color:var(--muted);font-size:.85rem;max-width:300px;line-height:1.6">
+            Les crédits reçus de tes élèves s'accumulent ici. Tu peux les utiliser pour générer des lettres, accéder à des cours ou les convertir en euros.
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>💸 Retirer en euros</h3>
+        <div style="margin-bottom:1.5rem">
+          <div class="field">
+            <label>Email PayPal</label>
+            <input type="email" id="paypal-email" placeholder="ton.email@paypal.com" style="margin-bottom:.5rem"/>
+            <button onclick="updatePayPalEmail()" class="gen-btn" style="width:100%">Mettre à jour</button>
+          </div>
+          <div id="paypal-msg" class="msg"></div>
+        </div>
+        
+        <div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap">
+          <div style="flex:1;min-width:200px">
+            <label style="font-size:.85rem;color:var(--muted);display:block;margin-bottom:.5rem">Montant à retirer (crédits)</label>
+            <input type="number" id="withdrawal-amount" min="1" placeholder="Nombre de crédits" style="width:100%;padding:.75rem;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text)"/>
+          </div>
+          <div style="flex:1;min-width:200px">
+            <label style="font-size:.85rem;color:var(--muted);display:block;margin-bottom:.5rem">Montant en euros</label>
+            <div style="padding:.75rem;background:rgba(232,105,42,0.08);border:1px solid rgba(232,105,42,0.2);border-radius:6px;color:var(--text);font-weight:600">
+              <span id="withdrawal-euros">0.00€</span>
+            </div>
+          </div>
+        </div>
+        
+        <input type="range" id="withdrawal-slider" min="0" max="100" value="0" style="width:100%;margin-bottom:1rem;cursor:pointer" oninput="updateWithdrawalAmount()"/>
+        
+        <button onclick="requestWithdrawal()" class="gen-btn" style="width:100%">🏦 Demander le retrait</button>
+        <div id="withdrawal-msg" class="msg"></div>
+      </div>
+
+      <div class="card">
+        <h3>📋 Historique des gains</h3>
+        <div id="earnings-log">
+          <div class="empty"><div class="icon">💰</div><p>Aucun gain pour l'instant.<br>Les crédits apparaîtront ici quand des élèves s'abonneront.</p></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>📊 Historique des retraits</h3>
+        <div id="withdrawals-log">
+          <div class="empty"><div class="icon">💸</div><p>Aucun retrait effectué.<br>Tes demandes de retrait apparaîtront ici.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VÉRIFICATION -->
+    <div class="page" id="page-verification">
+      <div class="page-header"><h1>Vérification du compte</h1><p>Prouve ton statut enseignant pour publier des cours.</p></div>
+      <div class="verify-box verified" id="verified-box" style="display:none">
+        <h4>✓ Compte vérifié</h4><p style="margin:0">Ton statut enseignant est confirmé.</p>
+      </div>
+      <div id="verify-content">
+        <div class="card">
+          <h3>🎓 Option 1 — Email académique (instantané)</h3>
+          <p style="color:var(--muted);font-size:.88rem;margin-bottom:1.25rem">Si tu as un email <strong style="color:var(--text)">@ac-*.fr</strong> ou <strong style="color:var(--text)">@education.gouv.fr</strong>, entre-le ci-dessous.</p>
+          <div id="verify-email-msg" class="msg"></div>
+          <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:1rem">
+            <div style="flex:1;min-width:240px"><div class="field" style="margin:0"><label>Email académique</label><input type="email" id="academic-email" placeholder="prenom.nom@ac-nice.fr"/></div></div>
+            <button class="btn-primary" style="align-self:flex-end;white-space:nowrap" onclick="sendVerifyCode()">Envoyer le code</button>
+          </div>
+          <div id="code-section" style="display:none">
+            <p style="color:var(--muted);font-size:.85rem;margin-bottom:.75rem">Code à 6 chiffres reçu par email (ou visible dans le terminal Flask) :</p>
+            <div class="code-inputs">
+              <input class="code-input" maxlength="1" oninput="codeInput(this,0)" id="ci0"/>
+              <input class="code-input" maxlength="1" oninput="codeInput(this,1)" id="ci1"/>
+              <input class="code-input" maxlength="1" oninput="codeInput(this,2)" id="ci2"/>
+              <input class="code-input" maxlength="1" oninput="codeInput(this,3)" id="ci3"/>
+              <input class="code-input" maxlength="1" oninput="codeInput(this,4)" id="ci4"/>
+              <input class="code-input" maxlength="1" oninput="codeInput(this,5)" id="ci5"/>
+            </div>
+            <button class="btn-primary" onclick="confirmCode()">Confirmer</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3>📄 Option 2 — Document (24-48h)</h3>
+          <p style="color:var(--muted);font-size:.88rem;margin-bottom:1rem">Envoie un justificatif à <strong style="color:var(--text)">verification@lettrepro.fr</strong> depuis l'email de ton compte.</p>
+          <button class="btn-outline" onclick="requestDocVerif()">J'ai envoyé mon document</button>
+          <div id="doc-msg" class="msg" style="margin-top:.75rem"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFIL -->
+    <div class="page" id="page-profile">
+      <div class="page-header"><h1>Mon profil public</h1><p>Ce que voient les élèves sur l'explorateur.</p></div>
+      <div class="card">
+        <h3>Présentation</h3>
+        <div id="profile-msg" class="msg"></div>
+        <div class="field"><label>Bio *</label><textarea id="p-bio" rows="4" placeholder="Professeur de mathématiques depuis 10 ans..."></textarea></div>
+        <div class="field"><label>Établissement</label><input type="text" id="p-etablissement" placeholder="Lycée Victor Hugo, Nice"/></div>
+        <div class="field"><label>Matières enseignées</label><div class="subjects-wrap" id="subjects-wrap"></div></div>
+      </div>
+      <div class="card">
+        <h3>💳 Tarifs (en crédits)</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div class="field" style="margin:0"><label>Abonnement mensuel (crédits/mois)</label><input type="number" id="p-sub-price" placeholder="10" min="0" step="1"/></div>
+          <div class="field" style="margin:0"><label>Tarif visio (crédits/heure)</label><input type="number" id="p-hourly" placeholder="15" min="0" step="1"/></div>
+        </div>
+        <p style="color:var(--muted);font-size:.78rem;margin-top:.5rem">Mets 0 pour offrir l'accès gratuitement.</p>
+      </div>
+      <button class="btn-primary" onclick="saveProfile()">Sauvegarder</button>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODAL COURS -->
+<div class="modal-overlay" id="course-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeCourseModal()">✕</button>
+    <h3 id="course-modal-title">Nouveau cours</h3>
+    <div id="course-modal-msg" class="msg"></div>
+
+    <!-- Type de cours -->
+    <div class="course-type-tabs">
+      <button class="ctt active" id="ctt-text" onclick="setCourseType('text')">📝 Texte</button>
+      <button class="ctt" id="ctt-video" onclick="setCourseType('video')">🎬 Vidéo</button>
+      <button class="ctt" id="ctt-pdf" onclick="setCourseType('pdf')">📄 PDF / Doc</button>
+    </div>
+
+    <div class="field"><label>Titre *</label><input type="text" id="cm-titre" placeholder="Chapitre 3 — Les intégrales"/></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+      <div class="field" style="margin:0"><label>Matière</label>
+        <select id="cm-matiere">
+          <option>Mathématiques</option><option>Physique-Chimie</option><option>SVT</option>
+          <option>Histoire-Géographie</option><option>Français</option><option>Philosophie</option>
+          <option>NSI</option><option>Anglais</option><option>Espagnol</option><option>Économie</option>
+          <option>SES</option><option>Arts</option><option>EPS</option><option>Autre</option>
+        </select>
+      </div>
+      <div class="field" style="margin:0"><label>Catégorie</label>
+        <select id="cm-category">
+          <option value="">Aucune</option>
+          <option>Cours magistral</option><option>Exercices</option><option>Révision</option>
+          <option>Correction</option><option>Résumé</option><option>Fiche méthode</option>
+        </select>
+      </div>
+    </div>
+    <div class="field"><label>Description courte</label><input type="text" id="cm-desc" placeholder="Introduction aux intégrales définies..."/></div>
+
+    <!-- Contenu selon type -->
+    <div id="content-text">
+      <div class="field"><label>Contenu du cours</label><textarea id="cm-content" rows="7" placeholder="Rédige ici le contenu complet..."></textarea></div>
+    </div>
+    <div id="content-video" style="display:none">
+      <div class="field"><label>Lien vidéo (YouTube, Vimeo, Drive...)</label><input type="url" id="cm-video-url" placeholder="https://youtube.com/watch?v=..."/></div>
+      <div class="field"><label>Description / notes de cours</label><textarea id="cm-video-notes" rows="4" placeholder="Notes associées à la vidéo..."></textarea></div>
+    </div>
+    <div id="content-pdf" style="display:none">
+      <div class="field"><label>Lien du document (Drive, Dropbox, PDF hébergé...)</label><input type="url" id="cm-pdf-url" placeholder="https://drive.google.com/..."/></div>
+      <div class="field"><label>Description du document</label><textarea id="cm-pdf-notes" rows="3" placeholder="Ce document contient..."></textarea></div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem">
+      <input type="checkbox" id="cm-free" style="width:16px;height:16px;accent-color:var(--orange)"/>
+      <label for="cm-free" style="font-size:.88rem;color:var(--text);cursor:pointer">Cours gratuit (accessible sans abonnement)</label>
+    </div>
+    <div style="display:flex;gap:.75rem">
+      <button class="btn-primary" onclick="saveCourse()">Publier</button>
+      <button class="btn-outline" onclick="closeCourseModal()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL VISIO -->
+<div class="modal-overlay" id="session-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeSessionModal()">✕</button>
+    <h3>Nouveau créneau visio</h3>
+    <div id="session-modal-msg" class="msg"></div>
+    <p style="color:var(--muted);font-size:.85rem;margin-bottom:1.25rem">Un lien <strong style="color:var(--text)">Jitsi Meet</strong> gratuit sera généré automatiquement et partagé avec l'élève.</p>
+    <div class="field"><label>Date et heure *</label><input type="datetime-local" id="sm-date"/></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+      <div class="field" style="margin:0"><label>Durée (heures)</label><input type="number" id="sm-duration" value="1" min="0.5" step="0.5"/></div>
+      <div class="field" style="margin:0"><label>Tarif total (crédits)</label><input type="number" id="sm-price" placeholder="15" min="0"/></div>
+    </div>
+    <div class="field"><label>Sujet / Notes</label><input type="text" id="sm-notes" placeholder="Révision bac — Fonctions dérivées"/></div>
+    <div style="display:flex;gap:.75rem;margin-top:.5rem">
+      <button class="btn-primary" onclick="saveSession()">Créer le créneau</button>
+      <button class="btn-outline" onclick="closeSessionModal()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const API_BASE='http://localhost:5000';
+  const SUBJECTS=['Mathématiques','Physique-Chimie','SVT','Histoire-Géo','Français',
+                  'Philosophie','NSI','Anglais','Espagnol','Économie','SES','Arts','EPS','Autre'];
+  const MATIERE_EMOJIS={
+    'Mathématiques':'📐','Physique-Chimie':'⚗️','SVT':'🌿','Histoire-Géo':'🗺️',
+    'Français':'📖','Philosophie':'🧠','NSI':'💻','Anglais':'🇬🇧','Espagnol':'🇪🇸',
+    'Économie':'📈','SES':'🏛️','Arts':'🎨','EPS':'⚽','Autre':'📚'
+  };
+  let profData=null, selectedSubjects=new Set(), editingCourseId=null, courseType='text';
+  let allCourses=[], activeMatiere='';
+
+  async function api(method,path,body=null){
+    const token=localStorage.getItem('lp_token');
+    const res=await fetch(API_BASE+path,{
+      method, headers:{'Content-Type':'application/json',...(token?{'Authorization':`Bearer ${token}`}:{})},
+      ...(body?{body:JSON.stringify(body)}:{})
+    });
+    if(res.status===401){logout(true);throw new Error('Session expirée')}
+    const data=await res.json();
+    if(!res.ok) throw new Error(data.error||'Erreur serveur');
+    return data;
+  }
+
+  async function init(){
+    if(!localStorage.getItem('lp_token')){window.location.href='login.html';return}
+    try{
+      profData=await api('GET','/api/prof/me');
+      renderNav();renderOverview();renderSubjectsChips();fillProfile();
+    }catch(e){
+      if(e.message.includes('introuvable')){window.location.href='register-prof.html';}
+      else showToast('Erreur : '+e.message,'error');
+    }
+  }
+
+  function renderNav(){
+    document.getElementById('nav-avatar').textContent=(profData.prenom||'?')[0].toUpperCase();
+    const badge=document.getElementById('nav-badge');
+    badge.style.display='block';
+    if(profData.verified){badge.className='verified-badge';badge.textContent='✓ Vérifié';}
+    else{badge.className='pending-badge';badge.textContent='⚠ Non vérifié';}
+  }
+
+  async function renderOverview(){
+    document.getElementById('welcome-title').textContent=`Bonjour, ${profData.prenom} !`;
+    document.getElementById('stat-status').textContent=profData.verified?'✓ Vérifié':'⚠ En attente';
+    document.getElementById('stat-status').style.color=profData.verified?'#10B981':'#F59E0B';
+    if(!profData.verified) document.getElementById('overview-warn').style.display='block';
+    try{
+      const [courses,sessions]=await Promise.all([api('GET','/api/prof/courses'),api('GET','/api/video-sessions/prof')]);
+      const availSessions=sessions.filter(s=>s.status==='available').length;
+      ['stat-courses','ss-courses'].forEach(id=>document.getElementById(id).textContent=courses.length);
+      ['stat-sessions','ss-sessions'].forEach(id=>document.getElementById(id).textContent=availSessions);
+      // Gains et abonnés
+      try{
+        const earn=await api('GET','/api/prof/earnings');
+        ['stat-subs','ss-subs'].forEach(id=>document.getElementById(id).textContent=earn.totalSubs||0);
+        const ssEl=document.getElementById('ss-earnings');
+        if(ssEl) ssEl.textContent=(earn.totalEarnings||0)+' cr.';
+      }catch{}
+    }catch{}
+  }
+
+  function renderSubjectsChips(){
+    const saved=profData.subjects||[];
+    selectedSubjects=new Set(saved);
+    document.getElementById('subjects-wrap').innerHTML=SUBJECTS.map(s=>
+      `<div class="subject-chip ${selectedSubjects.has(s)?'on':''}" onclick="toggleSubject('${s}')">${s}</div>`
+    ).join('');
+  }
+  function toggleSubject(s){selectedSubjects.has(s)?selectedSubjects.delete(s):selectedSubjects.add(s);renderSubjectsChips();}
+
+  function fillProfile(){
+    document.getElementById('p-bio').value=profData.bio||'';
+    document.getElementById('p-etablissement').value=profData.etablissement||'';
+    if(document.getElementById('paypal-email')) document.getElementById('paypal-email').value=profData.paypal_email||'';
+    document.getElementById('p-sub-price').value=profData.subscription_price||0;
+    document.getElementById('p-hourly').value=profData.hourly_rate||15;
+    if(profData.verified){document.getElementById('verified-box').style.display='block';document.getElementById('verify-content').style.display='none';}
+  }
+
+  // ── COURS ──
+  async function loadCourses(){
+    try{
+      allCourses=await api('GET','/api/prof/courses');
+      document.getElementById('stat-courses').textContent=allCourses.length;
+      document.getElementById('ss-courses').textContent=allCourses.length;
+      renderMatiereFilters();
+      renderCourseList(activeMatiere?allCourses.filter(c=>c.matiere===activeMatiere):allCourses);
+    }catch(e){showToast(e.message,'error');}
+  }
+
+  function renderMatiereFilters(){
+    const matieres=[...new Set(allCourses.map(c=>c.matiere))];
+    const wrap=document.getElementById('matiere-filter-wrap');
+    wrap.innerHTML=`<button class="btn-sm ${activeMatiere===''?'active':''}" onclick="filterByMatiere('')">Tout</button>`+
+      matieres.map(m=>`<button class="btn-sm ${activeMatiere===m?'active':''}" style="${activeMatiere===m?'border-color:var(--orange);color:var(--orange)':''}" onclick="filterByMatiere('${m}')">${MATIERE_EMOJIS[m]||'📚'} ${m}</button>`).join('');
+  }
+  function filterByMatiere(m){activeMatiere=m;renderMatiereFilters();renderCourseList(m?allCourses.filter(c=>c.matiere===m):allCourses);}
+
+  function renderCourseList(courses){
+    const el=document.getElementById('courses-content');
+    if(!courses.length){el.innerHTML=`<div class="empty"><div class="icon">📚</div><p>Aucun cours${activeMatiere?' en '+activeMatiere:''}.</p></div>`;return;}
+    el.innerHTML=`<div class="course-list">${courses.map(c=>{
+      const typeTag=c.video_url?'<span class="tag tag-video">🎬 Vidéo</span>':c.pdf_url?'<span class="tag tag-pdf">📄 PDF</span>':'<span class="tag tag-matiere">📝 Texte</span>';
+      return `<div class="course-item">
+        <div class="course-item-top">
+          <div class="course-meta">
+            <h4>${c.titre}</h4>
+            <p>${c.description||'Pas de description'} · ${new Date(c.created_at).toLocaleDateString('fr-FR')}</p>
+            <div class="course-tags">
+              <span class="tag tag-matiere">${MATIERE_EMOJIS[c.matiere]||''} ${c.matiere}</span>
+              ${typeTag}
+              ${c.is_free?'<span class="tag tag-free">✓ Gratuit</span>':''}
+              ${c.category?`<span class="tag" style="background:var(--card);border:1px solid var(--border);color:var(--muted)">${c.category}</span>`:''}
+            </div>
+          </div>
+          <div class="course-actions">
+            <button class="btn-sm" onclick='editCourse(${JSON.stringify(c).replace(/'/g,"&#39;")})'>Modifier</button>
+            <button class="btn-danger" onclick="deleteCourse(${c.id})">✕</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('')}</div>`;
+  }
+
+  function setCourseType(type){
+    courseType=type;
+    ['text','video','pdf'].forEach(t=>{
+      document.getElementById('ctt-'+t).classList.toggle('active',t===type);
+      document.getElementById('content-'+t).style.display=t===type?'block':'none';
+    });
+  }
+
+  function openCourseModal(){
+    editingCourseId=null;
+    document.getElementById('course-modal-title').textContent='Nouveau cours';
+    document.getElementById('course-modal-msg').className='msg';
+    ['cm-titre','cm-desc','cm-content','cm-video-url','cm-video-notes','cm-pdf-url','cm-pdf-notes'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('cm-free').checked=false;
+    setCourseType('text');
+    document.getElementById('course-modal').classList.add('visible');
+  }
+
+  function editCourse(c){
+    editingCourseId=c.id;
+    document.getElementById('course-modal-title').textContent='Modifier le cours';
+    document.getElementById('course-modal-msg').className='msg';
+    document.getElementById('cm-titre').value=c.titre||'';
+    document.getElementById('cm-matiere').value=c.matiere||'Mathématiques';
+    document.getElementById('cm-category').value=c.category||'';
+    document.getElementById('cm-desc').value=c.description||'';
+    document.getElementById('cm-free').checked=!!c.is_free;
+    if(c.video_url){setCourseType('video');document.getElementById('cm-video-url').value=c.video_url;document.getElementById('cm-video-notes').value=c.content||'';}
+    else if(c.pdf_url){setCourseType('pdf');document.getElementById('cm-pdf-url').value=c.pdf_url;document.getElementById('cm-pdf-notes').value=c.content||'';}
+    else{setCourseType('text');document.getElementById('cm-content').value=c.content||'';}
+    document.getElementById('course-modal').classList.add('visible');
+  }
+
+  function closeCourseModal(){document.getElementById('course-modal').classList.remove('visible');}
+
+  async function saveCourse(){
+    const titre=document.getElementById('cm-titre').value.trim();
+    const msg=document.getElementById('course-modal-msg');
+    msg.className='msg';
+    if(!titre){msg.className='msg error';msg.textContent='Le titre est obligatoire.';return;}
+    if(!profData.verified){msg.className='msg error';msg.textContent='Vérifiez votre compte d\'abord.';return;}
+    const body={
+      titre, matiere:document.getElementById('cm-matiere').value,
+      category:document.getElementById('cm-category').value,
+      description:document.getElementById('cm-desc').value,
+      isFree:document.getElementById('cm-free').checked,
+      courseType,
+      content: courseType==='text'?document.getElementById('cm-content').value:
+               courseType==='video'?document.getElementById('cm-video-notes').value:
+               document.getElementById('cm-pdf-notes').value,
+      videoUrl: courseType==='video'?document.getElementById('cm-video-url').value:'',
+      pdfUrl:   courseType==='pdf'?document.getElementById('cm-pdf-url').value:''
+    };
+    try{
+      if(editingCourseId) await api('PUT',`/api/prof/courses/${editingCourseId}`,body);
+      else await api('POST','/api/prof/courses',body);
+      closeCourseModal();loadCourses();
+      showToast(editingCourseId?'Cours mis à jour !':'Cours publié !','success');
+    }catch(e){msg.className='msg error';msg.textContent=e.message;}
+  }
+
+  async function deleteCourse(id){
+    if(!confirm('Supprimer ce cours ?')) return;
+    try{await api('DELETE',`/api/prof/courses/${id}`);loadCourses();showToast('Cours supprimé','success');}
+    catch(e){showToast(e.message,'error');}
+  }
+
+  // ── SESSIONS ──
+  async function loadSessions(){
+    try{
+      const sessions=await api('GET','/api/video-sessions/prof');
+      const avail=sessions.filter(s=>s.status==='available').length;
+      document.getElementById('stat-sessions').textContent=avail;
+      document.getElementById('ss-sessions').textContent=avail;
+      const el=document.getElementById('sessions-content');
+      if(!sessions.length){el.innerHTML=`<div class="empty"><div class="icon">📹</div><p>Aucun créneau créé.</p></div>`;return;}
+      el.innerHTML=sessions.map(s=>`
+        <div class="session-item ${s.status}">
+          <div>
+            <div style="font-weight:600;font-size:.92rem;color:var(--text);margin-bottom:.2rem">
+              ${s.notes||'Visio'} <span class="status-chip ${s.status}">${s.status==='available'?'Disponible':s.status==='booked'?'Réservé':'Annulé'}</span>
+            </div>
+            <div style="color:var(--muted);font-size:.8rem">
+              ${s.scheduled_at?new Date(s.scheduled_at).toLocaleString('fr-FR'):'Date non définie'} · ${s.duration_hours}h · ${s.price} crédits
+              ${s.nom?` · Réservé par <strong style="color:var(--text)">${s.prenom} ${s.nom}</strong>`:''}
+            </div>
+          </div>
+          <div style="display:flex;gap:.5rem;flex-shrink:0">
+            ${s.status==='booked'?`<a href="${s.jitsi_room}" target="_blank" class="jitsi-btn">📹 Rejoindre</a>`:''}
+            <button class="btn-danger" onclick="cancelSession(${s.id})">Annuler</button>
+          </div>
+        </div>`).join('');
+    }catch(e){showToast(e.message,'error');}
+  }
+
+  function openSessionModal(){document.getElementById('session-modal').classList.add('visible');}
+  function closeSessionModal(){document.getElementById('session-modal').classList.remove('visible');}
+
+  async function saveSession(){
+    const scheduledAt=document.getElementById('sm-date').value;
+    const msg=document.getElementById('session-modal-msg');
+    msg.className='msg';
+    if(!scheduledAt){msg.className='msg error';msg.textContent='La date est obligatoire.';return;}
+    try{
+      const duration=parseFloat(document.getElementById('sm-duration').value)||1;
+      const price=parseFloat(document.getElementById('sm-price').value)||(profData.hourly_rate*duration);
+      await api('POST','/api/video-sessions',{scheduledAt,duration,price,notes:document.getElementById('sm-notes').value});
+      closeSessionModal();loadSessions();
+      showToast('Créneau créé avec lien Jitsi !','success');
+    }catch(e){msg.className='msg error';msg.textContent=e.message;}
+  }
+
+  async function cancelSession(id){
+    if(!confirm('Annuler ce créneau ?')) return;
+    try{await api('DELETE',`/api/video-sessions/${id}`);loadSessions();showToast('Créneau annulé','success');}
+    catch(e){showToast(e.message,'error');}
+  }
+
+  // ── ABONNÉS ──
+  async function loadSubscribers(){
+    try{
+      const subs=await api('GET','/api/prof/subscribers');
+      ['stat-subs','ss-subs'].forEach(id=>document.getElementById(id).textContent=subs.length);
+      const el=document.getElementById('subscribers-content');
+      if(!subs.length){el.innerHTML=`<div class="empty"><div class="icon">👥</div><p>Aucun abonné.</p></div>`;return;}
+      el.innerHTML=`<div class="card"><h3>👥 ${subs.length} abonné${subs.length>1?'s':''}</h3>
+        <table class="sub-table"><thead><tr><th>Élève</th><th>Email</th><th>Abonné depuis</th></tr></thead>
+        <tbody>${subs.map(s=>`<tr><td>${s.prenom} ${s.nom}</td><td style="color:var(--muted)">${s.email}</td><td style="color:var(--muted)">${new Date(s.created_at).toLocaleDateString('fr-FR')}</td></tr>`).join('')}</tbody>
+        </table></div>`;
+    }catch(e){showToast(e.message,'error');}
+  }
+
+  // ── VÉRIFICATION ──
+  async function sendVerifyCode(){
+    const email=document.getElementById('academic-email').value.trim();
+    const msg=document.getElementById('verify-email-msg');
+    msg.className='msg';
+    try{
+      await api('POST','/api/prof/verify/email',{email});
+      document.getElementById('code-section').style.display='block';
+      msg.className='msg success';msg.textContent=`Code envoyé ! (Si SMTP non configuré, voir le terminal Flask)`;
+    }catch(e){msg.className='msg error';msg.textContent=e.message;}
+  }
+  function codeInput(el,idx){if(el.value.length===1&&idx<5) document.getElementById(`ci${idx+1}`).focus();}
+  async function confirmCode(){
+    const code=[0,1,2,3,4,5].map(i=>document.getElementById(`ci${i}`).value).join('');
+    const msg=document.getElementById('verify-email-msg');
+    if(code.length<6){msg.className='msg error';msg.textContent='Entre les 6 chiffres.';return;}
+    try{
+      await api('POST','/api/prof/verify/email/confirm',{code});
+      profData.verified=1;fillProfile();renderNav();renderOverview();
+      showToast('✓ Compte vérifié !','success');
+    }catch(e){msg.className='msg error';msg.textContent=e.message;}
+  }
+  async function requestDocVerif(){
+    try{await api('POST','/api/prof/verify/document');document.getElementById('doc-msg').className='msg success';document.getElementById('doc-msg').textContent='✓ Demande enregistrée.';}
+    catch(e){showToast(e.message,'error');}
+  }
+
+  // ── PROFIL ──
+  async function saveProfile(){
+    const msg=document.getElementById('profile-msg');msg.className='msg';
+    try{
+      await api('PUT','/api/prof/me',{
+        bio:document.getElementById('p-bio').value,
+        etablissement:document.getElementById('p-etablissement').value,
+        subscriptionPrice:parseFloat(document.getElementById('p-sub-price').value)||0,
+        hourlyRate:parseFloat(document.getElementById('p-hourly').value)||15,
+        subjects:[...selectedSubjects]
+      });
+      profData=await api('GET','/api/prof/me');
+      msg.className='msg success';msg.textContent='✓ Profil sauvegardé !';
+    }catch(e){msg.className='msg error';msg.textContent=e.message;}
+  }
+
+  // ── GAINS ──
+  async function loadEarnings(){
+    try{
+      const data=await api('GET','/api/prof/earnings');
+      document.getElementById('earn-total').textContent=data.totalEarnings||0;
+      document.getElementById('earn-subs').textContent=data.totalSubs||0;
+      document.getElementById('earn-visio').textContent=data.totalVisio||0;
+      // Solde actuel (crédits du compte user)
+      const me = await api('GET','/api/me');
+      const balance = me.user.credits||0;
+      document.getElementById('earn-balance').textContent=balance;
+      // Mettre à jour le slider max
+      const slider = document.getElementById('withdrawal-slider');
+      if(slider) {
+        slider.max = balance;
+        slider.value = 0;
+      }
+      // Logs
+      const el=document.getElementById('earnings-log');
+      if(!data.logs||!data.logs.length){
+        el.innerHTML=`<div class="empty"><div class="icon">💰</div><p>Aucun gain pour l'instant.</p></div>`;
+        return;
+      }
+      el.innerHTML=`<table class="sub-table">
+        <thead><tr><th>Description</th><th>Crédits reçus</th><th>Date</th></tr></thead>
+        <tbody>${data.logs.map(l=>`
+          <tr>
+            <td>${l.description||'Gain'}</td>
+            <td style="color:#10B981;font-weight:700;font-family:'Sora',sans-serif">+${l.amount} cr.</td>
+            <td style="color:var(--muted)">${new Date(l.date).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</td>
+          </tr>`).join('')}
+        </tbody></table>`;
+    }catch(e){showToast('Erreur gains : '+e.message,'error');}
+  }
+
+  // ── PAYPAL & RETRAITS ──
+  async function updatePayPalEmail() {
+    const email = document.getElementById('paypal-email').value.trim();
+    const msg = document.getElementById('paypal-msg');
+    if (!email) { msg.textContent='Email requis'; msg.className='msg error'; return; }
+    try {
+      const data = await api('PUT', '/api/prof/update-paypal', { paypalEmail: email });
+      msg.textContent='✓ Email PayPal mis à jour !'; msg.className='msg success';
+    } catch(e) { msg.textContent='Erreur : '+e.message; msg.className='msg error'; }
+  }
+
+  function updateWithdrawalAmount() {
+    const val = parseInt(document.getElementById('withdrawal-slider').value) || 0;
+    document.getElementById('withdrawal-amount').value = val;
+    document.getElementById('withdrawal-euros').textContent = (val * 0.5).toFixed(2) + '€';
+  }
+
+  async function requestWithdrawal() {
+    const amount = parseInt(document.getElementById('withdrawal-amount').value) || 0;
+    const msg = document.getElementById('withdrawal-msg');
+    if (amount <= 0) { msg.textContent='Montant invalide'; msg.className='msg error'; return; }
+    try {
+      const data = await api('POST', '/api/prof/withdrawal-request', { creditsAmount: amount });
+      msg.textContent='✓ Demande créée ! Attends l\'approbation de l\'admin.'; msg.className='msg success';
+      loadEarnings();
+      loadWithdrawals();
+    } catch(e) { msg.textContent='Erreur : '+e.message; msg.className='msg error'; }
+  }
+
+  async function loadWithdrawals() {
+    const el = document.getElementById('withdrawals-log');
+    try {
+      const data = await api('GET', '/api/prof/withdrawals');
+      if (!data || data.length === 0) {
+        el.innerHTML=`<div class="empty"><div class="icon">💸</div><p>Aucun retrait effectué.</p></div>`;
+        return;
+      }
+      el.innerHTML=`<table class="sub-table">
+        <thead><tr><th>Crédits</th><th>Montant</th><th>Statut</th><th>Date</th></tr></thead>
+        <tbody>${data.map(w=>`
+          <tr>
+            <td>${w.credits_amount} cr.</td>
+            <td style="font-weight:700;color:var(--orange);font-family:'Sora',sans-serif">${w.euro_amount.toFixed(2)}€</td>
+            <td><span style="padding:.25rem .5rem;border-radius:4px;font-size:.8rem;font-weight:600;background:${w.status==='approved'?'rgba(16,185,129,0.15);color:#10B981':w.status==='rejected'?'rgba(239,68,68,0.15);color:#EF4444':'rgba(156,163,175,0.15);color:#9CA3AF'}">${w.status==='pending'?'⏳ En attente':w.status==='approved'?'✓ Approuvé':'✗ Rejeté'}</span></td>
+            <td style="color:var(--muted)">${new Date(w.created_at).toLocaleDateString('fr-FR')}</td>
+          </tr>`).join('')}
+        </tbody></table>`;
+    }catch(e){showToast('Erreur retraits : '+e.message,'error');}
+  }
+
+  // ── NAVIGATION ──
+  function showPage(name,btn){
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.sidebar-item').forEach(s=>s.classList.remove('active'));
+    document.getElementById('page-'+name).classList.add('active');
+    if(btn) btn.classList.add('active');
+    if(name==='courses') loadCourses();
+    if(name==='sessions') loadSessions();
+    if(name==='subscribers') loadSubscribers();
+    if(name==='earnings') { loadEarnings(); loadWithdrawals(); }
+  }
+
+  function logout(silent=false){
+    if(!silent&&!confirm('Se déconnecter ?')) return;
+    localStorage.removeItem('lp_token');
+    window.location.href='index.html';
+  }
+
+  let toastTimer;
+  function showToast(msg,type='success'){
+    const t=document.getElementById('toast');
+    t.textContent=msg;t.className='toast '+type+' visible';
+    clearTimeout(toastTimer);
+    toastTimer=setTimeout(()=>t.classList.remove('visible'),3000);
+  }
+
+  init();
+
+  // PWA Service Worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(()=>{});
+  }
+</script>
+</body>
+</html>

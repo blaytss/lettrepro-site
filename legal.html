@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LettrePro — Mentions légales & CGV</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0F0D0A; --surface: #1A1612; --card: #231E17; --border: #3A2F22;
+      --orange: #E8692A; --orange-light: #F5A462; --text: #F5F0E8; --muted: #9A8A78; --white: #ffffff;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; line-height: 1.7; }
+
+    nav { display: flex; align-items: center; justify-content: space-between; padding: 1rem 2rem; border-bottom: 1px solid var(--border); background: rgba(15,13,10,0.92); backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 100; }
+    .nav-logo { font-family: 'Sora', sans-serif; font-weight: 800; font-size: 1.2rem; color: var(--white); text-decoration: none; }
+    .nav-logo span { color: var(--orange); }
+    .nav-back { color: var(--muted); text-decoration: none; font-size: 0.88rem; display: flex; align-items: center; gap: 0.4rem; transition: color 0.2s; }
+    .nav-back:hover { color: var(--orange); }
+
+    .container { max-width: 860px; margin: 0 auto; padding: 3rem 2rem 6rem; }
+
+    /* TABS */
+    .tabs { display: flex; gap: 0.25rem; background: var(--card); border-radius: 12px; padding: 5px; margin-bottom: 2.5rem; flex-wrap: wrap; }
+    .tab { flex: 1; min-width: 140px; padding: 0.65rem 1rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; color: var(--muted); transition: all 0.2s; border: none; background: none; font-family: 'Inter', sans-serif; text-align: center; }
+    .tab:hover { color: var(--text); }
+    .tab.active { background: var(--orange); color: white; }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* CONTENT STYLES */
+    .legal-header { margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+    .legal-header h1 { font-family: 'Sora', sans-serif; font-size: 1.8rem; font-weight: 800; color: #F5F0E8; margin-bottom: 0.5rem; }
+    .legal-header p { color: var(--muted); font-size: 0.88rem; }
+
+    h2 { font-family: 'Sora', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--orange); margin: 2rem 0 0.75rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+    h2:first-of-type { border-top: none; padding-top: 0; }
+    h3 { font-family: 'Sora', sans-serif; font-size: 0.95rem; font-weight: 600; color: #F5F0E8; margin: 1.25rem 0 0.5rem; }
+    p { color: var(--muted); font-size: 0.9rem; margin-bottom: 0.75rem; }
+    ul { color: var(--muted); font-size: 0.9rem; padding-left: 1.5rem; margin-bottom: 0.75rem; }
+    ul li { margin-bottom: 0.35rem; }
+    strong { color: var(--text); font-weight: 600; }
+    a { color: var(--orange); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .highlight-box { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--orange); border-radius: 0 10px 10px 0; padding: 1rem 1.25rem; margin: 1.25rem 0; }
+    .highlight-box p { margin: 0; color: var(--text); font-size: 0.88rem; }
+
+    .table-wrap { overflow-x: auto; margin: 1rem 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th { background: var(--card); color: var(--muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+    td { padding: 0.75rem 1rem; border-bottom: 1px solid rgba(58,47,34,0.4); color: var(--muted); }
+    td:first-child { color: var(--text); font-weight: 500; }
+    tr:last-child td { border-bottom: none; }
+
+    .update-date { display: inline-flex; align-items: center; gap: 0.4rem; background: var(--card); border: 1px solid var(--border); border-radius: 999px; padding: 0.3rem 0.85rem; font-size: 0.75rem; color: var(--muted); margin-bottom: 1.5rem; }
+    .update-date span { color: var(--orange); font-weight: 600; }
+
+    footer { border-top: 1px solid var(--border); padding: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    footer .logo { font-family: 'Sora', sans-serif; font-weight: 800; color: #F5F0E8; font-size: 1rem; }
+    footer .logo span { color: var(--orange); }
+    footer p { color: var(--muted); font-size: 0.8rem; }
+    footer nav { display: flex; gap: 1.5rem; }
+    footer nav a { color: var(--muted); font-size: 0.8rem; text-decoration: none; }
+    footer nav a:hover { color: var(--orange); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">Lettre<span>Pro</span></a>
+  <a href="index.html" class="nav-back">← Retour à l'accueil</a>
+</nav>
+
+<div class="container">
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('mentions')">Mentions légales</button>
+    <button class="tab" onclick="showTab('cgv')">CGV</button>
+    <button class="tab" onclick="showTab('confidentialite')">Confidentialité & RGPD</button>
+    <button class="tab" onclick="showTab('cookies')">Cookies</button>
+  </div>
+
+  <!-- ══ MENTIONS LÉGALES ══ -->
+  <div class="tab-content active" id="tab-mentions">
+    <div class="legal-header">
+      <h1>Mentions légales</h1>
+      <p>Conformément à l'article 6 de la loi n°2004-575 du 21 juin 2004 pour la confiance dans l'économie numérique.</p>
+    </div>
+    <div class="update-date">Dernière mise à jour : <span>Juin 2026</span></div>
+
+    <h2>1. Éditeur du site</h2>
+    <p>Le site <strong>lettrepro.fr</strong> est édité par :</p>
+    <ul>
+      <li><strong>Nom :</strong> GUETTE Sacha</li>
+      <li><strong>Statut :</strong> Auto-entrepreneur (en cours d'immatriculation)</li>
+      <li><strong>SIRET :</strong> [TON NUMÉRO SIRET — à compléter après immatriculation]</li>
+      <li><strong>Adresse :</strong> [TON ADRESSE], Var (83), France</li>
+      <li><strong>Email :</strong> sacha.guette@lettrepro.fr</li>
+    </ul>
+
+    <div class="highlight-box">
+      <p>⚠️ Conformément à l'article L.123-1 du Code de commerce, l'activité commerciale est exercée avec <strong>autorisation parentale</strong> conformément aux dispositions applicables aux mineurs commerçants.</p>
+    </div>
+
+    <h2>2. Hébergement</h2>
+    <p>Le site est hébergé par :</p>
+    <ul>
+      <li><strong>Frontend :</strong> GitHub Pages — GitHub Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis</li>
+      <li><strong>Backend :</strong> Serveur privé situé en France (Var)</li>
+    </ul>
+
+    <h2>3. Propriété intellectuelle</h2>
+    <p>L'ensemble des éléments constituant le site LettrePro (textes, graphismes, logotypes, icônes, images, logiciels) est la propriété exclusive de l'éditeur. Toute reproduction, représentation ou diffusion, même partielle, est interdite sans autorisation préalable écrite.</p>
+    <p>Les lettres générées par l'intelligence artificielle à la demande de l'utilisateur sont la propriété de celui-ci. LettrePro ne conserve aucun droit sur le contenu produit pour le compte de l'utilisateur.</p>
+
+    <h2>4. Responsabilité</h2>
+    <p>Les lettres générées par LettrePro sont fournies à titre indicatif. L'utilisateur est seul responsable de l'utilisation qu'il en fait. LettrePro ne garantit pas l'obtention d'un entretien, d'un stage, d'une alternance ou d'une admission suite à l'utilisation du service.</p>
+    <p>LettrePro s'efforce d'assurer l'exactitude des informations diffusées mais ne saurait être tenu responsable des erreurs ou omissions, ni des dommages directs ou indirects pouvant résulter de l'utilisation du site.</p>
+
+    <h2>5. Droit applicable</h2>
+    <p>Les présentes mentions légales sont régies par le droit français. En cas de litige, les tribunaux français seront seuls compétents.</p>
+  </div>
+
+  <!-- ══ CGV ══ -->
+  <div class="tab-content" id="tab-cgv">
+    <div class="legal-header">
+      <h1>Conditions Générales de Vente</h1>
+      <p>Ces CGV régissent les relations entre LettrePro et ses utilisateurs dans le cadre de l'utilisation des services payants.</p>
+    </div>
+    <div class="update-date">Dernière mise à jour : <span>Juin 2026</span></div>
+
+    <h2>1. Objet</h2>
+    <p>Les présentes Conditions Générales de Vente (CGV) définissent les droits et obligations de LettrePro et de l'utilisateur dans le cadre de la vente de crédits et d'abonnements permettant d'accéder aux fonctionnalités avancées du service de génération de lettres de motivation par intelligence artificielle.</p>
+
+    <h2>2. Description des services</h2>
+
+    <h3>2.1 Plans d'abonnement</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Plan</th><th>Prix</th><th>Crédits mensuels</th><th>Engagement</th></tr></thead>
+        <tbody>
+          <tr><td>Gratuit</td><td>0 €</td><td>5 crédits</td><td>Aucun</td></tr>
+          <tr><td>Starter</td><td>3,00 € / mois</td><td>30 crédits</td><td>Sans engagement</td></tr>
+          <tr><td>Premium</td><td>5,00 € / mois</td><td>150 crédits</td><td>Sans engagement</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>2.2 Packs de crédits</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Pack</th><th>Crédits</th><th>Prix TTC</th></tr></thead>
+        <tbody>
+          <tr><td>Mini pack</td><td>10 crédits</td><td>5,00 €</td></tr>
+          <tr><td>Pack Starter</td><td>30 crédits</td><td>9,99 €</td></tr>
+          <tr><td>Gros pack</td><td>100 crédits</td><td>24,99 €</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Un crédit permet d'effectuer une génération ou une amélioration de lettre. Les crédits achetés en pack <strong>n'ont pas de date d'expiration</strong> et s'ajoutent aux crédits mensuels de l'abonnement.</p>
+
+    <h2>3. Prix et TVA</h2>
+    <p>Tous les prix sont indiqués en euros. LettrePro étant en franchise de TVA (article 293 B du CGI), <strong>aucune TVA n'est applicable</strong> sur les ventes tant que le chiffre d'affaires annuel reste inférieur au seuil de franchise.</p>
+
+    <h2>4. Commande et paiement</h2>
+    <p>Le paiement s'effectue en ligne par carte bancaire via <strong>Stripe</strong>, prestataire de paiement sécurisé. LettrePro ne stocke aucune donnée bancaire. La commande est validée à réception du paiement confirmé par Stripe.</p>
+    <p>En finalisant une commande, l'utilisateur reconnaît avoir lu et accepté les présentes CGV.</p>
+
+    <h2>5. Droit de rétractation</h2>
+    <div class="highlight-box">
+      <p>Conformément à l'article L.221-28 du Code de la consommation, <strong>le droit de rétractation ne s'applique pas</strong> aux contenus numériques fournis immédiatement après la commande et dont l'exécution a commencé avec l'accord préalable du consommateur. Les crédits étant utilisables immédiatement, aucun remboursement ne peut être accordé une fois les crédits attribués au compte.</p>
+    </div>
+    <p>Toutefois, en cas de problème technique avéré imputable à LettrePro, un remboursement ou un geste commercial pourra être accordé sur demande à <a href="mailto:contact@lettrepro.fr">contact@lettrepro.fr</a>.</p>
+
+    <h2>6. Résiliation d'abonnement</h2>
+    <p>L'abonnement est sans engagement et peut être résilié à tout moment depuis l'espace client. La résiliation prend effet à la fin de la période en cours. Les crédits restants après résiliation sont conservés sur le compte mais ne sont plus alimentés mensuellement.</p>
+
+    <h2>7. Disponibilité du service</h2>
+    <p>LettrePro s'efforce d'assurer la disponibilité du service 24h/24 et 7j/7, mais ne peut garantir une disponibilité sans interruption. Des maintenances peuvent occasionner des interruptions temporaires. En cas d'indisponibilité prolongée (plus de 48h consécutives), les crédits impactés pourront être compensés.</p>
+
+    <h2>8. Limitation de responsabilité</h2>
+    <p>LettrePro est un outil d'aide à la rédaction. Les lettres générées sont des suggestions que l'utilisateur est libre de modifier. LettrePro ne peut être tenu responsable du résultat d'une candidature. L'utilisation des lettres générées relève de la seule responsabilité de l'utilisateur.</p>
+
+    <h2>9. Droit applicable et litiges</h2>
+    <p>Les présentes CGV sont soumises au droit français. En cas de litige, une solution amiable sera recherchée en priorité. À défaut, le litige sera soumis aux tribunaux compétents du ressort du siège de LettrePro.</p>
+    <p>Conformément à l'article L.612-1 du Code de la consommation, le consommateur peut recourir gratuitement à un médiateur de la consommation.</p>
+  </div>
+
+  <!-- ══ CONFIDENTIALITÉ ══ -->
+  <div class="tab-content" id="tab-confidentialite">
+    <div class="legal-header">
+      <h1>Politique de confidentialité & RGPD</h1>
+      <p>LettrePro s'engage à protéger les données personnelles de ses utilisateurs conformément au RGPD (Règlement Général sur la Protection des Données) et à la loi Informatique et Libertés.</p>
+    </div>
+    <div class="update-date">Dernière mise à jour : <span>Juin 2026</span></div>
+
+    <h2>1. Responsable du traitement</h2>
+    <p><strong>[TON PRÉNOM NOM]</strong> — [TON ADRESSE], Var (83), France<br>
+    Contact DPO : <a href="mailto:contact@lettrepro.fr">contact@lettrepro.fr</a></p>
+
+    <h2>2. Données collectées</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Donnée</th><th>Finalité</th><th>Base légale</th><th>Durée</th></tr></thead>
+        <tbody>
+          <tr><td>Prénom, nom, email</td><td>Création et gestion du compte</td><td>Exécution du contrat</td><td>Durée du compte + 3 ans</td></tr>
+          <tr><td>Mot de passe (chiffré)</td><td>Authentification sécurisée</td><td>Exécution du contrat</td><td>Durée du compte</td></tr>
+          <tr><td>Données de paiement</td><td>Traitement des paiements (via Stripe)</td><td>Obligation légale</td><td>10 ans (comptabilité)</td></tr>
+          <tr><td>Lettres générées</td><td>Historique utilisateur</td><td>Consentement</td><td>Jusqu'à suppression par l'utilisateur</td></tr>
+          <tr><td>Logs de crédits</td><td>Traçabilité des transactions</td><td>Intérêt légitime</td><td>2 ans</td></tr>
+          <tr><td>Adresse IP</td><td>Sécurité et lutte contre la fraude</td><td>Intérêt légitime</td><td>12 mois</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>3. Données transmises à des tiers</h2>
+    <ul>
+      <li><strong>Stripe</strong> (paiements) — Politique disponible sur stripe.com/fr/privacy</li>
+      <li><strong>Anthropic</strong> (génération IA) — Les prompts envoyés à l'API Claude peuvent contenir des éléments de profil saisis par l'utilisateur. Voir la politique d'Anthropic sur anthropic.com/privacy</li>
+      <li><strong>GitHub Pages</strong> (hébergement frontend) — Pas de données personnelles transmises</li>
+    </ul>
+    <p>Aucune donnée personnelle n'est vendue ou transmise à des fins publicitaires.</p>
+
+    <h2>4. Vos droits</h2>
+    <p>Conformément au RGPD, vous disposez des droits suivants :</p>
+    <ul>
+      <li><strong>Droit d'accès</strong> — Obtenir une copie de vos données</li>
+      <li><strong>Droit de rectification</strong> — Corriger des données inexactes</li>
+      <li><strong>Droit à l'effacement</strong> — Demander la suppression de votre compte et données</li>
+      <li><strong>Droit à la portabilité</strong> — Recevoir vos données dans un format lisible</li>
+      <li><strong>Droit d'opposition</strong> — S'opposer à certains traitements</li>
+      <li><strong>Droit à la limitation</strong> — Limiter le traitement dans certains cas</li>
+    </ul>
+    <p>Pour exercer vos droits : <a href="mailto:contact@lettrepro.fr">contact@lettrepro.fr</a> — Réponse sous 30 jours.<br>
+    Vous pouvez également introduire une réclamation auprès de la <strong>CNIL</strong> (cnil.fr).</p>
+
+    <h2>5. Sécurité des données</h2>
+    <p>LettrePro met en œuvre des mesures techniques et organisationnelles pour protéger vos données :</p>
+    <ul>
+      <li>Mots de passe chiffrés avec bcrypt (salage automatique)</li>
+      <li>Authentification par token JWT (expiration 30 jours)</li>
+      <li>Connexions HTTPS (TLS)</li>
+      <li>Accès à la base de données limité au serveur local</li>
+      <li>Aucune donnée bancaire stockée (déléguée à Stripe)</li>
+    </ul>
+
+    <h2>6. Mineurs</h2>
+    <p>Le service est accessible aux mineurs de 13 ans et plus. Pour les moins de 16 ans, le consentement parental est requis conformément à l'article 8 du RGPD. LettrePro s'engage à ne pas collecter de données personnelles de mineurs de moins de 13 ans.</p>
+  </div>
+
+  <!-- ══ COOKIES ══ -->
+  <div class="tab-content" id="tab-cookies">
+    <div class="legal-header">
+      <h1>Politique de cookies</h1>
+      <p>Informations sur l'utilisation des cookies et traceurs sur LettrePro.</p>
+    </div>
+    <div class="update-date">Dernière mise à jour : <span>Juin 2026</span></div>
+
+    <h2>1. Qu'est-ce qu'un cookie ?</h2>
+    <p>Un cookie est un petit fichier texte déposé sur votre appareil lors de la visite d'un site web. Il permet de mémoriser des informations pour améliorer votre expérience de navigation.</p>
+
+    <h2>2. Cookies utilisés par LettrePro</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Cookie / Stockage</th><th>Type</th><th>Finalité</th><th>Durée</th></tr></thead>
+        <tbody>
+          <tr><td>lp_token</td><td>Essentiel</td><td>Maintenir la session de connexion (JWT)</td><td>30 jours</td></tr>
+          <tr><td>lp_session</td><td>Essentiel</td><td>Cache local des données utilisateur</td><td>Session</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="highlight-box">
+      <p>✓ <strong>LettrePro n'utilise aucun cookie publicitaire, aucun tracker tiers, aucun outil d'analyse comportementale.</strong> Seuls des cookies strictement nécessaires au fonctionnement du service sont utilisés. Aucun consentement n'est requis pour ces cookies (art. 82 de la loi Informatique et Libertés).</p>
+    </div>
+
+    <h2>3. Cookies tiers</h2>
+    <p><strong>Stripe</strong> peut déposer des cookies lors du processus de paiement afin de prévenir la fraude et sécuriser les transactions. Ces cookies sont soumis à la politique de confidentialité de Stripe.</p>
+    <p><strong>Google Fonts</strong> est utilisé pour charger les typographies. Google peut déposer des cookies de session. Aucune donnée personnelle n'est transmise à Google dans ce cadre.</p>
+
+    <h2>4. Gestion des cookies</h2>
+    <p>Vous pouvez configurer votre navigateur pour refuser les cookies ou être alerté lors de leur dépôt. Notez que le refus des cookies essentiels empêchera la connexion au service.</p>
+    <ul>
+      <li><a href="https://support.google.com/chrome/answer/95647" target="_blank">Chrome</a></li>
+      <li><a href="https://support.mozilla.org/fr/kb/activer-desactiver-cookies" target="_blank">Firefox</a></li>
+      <li><a href="https://support.microsoft.com/fr-fr/microsoft-edge/supprimer-les-cookies-dans-microsoft-edge-63947406-40ac-c3b8-57b9-2a946a29ae09" target="_blank">Edge</a></li>
+      <li><a href="https://support.apple.com/fr-fr/guide/safari/sfri11471/mac" target="_blank">Safari</a></li>
+    </ul>
+  </div>
+</div>
+
+<footer>
+  <div class="logo">Lettre<span>Pro</span></div>
+  <p>© 2026 LettrePro. Tous droits réservés.</p>
+  <nav>
+    <a href="legal.html">Mentions légales</a>
+    <a href="index.html">Accueil</a>
+    <a href="mailto:contact@lettrepro.fr">Contact</a>
+  </nav>
+</footer>
+
+<script>
+  function showTab(name) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    event.target.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Ouvrir le bon onglet depuis l'URL (#cgv, #confidentialite, etc.)
+  const hash = window.location.hash.replace('#', '');
+  if (['mentions','cgv','confidentialite','cookies'].includes(hash)) {
+    showTab(hash);
+    document.querySelectorAll('.tab').forEach(t => {
+      if (t.getAttribute('onclick').includes(hash)) t.classList.add('active');
+      else t.classList.remove('active');
+    });
+  }
+</script>
+</body>
+</html>

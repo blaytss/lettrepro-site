@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LettrePro — Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0F0D0A; --surface: #1A1612; --card: #231E17; --border: #3A2F22;
+      --orange: #E8692A; --orange-light: #F5A462; --orange-glow: rgba(232,105,42,0.15);
+      --text: #F5F0E8; --muted: #9A8A78; --white: #ffffff;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+
+    nav { display: flex; align-items: center; justify-content: space-between; padding: 1rem 2rem; border-bottom: 1px solid var(--border); background: var(--surface); position: sticky; top: 0; z-index: 100; }
+    .nav-logo { font-family: 'Sora', sans-serif; font-weight: 800; font-size: 1.2rem; color: var(--white); text-decoration: none; }
+    .nav-logo span { color: var(--orange); }
+    .nav-right { display: flex; align-items: center; gap: 1rem; }
+    .plan-chip { font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.7rem; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .plan-chip.free { background: rgba(154,138,120,0.1); border: 1px solid var(--border); color: var(--muted); }
+    .plan-chip.starter { background: rgba(232,105,42,0.15); border: 1px solid rgba(232,105,42,0.3); color: var(--orange); }
+    .plan-chip.premium { background: rgba(255,180,0,0.12); border: 1px solid rgba(255,180,0,0.3); color: #FFB400; }
+    .avatar-btn { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, var(--orange), #C0501A); border: none; cursor: pointer; font-weight: 700; font-size: 0.85rem; color: white; display: flex; align-items: center; justify-content: center; font-family: 'Sora', sans-serif; }
+    .logout-btn { background: none; border: 1px solid var(--border); color: var(--muted); font-size: 0.82rem; padding: 0.4rem 0.8rem; border-radius: 7px; cursor: pointer; transition: all 0.2s; }
+    .logout-btn:hover { border-color: var(--orange); color: var(--orange); }
+
+    .layout { display: flex; flex: 1; }
+    .sidebar { width: 220px; border-right: 1px solid var(--border); padding: 1.5rem 1rem; display: flex; flex-direction: column; gap: 0.25rem; background: var(--surface); flex-shrink: 0; }
+    .sidebar-item { display: flex; align-items: center; gap: 0.65rem; padding: 0.65rem 0.85rem; border-radius: 9px; font-size: 0.88rem; font-weight: 500; color: var(--muted); cursor: pointer; transition: all 0.2s; text-decoration: none; border: none; background: none; width: 100%; text-align: left; }
+    .sidebar-item:hover { background: var(--card); color: var(--text); }
+    .sidebar-item.active { background: var(--orange-glow); color: var(--orange); }
+    .sidebar-item .icon { font-size: 1rem; width: 20px; text-align: center; }
+    .sidebar-sep { height: 1px; background: var(--border); margin: 0.75rem 0; }
+    .sidebar-upgrade { margin-top: auto; background: linear-gradient(135deg, rgba(232,105,42,0.12), rgba(192,80,26,0.06)); border: 1px solid rgba(232,105,42,0.25); border-radius: 10px; padding: 1rem; }
+    .sidebar-upgrade p { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.6rem; line-height: 1.4; }
+    .sidebar-upgrade a { display: block; text-align: center; background: var(--orange); color: white; text-decoration: none; border-radius: 7px; padding: 0.5rem; font-size: 0.82rem; font-weight: 700; }
+
+    .main { flex: 1; padding: 2rem; overflow-y: auto; }
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.5rem; }
+    .stat-card .label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 0.5rem; }
+    .stat-card .value { font-family: 'Sora', sans-serif; font-size: 1.8rem; font-weight: 800; color: #F5F0E8; }
+    .stat-card .sub { font-size: 0.78rem; color: var(--muted); margin-top: 0.2rem; }
+
+    .tabs { display: flex; gap: 0.25rem; background: var(--card); border-radius: 10px; padding: 4px; margin-bottom: 1.5rem; width: fit-content; }
+    .tab-btn { padding: 0.55rem 1.1rem; border-radius: 7px; font-size: 0.88rem; font-weight: 600; cursor: pointer; color: var(--muted); transition: all 0.2s; border: none; background: none; font-family: 'Inter', sans-serif; }
+    .tab-btn.active { background: var(--orange); color: white; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .gen-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; }
+    .gen-card h2 { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 1.2rem; color: #F5F0E8; margin-bottom: 0.3rem; }
+    .gen-card p { color: var(--muted); font-size: 0.88rem; margin-bottom: 1.5rem; }
+    .gen-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+    .field label { display: block; font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 0.4rem; }
+    .field input, .field textarea, .field select {
+      width: 100%; background: var(--card); border: 1px solid var(--border);
+      border-radius: 9px; padding: 0.75rem 1rem; color: var(--text);
+      font-size: 0.9rem; font-family: 'Inter', sans-serif; outline: none;
+      transition: border-color 0.2s; resize: vertical;
+    }
+    .field input:focus, .field textarea:focus, .field select:focus { border-color: var(--orange); }
+    .field input::placeholder, .field textarea::placeholder { color: var(--muted); }
+    .field select option { background: var(--card); }
+    .field.full { grid-column: 1 / -1; }
+
+    .locked-field { position: relative; }
+    .locked-overlay { position: absolute; inset: 0; background: rgba(15,13,10,0.6); border-radius: 9px; display: flex; align-items: center; justify-content: center; gap: 0.4rem; font-size: 0.8rem; color: var(--muted); cursor: not-allowed; backdrop-filter: blur(2px); }
+    .locked-overlay a { color: var(--orange); text-decoration: none; font-weight: 600; }
+
+    .gen-btn {
+      background: linear-gradient(135deg, var(--orange), #C0501A);
+      color: white; border: none; border-radius: 10px;
+      padding: 0.85rem 2rem; font-size: 0.95rem; font-weight: 700;
+      font-family: 'Sora', sans-serif; cursor: pointer;
+      box-shadow: 0 4px 20px rgba(232,105,42,0.3);
+      transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.5rem;
+    }
+    .gen-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(232,105,42,0.45); }
+    .gen-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .result-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-top: 1.25rem; display: none; }
+    .result-card.visible { display: block; }
+    .result-actions { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .result-btn { background: var(--surface); border: 1px solid var(--border); color: var(--muted); font-size: 0.8rem; padding: 0.4rem 0.85rem; border-radius: 7px; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; }
+    .result-btn:hover { border-color: var(--orange); color: var(--orange); }
+    .result-text { font-size: 0.9rem; line-height: 1.8; color: var(--text); white-space: pre-wrap; }
+
+    .loading { display: none; align-items: center; gap: 0.75rem; color: var(--muted); font-size: 0.88rem; margin-top: 1rem; }
+    .loading.visible { display: flex; }
+    .spinner { width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--orange); border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .history-empty { text-align: center; padding: 3rem; color: var(--muted); }
+    .history-empty .icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .history-grid { display: flex; flex-direction: column; gap: 0.75rem; }
+    .history-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.5rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; transition: border-color 0.2s; }
+    .history-item:hover { border-color: var(--orange); }
+    .history-meta h3 { font-weight: 600; font-size: 0.95rem; color: #F5F0E8; margin-bottom: 0.2rem; }
+    .history-meta p { color: var(--muted); font-size: 0.8rem; }
+    .history-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
+    .hist-btn { background: none; border: 1px solid var(--border); color: var(--muted); font-size: 0.78rem; padding: 0.3rem 0.7rem; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+    .hist-btn:hover { border-color: var(--orange); color: var(--orange); }
+    .lang-badge { font-size: 0.7rem; background: var(--card); border: 1px solid var(--border); padding: 0.15rem 0.5rem; border-radius: 999px; color: var(--muted); margin-left: 0.5rem; }
+
+    .account-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .account-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.75rem; }
+    .account-card h3 { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 1rem; color: #F5F0E8; margin-bottom: 1.25rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border); }
+    .info-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(58,47,34,0.4); font-size: 0.88rem; }
+    .info-row:last-child { border-bottom: none; }
+    .info-row .key { color: var(--muted); }
+    .info-row .val { color: #F5F0E8; font-weight: 500; }
+    .api-key-row { display: flex; gap: 0.5rem; }
+    .api-key-row input { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem 0.8rem; color: var(--text); font-size: 0.82rem; font-family: 'Inter', sans-serif; outline: none; }
+    .api-key-row input:focus { border-color: var(--orange); }
+    .api-save-btn { background: var(--orange); color: white; border: none; border-radius: 8px; padding: 0.6rem 1rem; font-size: 0.82rem; font-weight: 600; cursor: pointer; }
+
+    .plans-compare { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem; }
+    .mini-plan { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; text-align: center; }
+    .mini-plan.current { border-color: var(--orange); }
+    .mini-plan h4 { font-family: 'Sora', sans-serif; font-weight: 700; color: #F5F0E8; margin-bottom: 0.25rem; font-size: 0.95rem; }
+    .mini-plan .price { font-size: 1.4rem; font-weight: 800; color: var(--orange); font-family: 'Sora', sans-serif; }
+    .mini-plan .price sub { font-size: 0.7rem; font-weight: 500; color: var(--muted); }
+    .mini-plan ul { list-style: none; margin: 0.75rem 0; text-align: left; }
+    .mini-plan ul li { font-size: 0.78rem; color: var(--muted); padding: 0.2rem 0; display: flex; gap: 0.4rem; align-items: flex-start; }
+    .mini-plan ul li::before { content: '✓'; color: var(--orange); flex-shrink: 0; }
+    .upgrade-to-btn { display: block; margin-top: 0.75rem; background: linear-gradient(135deg, var(--orange), #C0501A); color: white; border: none; border-radius: 8px; padding: 0.55rem; font-size: 0.82rem; font-weight: 700; cursor: pointer; text-decoration: none; }
+    .current-badge { display: block; margin-top: 0.75rem; font-size: 0.78rem; color: var(--orange); font-weight: 600; }
+
+    .page-header { margin-bottom: 1.75rem; }
+    .page-header h1 { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 1.4rem; color: #F5F0E8; margin-bottom: 0.25rem; }
+    .page-header p { color: var(--muted); font-size: 0.88rem; }
+
+    .msg { padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.85rem; margin-bottom: 1rem; display: none; }
+    .msg.error { background: rgba(220,50,50,0.1); border: 1px solid rgba(220,50,50,0.3); color: #FF6B6B; display: block; }
+    .msg.success { background: rgba(50,200,100,0.1); border: 1px solid rgba(50,200,100,0.3); color: #5CDB95; display: block; }
+
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 200; display: none; align-items: center; justify-content: center; padding: 1rem; }
+    .modal-overlay.visible { display: flex; }
+    .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; max-width: 580px; width: 100%; position: relative; }
+    .modal h3 { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 1.1rem; color: #F5F0E8; margin-bottom: 1rem; }
+    .modal-text { font-size: 0.88rem; line-height: 1.8; color: var(--text); white-space: pre-wrap; max-height: 420px; overflow-y: auto; }
+    .modal-close { position: absolute; top: 1rem; right: 1rem; background: var(--card); border: none; color: var(--muted); width: 28px; height: 28px; border-radius: 6px; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; }
+    .modal-actions { display: flex; gap: 0.5rem; margin-top: 1rem; }
+
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .gen-grid { grid-template-columns: 1fr; }
+      .account-grid, .plans-compare { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">Lettre<span>Pro</span></a>
+  <div class="nav-right">
+    <span class="plan-chip free" id="nav-plan">Gratuit</span>
+    <div class="avatar-btn" id="nav-avatar">?</div>
+    <button class="logout-btn" onclick="logout()">Déconnexion</button>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar">
+    <button class="sidebar-item active" onclick="showPage('generate', this)">
+      <span class="icon">✦</span> Générer
+    </button>
+    <button class="sidebar-item" onclick="showPage('improve', this)">
+      <span class="icon">✏️</span> Améliorer
+    </button>
+    <button class="sidebar-item" onclick="showPage('history', this)">
+      <span class="icon">📄</span> Mes lettres
+    </button>
+    <div class="sidebar-sep"></div>
+    <button class="sidebar-item" onclick="showPage('account', this)">
+      <span class="icon">👤</span> Mon compte
+    </button>
+    <div class="sidebar-sep"></div>
+    <div class="sidebar-upgrade" id="sidebar-upgrade">
+      <p>Débloque les langues et lettres illimitées</p>
+      <a href="tarifs.html">Voir les offres ⚡</a>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- PAGE GENERATE -->
+    <div class="page active" id="page-generate">
+      <div class="page-header">
+        <h1>Générer une lettre</h1>
+        <p>Remplis les champs, l'IA s'occupe du reste.</p>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="label">Lettres restantes</div>
+          <div class="value" id="stat-remaining" style="color:#E8692A">—</div>
+          <div class="sub" id="stat-remaining-sub">Ce mois-ci</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Total généré</div>
+          <div class="value" id="stat-total">0</div>
+          <div class="sub">Depuis le début</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Langues dispo</div>
+          <div class="value" id="stat-langs">1</div>
+          <div class="sub" id="stat-langs-sub">Français uniquement</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Plan actuel</div>
+          <div class="value" id="stat-plan" style="font-size:1.1rem;margin-top:2px">—</div>
+          <div class="sub"><a href="tarifs.html" style="color:var(--orange);text-decoration:none;font-size:0.78rem">Changer →</a></div>
+        </div>
+      </div>
+
+      <div class="gen-card">
+        <h2>Nouvelle lettre</h2>
+        <p>Les champs marqués * sont obligatoires.</p>
+        <div id="gen-msg" class="msg"></div>
+        <div class="gen-grid">
+          <div class="field">
+            <label>Poste visé *</label>
+            <input type="text" id="g-poste" placeholder="Stage développeur web" />
+          </div>
+          <div class="field">
+            <label>Entreprise</label>
+            <input type="text" id="g-entreprise" placeholder="Google, startup, etc." />
+          </div>
+          <div class="field full">
+            <label>Ton profil *</label>
+            <textarea id="g-profil" rows="3" placeholder="Étudiant en BUT Informatique 2e année, passionné de développement web, React et Python..."></textarea>
+          </div>
+          <div class="field">
+            <label>Style de la lettre</label>
+            <select id="g-ton">
+              <option value="professionnel">Professionnel</option>
+              <option value="dynamique">Dynamique et enthousiaste</option>
+              <option value="sobre">Sobre et concis</option>
+              <option value="créatif">Créatif</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Type de candidature</label>
+            <select id="g-type">
+              <option value="stage">Stage</option>
+              <option value="alternance">Alternance</option>
+              <option value="emploi">Emploi CDI/CDD</option>
+              <option value="parcoursup">Parcoursup / école</option>
+            </select>
+          </div>
+          <div class="field full locked-field" id="lang-field-wrap">
+            <label>Langue de la lettre</label>
+            <select id="g-lang">
+              <option value="fr">🇫🇷 Français</option>
+              <option value="en">🇬🇧 English</option>
+              <option value="es">🇪🇸 Español</option>
+              <option value="de">🇩🇪 Deutsch</option>
+              <option value="it">🇮🇹 Italiano</option>
+              <option value="pt">🇵🇹 Português</option>
+              <option value="nl">🇳🇱 Nederlands</option>
+              <option value="ar">🇸🇦 العربية</option>
+            </select>
+            <div class="locked-overlay" id="lang-lock">🔒 <a href="tarifs.html">Starter ou Premium</a> requis</div>
+          </div>
+        </div>
+        <button class="gen-btn" id="gen-btn" onclick="generateLetter()">
+          <span>✦</span> Générer ma lettre
+        </button>
+        <div class="loading" id="loading">
+          <div class="spinner"></div>
+          <span>L'IA rédige ta lettre...</span>
+        </div>
+        <div class="result-card" id="result-card">
+          <div class="result-actions">
+            <button class="result-btn" onclick="copyLetter('result-text')">📋 Copier</button>
+            <button class="result-btn" onclick="saveLetter()">💾 Sauvegarder</button>
+            <button class="result-btn" onclick="sendToImprove()">✏️ Améliorer</button>
+            <button class="result-btn" onclick="resetForm()">🔄 Recommencer</button>
+          </div>
+          <div class="result-text" id="result-text"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE IMPROVE -->
+    <div class="page" id="page-improve">
+      <div class="page-header">
+        <h1>Améliorer une lettre</h1>
+        <p>Colle ta lettre existante, l'IA la corrige et l'améliore.</p>
+      </div>
+
+      <div class="gen-card" id="improve-card">
+        <h2>Correction & amélioration</h2>
+        <p>Colle ta lettre brouillon ci-dessous et choisis ce que tu veux améliorer.</p>
+        <div id="improve-msg" class="msg"></div>
+        <div class="gen-grid">
+          <div class="field full">
+            <label>Ta lettre actuelle *</label>
+            <textarea id="imp-letter" rows="8" placeholder="Colle ici ta lettre de motivation à améliorer..."></textarea>
+          </div>
+          <div class="field">
+            <label>Type d'amélioration</label>
+            <select id="imp-type">
+              <option value="global">Amélioration globale</option>
+              <option value="style">Améliorer le style</option>
+              <option value="fautes">Corriger les fautes</option>
+              <option value="impact">Rendre plus impactant</option>
+              <option value="court">Raccourcir</option>
+              <option value="pro">Rendre plus professionnel</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Langue cible</label>
+            <select id="imp-lang">
+              <option value="fr">🇫🇷 Français</option>
+              <option value="en">🇬🇧 English</option>
+              <option value="es">🇪🇸 Español</option>
+              <option value="de">🇩🇪 Deutsch</option>
+              <option value="it">🇮🇹 Italiano</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label>Instructions supplémentaires (optionnel)</label>
+            <input type="text" id="imp-extra" placeholder="Ex: insiste sur ma passion pour le web, rends-la plus courte..." />
+          </div>
+        </div>
+
+        <div id="improve-locked" style="display:none; background:rgba(232,105,42,0.08); border:1px solid rgba(232,105,42,0.25); border-radius:10px; padding:1.25rem; margin-bottom:1rem; text-align:center;">
+          <p style="color:var(--muted); font-size:0.9rem; margin-bottom:0.75rem">🔒 La correction de lettres est disponible à partir du plan <strong style="color:var(--orange)">Starter (3€/mois)</strong></p>
+          <a href="tarifs.html" style="background:var(--orange);color:white;text-decoration:none;border-radius:8px;padding:0.55rem 1.5rem;font-size:0.88rem;font-weight:700;">Passer Starter</a>
+        </div>
+
+        <button class="gen-btn" id="imp-btn" onclick="improveLetter()">
+          <span>✏️</span> Améliorer ma lettre
+        </button>
+        <div class="loading" id="imp-loading">
+          <div class="spinner"></div>
+          <span>L'IA améliore ta lettre...</span>
+        </div>
+        <div class="result-card" id="imp-result-card">
+          <div class="result-actions">
+            <button class="result-btn" onclick="copyLetter('imp-result-text')">📋 Copier</button>
+            <button class="result-btn" onclick="saveImproved()">💾 Sauvegarder</button>
+          </div>
+          <div class="result-text" id="imp-result-text"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE HISTORY -->
+    <div class="page" id="page-history">
+      <div class="page-header">
+        <h1>Mes lettres</h1>
+        <p>Toutes tes lettres sauvegardées.</p>
+      </div>
+      <div id="history-content"></div>
+    </div>
+
+    <!-- PAGE ACCOUNT -->
+    <div class="page" id="page-account">
+      <div class="page-header">
+        <h1>Mon compte</h1>
+        <p>Gérez vos informations et votre abonnement.</p>
+      </div>
+      <div class="account-grid">
+        <div class="account-card">
+          <h3>Informations personnelles</h3>
+          <div id="account-info"></div>
+        </div>
+        <div class="account-card">
+          <h3>Clé API Groq</h3>
+          <p style="color:var(--muted);font-size:0.82rem;margin-bottom:0.75rem">Obtiens ta clé gratuite sur <a href="https://console.groq.com" target="_blank" style="color:var(--orange)">console.groq.com</a> → API Keys</p>
+          <div class="api-key-row">
+            <input type="password" id="api-key-input" placeholder="gsk_..." />
+            <button class="api-save-btn" onclick="saveApiKey()">Enregistrer</button>
+          </div>
+          <p id="api-key-status" style="font-size:0.78rem;color:var(--muted);margin-top:0.5rem"></p>
+        </div>
+      </div>
+      <div style="margin-top:1.5rem;">
+        <div class="account-card">
+          <h3>Mon abonnement</h3>
+          <div class="plans-compare" id="plans-compare"></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h3 id="modal-title"></h3>
+    <div class="modal-text" id="modal-text"></div>
+    <div class="modal-actions">
+      <button class="result-btn" onclick="copyFromModal()">📋 Copier</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── PLANS CONFIG ──
+  const PLANS = {
+    free:     { name: 'Gratuit',  limit: 3,        canImprove: false, langs: ['fr'],                          color: 'free' },
+    starter:  { name: 'Starter',  limit: 20,       canImprove: true,  langs: ['fr','en','es','de','it'],      color: 'starter' },
+    premium:  { name: 'Premium',  limit: Infinity,  canImprove: true,  langs: ['fr','en','es','de','it','pt','nl','ar'], color: 'premium' }
+  };
+
+  const LANG_NAMES = { fr:'Français', en:'English', es:'Español', de:'Deutsch', it:'Italiano', pt:'Português', nl:'Nederlands', ar:'العربية' };
+  const GROQ_API = 'https://api.groq.com/openai/v1/chat/completions';
+  const GROQ_MODEL = 'llama-3.3-70b-versatile';
+
+  let currentUser = null;
+  let currentLetter = '';
+  let currentImproved = '';
+
+  // ── INIT ──
+  function init() {
+    const session = localStorage.getItem('lp_session');
+    if (!session) { window.location.href = 'login.html'; return; }
+    currentUser = JSON.parse(session);
+    refreshUserData();
+    checkApiKey();
+  }
+
+  function getPlan() {
+    return PLANS[currentUser.plan] || PLANS.free;
+  }
+
+  function getMonthCount() {
+    const now = new Date();
+    return (currentUser.history || []).filter(h => {
+      const d = new Date(h.date);
+      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    }).length;
+  }
+
+  function refreshUserData() {
+    const users = JSON.parse(localStorage.getItem('lp_users') || '[]');
+    const updated = users.find(u => u.email === currentUser.email);
+    if (updated) { currentUser = updated; localStorage.setItem('lp_session', JSON.stringify(updated)); }
+
+    const plan = getPlan();
+    const monthCount = getMonthCount();
+    const remaining = plan.limit === Infinity ? '∞' : Math.max(0, plan.limit - monthCount);
+
+    document.getElementById('nav-avatar').textContent = (currentUser.prenom || '?')[0].toUpperCase();
+    document.getElementById('nav-plan').textContent = plan.name;
+    document.getElementById('nav-plan').className = 'plan-chip ' + plan.color;
+    document.getElementById('stat-plan').textContent = plan.name;
+    document.getElementById('stat-total').textContent = currentUser.lettres || 0;
+    document.getElementById('stat-remaining').textContent = remaining;
+    document.getElementById('stat-remaining').style.color = (remaining === 0) ? '#FF6B6B' : '#E8692A';
+    document.getElementById('stat-remaining-sub').textContent = plan.limit === Infinity ? 'Illimitées ✓' : `${monthCount} utilisée${monthCount > 1 ? 's' : ''} sur ${plan.limit}`;
+    document.getElementById('stat-langs').textContent = plan.langs.length === 8 ? '8' : plan.langs.length;
+    document.getElementById('stat-langs-sub').textContent = plan.langs.length === 1 ? 'Français uniquement' : plan.langs.map(l => LANG_NAMES[l]).join(', ');
+
+    // Verrouiller langue si nécessaire
+    const langLock = document.getElementById('lang-lock');
+    if (plan.langs.length > 1) { langLock.style.display = 'none'; }
+    else { langLock.style.display = 'flex'; }
+
+    // Améliorer — verrouiller si nécessaire
+    const impLocked = document.getElementById('improve-locked');
+    const impBtn = document.getElementById('imp-btn');
+    if (plan.canImprove) { impLocked.style.display = 'none'; impBtn.style.display = 'inline-flex'; }
+    else { impLocked.style.display = 'block'; impBtn.style.display = 'none'; }
+
+    // Sidebar upgrade
+    const sidebarUpgrade = document.getElementById('sidebar-upgrade');
+    if (currentUser.plan === 'premium') sidebarUpgrade.style.display = 'none';
+
+    // Remplir les selects langue selon plan
+    filterLangOptions('g-lang', plan.langs);
+    filterLangOptions('imp-lang', plan.langs.length > 1 ? plan.langs : ['fr','en','es','de','it']);
+  }
+
+  function filterLangOptions(selectId, allowed) {
+    const sel = document.getElementById(selectId);
+    Array.from(sel.options).forEach(opt => {
+      opt.disabled = !allowed.includes(opt.value);
+    });
+  }
+
+  function checkApiKey() {
+    const key = localStorage.getItem('lp_groq_key') || '';
+    const input = document.getElementById('api-key-input');
+    if (input) {
+      input.value = key ? key.substring(0, 8) + '••••••••••••••••' : '';
+      document.getElementById('api-key-status').textContent = key ? '✓ Clé enregistrée' : '⚠ Aucune clé — la génération ne fonctionnera pas';
+      document.getElementById('api-key-status').style.color = key ? '#5CDB95' : '#FF6B6B';
+    }
+  }
+
+  function saveApiKey() {
+    const val = document.getElementById('api-key-input').value.trim();
+    if (val.startsWith('gsk_') || val.startsWith('sk-')) {
+      localStorage.setItem('lp_groq_key', val);
+      checkApiKey();
+      showMsg('api-key-status', '✓ Clé enregistrée avec succès !', '#5CDB95');
+    } else {
+      showMsg('api-key-status', '⚠ Clé invalide (doit commencer par gsk_)', '#FF6B6B');
+    }
+  }
+
+  function getApiKey() {
+    const key = localStorage.getItem('lp_groq_key') || '';
+    if (!key) {
+      const entered = prompt('Entre ta clé API Groq gratuite (console.groq.com → API Keys)\nElle commence par "gsk_"');
+      if (entered && (entered.startsWith('gsk_') || entered.startsWith('sk-'))) {
+        localStorage.setItem('lp_groq_key', entered.trim());
+        return entered.trim();
+      }
+      return null;
+    }
+    return key;
+  }
+
+  // ── GENERATE ──
+  async function generateLetter() {
+    const apiKey = getApiKey();
+    if (!apiKey) return;
+
+    const poste = document.getElementById('g-poste').value.trim();
+    const profil = document.getElementById('g-profil').value.trim();
+    const entreprise = document.getElementById('g-entreprise').value.trim();
+    const ton = document.getElementById('g-ton').value;
+    const type = document.getElementById('g-type').value;
+    const lang = document.getElementById('g-lang').value;
+    const msg = document.getElementById('gen-msg');
+    msg.className = 'msg';
+
+    if (!poste || !profil) { msg.className = 'msg error'; msg.textContent = 'Remplis les champs obligatoires (*).'; return; }
+
+    const plan = getPlan();
+    if (plan.limit !== Infinity && getMonthCount() >= plan.limit) {
+      msg.className = 'msg error';
+      msg.innerHTML = `Tu as atteint ta limite de ${plan.limit} lettres ce mois. <a href="tarifs.html" style="color:var(--orange)">Upgrade ton plan →</a>`;
+      return;
+    }
+
+    document.getElementById('gen-btn').disabled = true;
+    document.getElementById('loading').classList.add('visible');
+    document.getElementById('result-card').classList.remove('visible');
+
+    const langMap = { fr:'français', en:'anglais', es:'espagnol', de:'allemand', it:'italien', pt:'portugais', nl:'néerlandais', ar:'arabe' };
+    const prompt = `Rédige une lettre de motivation de type "${type}", style "${ton}", en ${langMap[lang]} pour :
+- Prénom : ${currentUser.prenom}
+- Poste : ${poste}
+- Entreprise : ${entreprise || "l'entreprise"}
+- Profil : ${profil}
+
+Contraintes :
+- 3 paragraphes max
+- Accroche originale dès la première phrase
+- Sonne comme écrite par un vrai humain, pas par une IA
+- Zéro formule bateau, zéro cliché
+- Commence directement par le corps de la lettre, sans en-tête ni signature`;
+
+    try {
+      const res = await callGroq(apiKey, prompt);
+      currentLetter = res;
+      document.getElementById('result-text').textContent = currentLetter;
+      document.getElementById('result-card').classList.add('visible');
+      document.getElementById('result-card').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } catch(e) {
+      msg.className = 'msg error';
+      msg.textContent = 'Erreur : ' + (e.message || 'Vérifie ta clé API Groq.');
+    }
+
+    document.getElementById('loading').classList.remove('visible');
+    document.getElementById('gen-btn').disabled = false;
+  }
+
+  // ── IMPROVE ──
+  async function improveLetter() {
+    const apiKey = getApiKey();
+    if (!apiKey) return;
+
+    const letter = document.getElementById('imp-letter').value.trim();
+    const type = document.getElementById('imp-type').value;
+    const lang = document.getElementById('imp-lang').value;
+    const extra = document.getElementById('imp-extra').value.trim();
+    const msg = document.getElementById('improve-msg');
+    msg.className = 'msg';
+
+    if (!letter) { msg.className = 'msg error'; msg.textContent = 'Colle ta lettre dans le champ.'; return; }
+
+    document.getElementById('imp-btn').disabled = true;
+    document.getElementById('imp-loading').classList.add('visible');
+    document.getElementById('imp-result-card').classList.remove('visible');
+
+    const langMap = { fr:'français', en:'anglais', es:'espagnol', de:'allemand', it:'italien' };
+    const typeMap = { global:'améliore globalement', style:'améliore le style', fautes:'corrige les fautes', impact:'rends plus impactant', court:'raccourcis', pro:'rends plus professionnel' };
+    const prompt = `${typeMap[type]} cette lettre en ${langMap[lang] || 'français'}${extra ? '. Instructions supplémentaires : ' + extra : ''}.
+
+Règles impératives :
+- Supprime tous les clichés IA : "dynamique", "motivé", "passionné", "à votre disposition", "n'hésitez pas", "cordialement", "dans l'attente de"
+- Rends le texte naturel, comme si un humain l'avait vraiment écrit
+- Varie les structures de phrases, évite la répétition
+- Garde le sens original mais améliore la forme
+- Retourne uniquement la lettre corrigée, sans commentaire
+
+Lettre originale :
+${letter}`;
+
+    try {
+      currentImproved = await callGroq(apiKey, prompt);
+      document.getElementById('imp-result-text').textContent = currentImproved;
+      document.getElementById('imp-result-card').classList.add('visible');
+      document.getElementById('imp-result-card').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } catch(e) {
+      msg.className = 'msg error';
+      msg.textContent = 'Erreur : ' + (e.message || 'Vérifie ta clé API Groq.');
+    }
+
+    document.getElementById('imp-loading').classList.remove('visible');
+    document.getElementById('imp-btn').disabled = false;
+  }
+
+  // ── GROQ API CALL ──
+  async function callGroq(apiKey, prompt) {
+    const res = await fetch(GROQ_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+      body: JSON.stringify({
+        model: GROQ_MODEL,
+        max_tokens: 1024,
+        messages: [
+          { role: 'system', content: `Tu es un expert en rédaction de lettres de motivation pour étudiants et jeunes professionnels.
+
+RÈGLES D'HUMANISATION OBLIGATOIRES — applique-les systématiquement :
+- Écris comme un vrai humain, pas comme une IA : phrases de longueur variée, quelques tournures naturelles, du rythme
+- INTERDITS absolus : "dynamique", "motivé(e)", "passionné(e)", "je suis convaincu(e)", "n'hésitez pas", "à votre disposition", "dans l'attente de", "cordialement", "avec enthousiasme", "je serais ravi(e)", "compétences solides", "valeur ajoutée", "mettre à profit"
+- Utilise des phrases courtes percutantes mélangées à quelques phrases plus développées
+- Commence par une accroche originale et directe, jamais générique
+- Intègre une touche personnelle ou une observation concrète sur le secteur ou l'entreprise
+- Évite les superlatifs et les adjectifs vides de sens
+- Le ton doit sembler écrit par la personne elle-même, pas copié d'un modèle
+- Varie les connecteurs logiques : pas que "de plus", "par ailleurs", "enfin" en boucle
+- Retourne uniquement la lettre, sans commentaire, sans explication.` },
+          { role: 'user', content: prompt }
+        ]
+      })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    return data.choices?.[0]?.message?.content || 'Erreur de génération.';
+  }
+
+  // ── HELPERS ──
+  function copyLetter(id) {
+    const text = document.getElementById(id).textContent;
+    navigator.clipboard.writeText(text);
+    const btn = event.target;
+    btn.textContent = '✓ Copié !';
+    setTimeout(() => btn.textContent = '📋 Copier', 2000);
+  }
+
+  function saveLetter() {
+    if (!currentLetter) return;
+    const lang = document.getElementById('g-lang').value;
+    _saveToHistory({
+      poste: document.getElementById('g-poste').value.trim(),
+      entreprise: document.getElementById('g-entreprise').value.trim(),
+      text: currentLetter, lang, type: 'generate'
+    });
+    const btn = event.target;
+    btn.textContent = '✓ Sauvegardé !';
+    setTimeout(() => btn.textContent = '💾 Sauvegarder', 2000);
+  }
+
+  function saveImproved() {
+    if (!currentImproved) return;
+    _saveToHistory({ poste: 'Lettre améliorée', entreprise: '', text: currentImproved, lang: document.getElementById('imp-lang').value, type: 'improve' });
+    const btn = event.target;
+    btn.textContent = '✓ Sauvegardé !';
+    setTimeout(() => btn.textContent = '💾 Sauvegarder', 2000);
+  }
+
+  function _saveToHistory(entry) {
+    const users = JSON.parse(localStorage.getItem('lp_users') || '[]');
+    const idx = users.findIndex(u => u.email === currentUser.email);
+    if (idx !== -1) {
+      users[idx].history = users[idx].history || [];
+      users[idx].history.unshift({ id: Date.now(), date: new Date().toISOString(), ...entry });
+      users[idx].lettres = (users[idx].lettres || 0) + 1;
+      localStorage.setItem('lp_users', JSON.stringify(users));
+      localStorage.setItem('lp_session', JSON.stringify(users[idx]));
+      currentUser = users[idx];
+    }
+    refreshUserData();
+  }
+
+  function resetForm() {
+    document.getElementById('g-poste').value = '';
+    document.getElementById('g-entreprise').value = '';
+    document.getElementById('g-profil').value = '';
+    document.getElementById('result-card').classList.remove('visible');
+    currentLetter = '';
+  }
+
+  function sendToImprove() {
+    document.getElementById('imp-letter').value = currentLetter;
+    showPage('improve', document.querySelector('[onclick="showPage(\'improve\', this)"]'));
+  }
+
+  function showMsg(id, text, color) {
+    const el = document.getElementById(id);
+    el.textContent = text;
+    el.style.color = color;
+  }
+
+  // ── HISTORY ──
+  function renderHistory() {
+    const history = currentUser.history || [];
+    const el = document.getElementById('history-content');
+    if (!history.length) {
+      el.innerHTML = `<div class="history-empty"><div class="icon">📄</div><p>Aucune lettre sauvegardée.<br>Génère et sauvegarde ta première lettre !</p></div>`;
+      return;
+    }
+    el.innerHTML = `<div class="history-grid">${history.map(h => `
+      <div class="history-item">
+        <div class="history-meta">
+          <h3>${h.type === 'improve' ? '✏️ ' : '✦ '}${h.poste}${h.entreprise ? ' — ' + h.entreprise : ''}<span class="lang-badge">${LANG_NAMES[h.lang] || 'FR'}</span></h3>
+          <p>${new Date(h.date).toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' })}</p>
+        </div>
+        <div class="history-actions">
+          <button class="hist-btn" onclick="viewLetter(${h.id})">Voir</button>
+          <button class="hist-btn" onclick="deleteLetter(${h.id})">Supprimer</button>
+        </div>
+      </div>`).join('')}</div>`;
+  }
+
+  function viewLetter(id) {
+    const h = (currentUser.history || []).find(x => x.id === id);
+    if (!h) return;
+    document.getElementById('modal-title').textContent = h.poste + (h.entreprise ? ' — ' + h.entreprise : '');
+    document.getElementById('modal-text').textContent = h.text;
+    document.getElementById('modal').classList.add('visible');
+  }
+
+  function deleteLetter(id) {
+    if (!confirm('Supprimer cette lettre ?')) return;
+    const users = JSON.parse(localStorage.getItem('lp_users') || '[]');
+    const idx = users.findIndex(u => u.email === currentUser.email);
+    if (idx !== -1) {
+      users[idx].history = (users[idx].history || []).filter(h => h.id !== id);
+      localStorage.setItem('lp_users', JSON.stringify(users));
+      localStorage.setItem('lp_session', JSON.stringify(users[idx]));
+      currentUser = users[idx];
+    }
+    renderHistory();
+  }
+
+  function copyFromModal() {
+    const text = document.getElementById('modal-text').textContent;
+    navigator.clipboard.writeText(text);
+    const btn = event.target;
+    btn.textContent = '✓ Copié !';
+    setTimeout(() => btn.textContent = '📋 Copier', 2000);
+  }
+
+  function closeModal() { document.getElementById('modal').classList.remove('visible'); }
+
+  // ── ACCOUNT ──
+  function renderAccount() {
+    document.getElementById('account-info').innerHTML = `
+      <div class="info-row"><span class="key">Prénom</span><span class="val">${currentUser.prenom}</span></div>
+      <div class="info-row"><span class="key">Nom</span><span class="val">${currentUser.nom}</span></div>
+      <div class="info-row"><span class="key">Email</span><span class="val">${currentUser.email}</span></div>
+      <div class="info-row"><span class="key">Membre depuis</span><span class="val">${new Date(currentUser.createdAt).toLocaleDateString('fr-FR')}</span></div>
+      <div class="info-row"><span class="key">Lettres ce mois</span><span class="val">${getMonthCount()}</span></div>`;
+
+    const userPlan = currentUser.plan || 'free';
+    document.getElementById('plans-compare').innerHTML = Object.entries(PLANS).map(([key, p]) => `
+      <div class="mini-plan ${userPlan === key ? 'current' : ''}">
+        <h4>${p.name}</h4>
+        <div class="price">${key === 'free' ? '0€' : key === 'starter' ? '3€' : '5€'}<sub>${key !== 'free' ? '/mois' : ''}</sub></div>
+        <ul>
+          <li>${p.limit === Infinity ? 'Lettres illimitées' : p.limit + ' lettres/mois'}</li>
+          <li>${p.langs.length} langue${p.langs.length > 1 ? 's' : ''}</li>
+          <li>${p.canImprove ? 'Correction de lettre' : 'Sans correction'}</li>
+        </ul>
+        ${userPlan === key
+          ? '<span class="current-badge">✓ Plan actuel</span>'
+          : `<a href="tarifs.html" class="upgrade-to-btn">Choisir ce plan</a>`}
+      </div>`).join('');
+    checkApiKey();
+  }
+
+  // ── NAVIGATION ──
+  function showPage(name, btn) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    if (btn) btn.classList.add('active');
+    if (name === 'history') { refreshUserData(); renderHistory(); }
+    if (name === 'account') { refreshUserData(); renderAccount(); }
+    if (name === 'improve') refreshUserData();
+  }
+
+  function logout() {
+    localStorage.removeItem('lp_session');
+    window.location.href = 'index.html';
+  }
+
+  init();
+</script>
+</body>
+</html>
