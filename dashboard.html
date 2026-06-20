@@ -1758,9 +1758,11 @@
   }
 
   function restartQuiz() {
-    activeQuiz.answers = {}; activeQuiz.score = 0;
-    document.getElementById('quiz-container').innerHTML = renderQuizHTML({ questions: activeQuiz.questions }, activeQuiz.quizId);
-  }
+       const savedQuestions = activeQuiz.questions;
+       const savedQuizId = activeQuiz.quizId;
+       document.getElementById('quiz-container').innerHTML =
+         renderQuizHTML({ questions: savedQuestions }, savedQuizId);
+   }
 
   function copyText(id) {
     const el = document.getElementById(id);
