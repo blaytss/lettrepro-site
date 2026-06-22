@@ -363,6 +363,7 @@
     .quiz-restart { margin-top: 0.5rem; background: linear-gradient(135deg, var(--orange), #C0501A); color: #fff; box-shadow: 0 4px 16px rgba(232,105,42,0.3); }
     .quiz-restart:hover { transform: translateY(-2px); }
     .quiz-empty { text-align: center; color: var(--muted); padding: 2rem; }
+    .quiz-reward { display: inline-block; margin: 0.5rem auto 0; background: rgba(16,185,129,0.12); border: 1px solid #10B981; color: #10B981; font-weight: 700; padding: 0.5rem 1.25rem; border-radius: 999px; font-size: 0.95rem; animation: quizPop 0.5s ease; }
     /* Sélecteur de niveau de difficulté */
     .difficulty-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
     .diff-btn { display: flex; flex-direction: column; align-items: center; gap: 0.15rem; padding: 0.6rem; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--text); cursor: pointer; font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 700; transition: all 0.2s; }
@@ -2001,11 +2002,23 @@
     if (fill) fill.style.width = '100%';
     document.getElementById('quiz-stage').innerHTML = '';
 
+    // Sauvegarde du score + récupération de la récompense (calculée côté serveur)
+    let reward = 0;
+    if (activeQuiz.quizId) {
+      try {
+        const res = await api('PUT', `/api/study/quiz/${activeQuiz.quizId}/score`, { score });
+        reward = res.reward || 0;
+        if (typeof res.creditsLeft === 'number') { currentUser.credits = res.creditsLeft; refreshUI(); }
+      } catch {}
+    }
+
     let medal = '👍';
     let phrase = 'Continue, tu progresses !';
     if (pct === 100) { medal = '🏆'; phrase = 'Sans faute, bravo !'; }
     else if (pct >= 70) { medal = '🎉'; phrase = 'Très bon score !'; }
     else if (pct >= 50) { medal = '🙂'; phrase = 'Pas mal, encore un effort.'; }
+
+    const rewardHtml = reward > 0 ? `<div class="quiz-reward">🎁 +${reward} crédits gagnés !</div>` : '';
 
     const final = document.getElementById('quiz-final');
     final.style.display = 'block';
@@ -2014,6 +2027,7 @@
       <div class="quiz-score-big">${score}/${total}</div>
       <div class="quiz-score-pct">${pct}%</div>
       <div class="quiz-score-phrase">${phrase}</div>
+      ${rewardHtml}
       <div class="quiz-final-bar"><div class="quiz-final-fill" style="width:0%"></div></div>
       <button class="quiz-restart" onclick="restartQuiz()">↻ Recommencer</button>`;
     final.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -2024,11 +2038,7 @@
       if (ff) ff.style.width = pct + '%';
     }, 100);
 
-    // sauvegarde du score en base (inchangé)
-    if (activeQuiz.quizId) {
-      try { await api('PUT', `/api/study/quiz/${activeQuiz.quizId}/score`, { score }); } catch {}
-    }
-    showToast(`Score : ${score}/${total} (${pct}%)`, 'success');
+    showToast(reward > 0 ? `🎉 +${reward} crédits gagnés !` : `Score : ${score}/${total} (${pct}%)`, 'success');
   }
 
   // ✅ FIX : on sauvegarde les questions AVANT que renderQuizHTML réécrive activeQuiz
