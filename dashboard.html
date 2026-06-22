@@ -897,6 +897,44 @@
   let currentImproved = '';
 
   // ══════════════════════════════════════════
+  //  HELPERS MANQUANTS (escapeHtml, copyText, saveApiKey)
+  // ══════════════════════════════════════════
+  // Échappe le texte pour l'injecter sans risque dans du HTML
+  function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  // Copie le texte d'un élément (utilisé par les boutons "Copier" des révisions)
+  function copyText(id) {
+    const el = document.getElementById(id);
+    const text = el ? (el.textContent || el.innerText) : '';
+    if (!text) return;
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+    } else {
+      fallbackCopy(text);
+    }
+    showToast('✓ Copié !', 'success');
+  }
+
+  // Enregistre la clé API Claude localement (page Mon compte)
+  function saveApiKey() {
+    const input  = document.getElementById('api-key-input');
+    const status = document.getElementById('api-key-status');
+    const key    = (input ? input.value : '').trim();
+    if (!key) { if (status) status.textContent = 'Entre une clé valide.'; return; }
+    localStorage.setItem('lp_api_key', key);
+    if (status) status.textContent = '✓ Clé enregistrée localement.';
+    showToast('✓ Clé API enregistrée', 'success');
+  }
+
+  // ══════════════════════════════════════════
   //  API HELPER
   // ══════════════════════════════════════════
   async function api(method, path, body = null) {
