@@ -258,7 +258,7 @@
     .study-result-panel { display: none; }
     .study-result-panel.active { display: block; }
     .study-text { font-size: 0.88rem; line-height: 1.8; color: var(--text); white-space: pre-wrap; }
-    /* QUIZ */
+    /* QUIZ (ancien — conservé pour compat, surchargé plus bas) */
     .quiz-question { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; }
     .quiz-q-text { font-weight: 600; color: var(--text); margin-bottom: 0.85rem; font-size: 0.92rem; }
     .quiz-options { display: flex; flex-direction: column; gap: 0.5rem; }
@@ -316,6 +316,61 @@
     .pd-card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:0.65rem 1rem; font-size:0.82rem; color:var(--text); }
     .pd-badge { background:var(--orange-glow); border:1px solid rgba(232,105,42,0.3); border-radius:999px; padding:0.25rem 0.7rem; font-size:0.75rem; color:var(--orange); font-weight:700; }
     @media (max-width:700px) { .theme-presets { grid-template-columns:repeat(3,1fr); } }
+
+    /* ============================================================
+       CSS QUIZ INTERACTIF — LettrePro (Brique 1)
+       Placé en FIN de <style> pour surcharger l'ancien quiz au-dessus.
+       ============================================================ */
+    .quiz-wrap { max-width: 640px; margin: 0 auto; }
+    .quiz-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; }
+    .quiz-counter { font-size: 0.85rem; color: var(--muted); font-weight: 600; }
+    .quiz-points { font-size: 0.85rem; color: var(--orange); font-weight: 700; background: rgba(232,105,42,0.12); padding: 0.25rem 0.7rem; border-radius: 999px; }
+    .quiz-bar { height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; margin-bottom: 1.5rem; }
+    .quiz-bar-fill { height: 100%; background: linear-gradient(90deg, var(--orange), #F5A462); border-radius: 99px; width: 0%; transition: width 0.5s cubic-bezier(.4,0,.2,1); }
+    .quiz-question { background: transparent; border: none; border-radius: 0; padding: 0; margin: 0; }
+    .quiz-q-text { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 1.15rem; color: var(--text); line-height: 1.4; margin-bottom: 1.25rem; }
+    .quiz-options { display: flex; flex-direction: column; gap: 0.6rem; }
+    .quiz-opt { display: flex; align-items: center; gap: 0.75rem; width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--card); border: 2px solid var(--border); border-radius: 12px; color: var(--text); font-size: 0.95rem; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.18s ease; }
+    .quiz-opt:hover:not(:disabled) { border-color: var(--orange-light); transform: translateX(3px); }
+    .quiz-opt:disabled { cursor: default; }
+    .quiz-opt-letter { flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 0.85rem; background: var(--border); color: var(--text); transition: all 0.18s ease; }
+    .quiz-opt-text { flex: 1; }
+    .quiz-opt.selected { border-color: var(--orange); background: rgba(232,105,42,0.08); }
+    .quiz-opt.selected .quiz-opt-letter { background: var(--orange); color: #fff; }
+    .quiz-opt.correct { border-color: #10B981; background: rgba(16,185,129,0.12); color: #10B981; font-weight: 600; animation: quizPop 0.4s ease; }
+    .quiz-opt.correct .quiz-opt-letter { background: #10B981; color: #fff; }
+    .quiz-opt.wrong { border-color: #EF4444; background: rgba(239,68,68,0.1); color: #EF4444; animation: quizShake 0.4s ease; }
+    .quiz-opt.wrong .quiz-opt-letter { background: #EF4444; color: #fff; }
+    .quiz-explication { margin-top: 1rem; padding: 0.9rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; animation: quizFade 0.3s ease; }
+    .quiz-verdict { font-weight: 700; font-size: 0.92rem; margin-bottom: 0.35rem; }
+    .quiz-verdict.good { color: #10B981; }
+    .quiz-verdict.bad { color: #EF4444; }
+    .quiz-exp-text { font-size: 0.86rem; color: var(--muted); line-height: 1.5; }
+    .quiz-actions { margin-top: 1.25rem; display: flex; justify-content: flex-end; }
+    .quiz-validate, .quiz-next, .quiz-restart { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 0.95rem; padding: 0.75rem 1.5rem; border: none; border-radius: 10px; cursor: pointer; transition: all 0.18s ease; display: inline-flex; align-items: center; gap: 0.4rem; }
+    .quiz-validate { background: linear-gradient(135deg, var(--orange), #C0501A); color: #fff; box-shadow: 0 4px 16px rgba(232,105,42,0.3); }
+    .quiz-validate:hover:not(:disabled) { transform: translateY(-2px); }
+    .quiz-validate:disabled { opacity: 0.4; cursor: not-allowed; }
+    .quiz-next { background: var(--card); color: var(--text); border: 1px solid var(--orange); }
+    .quiz-next:hover { background: var(--orange); color: #fff; }
+    .quiz-final { text-align: center; padding: 2rem 1rem; animation: quizFade 0.4s ease; }
+    .quiz-medal { font-size: 3.5rem; margin-bottom: 0.5rem; animation: quizPop 0.5s ease; }
+    .quiz-score-big { font-family: 'Sora', sans-serif; font-weight: 800; font-size: 2.5rem; color: var(--orange); line-height: 1; }
+    .quiz-score-pct { font-size: 1rem; color: var(--muted); margin-top: 0.25rem; }
+    .quiz-score-phrase { color: var(--text); font-size: 0.95rem; margin-top: 0.6rem; }
+    .quiz-final-bar { height: 10px; background: var(--border); border-radius: 99px; overflow: hidden; margin: 1.25rem auto; max-width: 280px; }
+    .quiz-final-fill { height: 100%; background: linear-gradient(90deg, var(--orange), #F5A462); width: 0%; transition: width 0.8s cubic-bezier(.4,0,.2,1); }
+    .quiz-restart { margin-top: 0.5rem; background: linear-gradient(135deg, var(--orange), #C0501A); color: #fff; box-shadow: 0 4px 16px rgba(232,105,42,0.3); }
+    .quiz-restart:hover { transform: translateY(-2px); }
+    .quiz-empty { text-align: center; color: var(--muted); padding: 2rem; }
+    @keyframes quizPop { 0% { transform: scale(0.9); } 50% { transform: scale(1.04); } 100% { transform: scale(1); } }
+    @keyframes quizShake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+    @keyframes quizFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .quiz-fade { animation: quizFade 0.3s ease; }
+    @media (prefers-reduced-motion: reduce) {
+      .quiz-opt, .quiz-bar-fill, .quiz-final-fill, .quiz-validate, .quiz-next, .quiz-restart,
+      .quiz-question, .quiz-explication, .quiz-medal, .quiz-final { animation: none !important; transition: none !important; }
+    }
   </style>
 </head>
 <body>
@@ -1626,6 +1681,8 @@
     if (res.fiche)  parts.push({ id:'fiche',  label:'📋 Fiche',  content: res.fiche });
     if (res.quiz)   parts.push({ id:'quiz',   label:'🎯 Quiz',   content: res.quiz });
 
+    let hasQuiz = false;
+
     parts.forEach((p, i) => {
       const btn = document.createElement('button');
       btn.className = 'srt-btn' + (i===0?' active':'');
@@ -1643,7 +1700,9 @@
       panel.id = 'srp-' + p.id;
 
       if (p.id === 'quiz') {
+        hasQuiz = true;
         panel.innerHTML = renderQuizHTML(p.content, data.quizId);
+        // renderQuestion() est appelé APRÈS l'ajout au DOM (voir plus bas)
       } else if (p.id === 'fiche') {
         panel.innerHTML = `
           <div class="result-actions" style="margin-bottom:0.75rem">
@@ -1659,119 +1718,244 @@
       }
       panels.appendChild(panel);
     });
+
+    // ✅ Le panneau quiz est maintenant dans le DOM : on peut afficher la 1re question
+    if (hasQuiz) renderQuestion();
   }
+
+/* =========================================================
+     ÉTAT DU QUIZ
+     activeQuiz = {
+       questions: [...],   // tableau de questions
+       quizId,             // id en base
+       current: 0,         // index de la question affichée
+       answers: {},        // { indexQuestion: indexReponseChoisie }
+       validated: {},      // { indexQuestion: true } une fois validée
+       selected: null,     // choix en cours (pas encore validé)
+       score: 0
+     }
+  ========================================================= */
 
   function renderQuizHTML(quizData, quizId) {
     const questions = quizData.questions || [];
-    activeQuiz = { questions, quizId, answers: {}, score: 0, done: false };
-    // Stocker les données quiz dans un objet global accessible
+    activeQuiz = {
+      questions,
+      quizId,
+      current: 0,
+      answers: {},
+      validated: {},
+      selected: null,
+      score: 0
+    };
     window._quizData = questions;
+
+    if (!questions.length) {
+      return `<div class="quiz-empty">Aucune question dans ce quiz.</div>`;
+    }
+
     return `
-      <div id="quiz-container">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-          <span style="font-size:0.85rem;color:var(--muted)">${questions.length} questions · 1 point chacune</span>
-          <span id="quiz-progress" style="font-size:0.82rem;color:var(--orange);font-weight:600">0 / ${questions.length}</span>
+      <div id="quiz-container" class="quiz-wrap">
+        <div class="quiz-head">
+          <span class="quiz-counter" id="quiz-counter">Question 1 / ${questions.length}</span>
+          <span class="quiz-points" id="quiz-points">0 pt</span>
         </div>
-        ${questions.map((q,i) => `
-          <div class="quiz-question" id="qq-${i}" style="margin-bottom:1.5rem;padding:1rem;background:var(--surface);border-radius:10px;border:1px solid var(--border)">
-            <div class="quiz-q-text" style="font-weight:600;margin-bottom:0.75rem">${i+1}. ${escapeHtml(q.q)}</div>
-            <div class="quiz-options">
-              ${(q.options||[]).map((opt,j) => `
-                <button class="quiz-opt" id="qo-${i}-${j}" data-qi="${i}" data-ai="${j}" onclick="answerQuiz(${i},${j})" style="display:block;width:100%;text-align:left;padding:.6rem .9rem;margin:.3rem 0;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);cursor:pointer">
-                  ${String.fromCharCode(65+j)}. ${escapeHtml(opt)}
-                </button>`).join('')}
-            </div>
-            <div class="quiz-explication" id="qe-${i}" style="display:none;margin-top:.75rem;padding:.75rem;background:rgba(232,105,42,0.08);border-radius:8px;font-size:.85rem;color:var(--muted)"></div>
-          </div>`).join('')}
-        <div id="quiz-final" style="display:none;text-align:center;padding:1.5rem;background:var(--card);border-radius:12px;margin-top:1rem">
-          <div style="font-family:'Sora',sans-serif;font-size:2rem;font-weight:800;color:var(--orange)" id="quiz-score-display">0/${questions.length}</div>
-          <div style="color:var(--muted);font-size:0.88rem;margin-top:0.35rem">Score final</div>
-          <div style="height:8px;background:var(--border);border-radius:4px;margin:1rem 0"><div id="quiz-score-fill" style="height:100%;background:var(--orange);border-radius:4px;width:0%;transition:width .6s"></div></div>
-          <button class="result-btn" style="margin-top:0.75rem" onclick="restartQuiz()">🔄 Recommencer</button>
-        </div>
+        <div class="quiz-bar"><div class="quiz-bar-fill" id="quiz-bar-fill" style="width:0%"></div></div>
+
+        <div id="quiz-stage"><!-- une question injectée ici --></div>
+
+        <div id="quiz-final" class="quiz-final" style="display:none"></div>
       </div>`;
   }
 
-  function answerQuiz(qi, ai) {
-    if (!window._quizData) return;
-    if (activeQuiz.answers[qi] !== undefined) return;
-    
-    const q = window._quizData[qi];
-    const correct = q.correct;
-    const explication = q.explication || '';
-    
-    activeQuiz.answers[qi] = ai;
+  // Affiche la question d'index activeQuiz.current
+  function renderQuestion() {
+    const i = activeQuiz.current;
+    const q = activeQuiz.questions[i];
+    const total = activeQuiz.questions.length;
+    const stage = document.getElementById('quiz-stage');
+    if (!stage || !q) return;
 
-    const opts = document.querySelectorAll(`#qq-${qi} .quiz-opt`);
-    opts.forEach((o, i) => {
+    activeQuiz.selected = (activeQuiz.answers[i] !== undefined) ? activeQuiz.answers[i] : null;
+    const isValidated = activeQuiz.validated[i] === true;
+
+    // compteur + barre
+    const counter = document.getElementById('quiz-counter');
+    if (counter) counter.textContent = `Question ${i + 1} / ${total}`;
+    const fill = document.getElementById('quiz-bar-fill');
+    if (fill) fill.style.width = Math.round((i / total) * 100) + '%';
+
+    const optionsHtml = (q.options || []).map((opt, j) => {
+      return `
+        <button class="quiz-opt" id="qo-${j}" data-j="${j}" onclick="selectOption(${j})">
+          <span class="quiz-opt-letter">${String.fromCharCode(65 + j)}</span>
+          <span class="quiz-opt-text">${escapeHtml(opt)}</span>
+        </button>`;
+    }).join('');
+
+    stage.innerHTML = `
+      <div class="quiz-question quiz-fade">
+        <div class="quiz-q-text">${escapeHtml(q.q)}</div>
+        <div class="quiz-options" id="quiz-options">${optionsHtml}</div>
+        <div class="quiz-explication" id="quiz-explication" style="display:none"></div>
+        <div class="quiz-actions">
+          <button class="quiz-validate" id="quiz-validate" onclick="validateAnswer()" disabled>Valider</button>
+          <button class="quiz-next" id="quiz-next" onclick="nextQuestion()" style="display:none">
+            ${i + 1 === total ? 'Voir mon score' : 'Question suivante →'}
+          </button>
+        </div>
+      </div>`;
+
+    // si la question a déjà été validée (retour arrière éventuel), on réaffiche son état
+    if (isValidated) {
+      showCorrection(i);
+    } else if (activeQuiz.selected !== null) {
+      // un choix existait sans validation : on le re-sélectionne
+      selectOption(activeQuiz.selected);
+    }
+
+    updatePoints();
+  }
+
+  // L'élève clique une option (avant validation) — il peut changer d'avis
+  function selectOption(j) {
+    const i = activeQuiz.current;
+    if (activeQuiz.validated[i]) return; // déjà validé, on ne change plus
+
+    activeQuiz.selected = j;
+    document.querySelectorAll('#quiz-options .quiz-opt').forEach(o => {
+      o.classList.toggle('selected', Number(o.dataset.j) === j);
+    });
+    const vb = document.getElementById('quiz-validate');
+    if (vb) vb.disabled = false;
+  }
+
+  // Validation de la réponse en cours
+  function validateAnswer() {
+    const i = activeQuiz.current;
+    if (activeQuiz.selected === null) return;
+    if (activeQuiz.validated[i]) return;
+
+    activeQuiz.answers[i] = activeQuiz.selected;
+    activeQuiz.validated[i] = true;
+
+    // calcul du score (une seule fois par question)
+    const correct = getCorrectIndex(activeQuiz.questions[i]);
+    if (activeQuiz.selected === correct) activeQuiz.score++;
+
+    showCorrection(i);
+    updatePoints();
+  }
+
+  // Affiche le corrigé d'une question validée
+  function showCorrection(i) {
+    const q = activeQuiz.questions[i];
+    const correct = getCorrectIndex(q);
+    const chosen = activeQuiz.answers[i];
+
+    document.querySelectorAll('#quiz-options .quiz-opt').forEach(o => {
+      const j = Number(o.dataset.j);
       o.disabled = true;
-      o.style.cursor = 'default';
-      if (i === correct) {
-        o.style.background = 'rgba(16,185,129,0.15)';
-        o.style.borderColor = '#10B981';
-        o.style.color = '#10B981';
-        o.style.fontWeight = '700';
+      o.classList.remove('selected');
+      if (j === correct) {
+        o.classList.add('correct');
+      } else if (j === chosen) {
+        o.classList.add('wrong');
       }
     });
 
-    if (ai === correct) {
-      activeQuiz.score++;
-    } else {
-      const wrongBtn = document.getElementById(`qo-${qi}-${ai}`);
-      if (wrongBtn) {
-        wrongBtn.style.background = 'rgba(239,68,68,0.15)';
-        wrongBtn.style.borderColor = '#EF4444';
-        wrongBtn.style.color = '#EF4444';
-      }
-    }
-
-    const exp = document.getElementById(`qe-${qi}`);
-    if (exp && explication) {
-      exp.textContent = '💡 ' + explication;
+    // explication
+    const exp = document.getElementById('quiz-explication');
+    const explication = q.explication || q.explanation || '';
+    if (exp) {
+      const isGood = chosen === correct;
+      exp.innerHTML =
+        `<div class="quiz-verdict ${isGood ? 'good' : 'bad'}">${isGood ? '✓ Bonne réponse !' : '✗ Pas tout à fait'}</div>` +
+        (explication ? `<div class="quiz-exp-text">${escapeHtml(explication)}</div>` : '');
       exp.style.display = 'block';
     }
 
-    const answered = Object.keys(activeQuiz.answers).length;
-    const total = activeQuiz.questions.length;
-    const progressEl = document.getElementById('quiz-progress');
-    if (progressEl) progressEl.textContent = `${answered} / ${total}`;
+    // boutons
+    const vb = document.getElementById('quiz-validate');
+    if (vb) vb.style.display = 'none';
+    const nb = document.getElementById('quiz-next');
+    if (nb) nb.style.display = 'inline-flex';
+  }
 
-    if (answered === total) {
-      setTimeout(() => finishQuiz(), 600);
+  // Question suivante (ou fin)
+  function nextQuestion() {
+    const total = activeQuiz.questions.length;
+    if (activeQuiz.current + 1 >= total) {
+      finishQuiz();
+      return;
     }
+    activeQuiz.current++;
+    renderQuestion();
+  }
+
+  function updatePoints() {
+    const el = document.getElementById('quiz-points');
+    if (el) el.textContent = activeQuiz.score + ' pt' + (activeQuiz.score > 1 ? 's' : '');
+  }
+
+  // Normalise le champ "correct" quel que soit son format (1, "1", "B", "b")
+  function getCorrectIndex(q) {
+    let c = q.correct;
+    if (c === undefined) c = q.reponse !== undefined ? q.reponse : q.answer;
+    if (typeof c === 'string') {
+      const s = c.trim();
+      if (/^[0-9]+$/.test(s)) return parseInt(s, 10);
+      if (/^[A-Za-z]$/.test(s)) return s.toUpperCase().charCodeAt(0) - 65;
+    }
+    return Number(c);
   }
 
   async function finishQuiz() {
     const score = activeQuiz.score;
     const total = activeQuiz.questions.length;
-    const pct   = Math.round((score/total)*100);
+    const pct   = Math.round((score / total) * 100);
 
-    document.getElementById('quiz-final').style.display = 'block';
-    document.getElementById('quiz-score-display').textContent = `${score}/${total}`;
-    document.getElementById('quiz-score-fill').style.width = pct + '%';
-    document.getElementById('quiz-final').scrollIntoView({ behavior:'smooth', block:'nearest' });
+    // barre à 100%
+    const fill = document.getElementById('quiz-bar-fill');
+    if (fill) fill.style.width = '100%';
+    document.getElementById('quiz-stage').innerHTML = '';
 
+    let medal = '👍';
+    let phrase = 'Continue, tu progresses !';
+    if (pct === 100) { medal = '🏆'; phrase = 'Sans faute, bravo !'; }
+    else if (pct >= 70) { medal = '🎉'; phrase = 'Très bon score !'; }
+    else if (pct >= 50) { medal = '🙂'; phrase = 'Pas mal, encore un effort.'; }
+
+    const final = document.getElementById('quiz-final');
+    final.style.display = 'block';
+    final.innerHTML = `
+      <div class="quiz-medal">${medal}</div>
+      <div class="quiz-score-big">${score}/${total}</div>
+      <div class="quiz-score-pct">${pct}%</div>
+      <div class="quiz-score-phrase">${phrase}</div>
+      <div class="quiz-final-bar"><div class="quiz-final-fill" style="width:0%"></div></div>
+      <button class="quiz-restart" onclick="restartQuiz()">↻ Recommencer</button>`;
+    final.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    // animation de la barre finale
+    setTimeout(() => {
+      const ff = final.querySelector('.quiz-final-fill');
+      if (ff) ff.style.width = pct + '%';
+    }, 100);
+
+    // sauvegarde du score en base (inchangé)
     if (activeQuiz.quizId) {
       try { await api('PUT', `/api/study/quiz/${activeQuiz.quizId}/score`, { score }); } catch {}
     }
-    showToast(`🎯 Score : ${score}/${total} (${pct}%)`, 'success');
+    showToast(`Score : ${score}/${total} (${pct}%)`, 'success');
   }
 
+  // ✅ FIX : on sauvegarde les questions AVANT que renderQuizHTML réécrive activeQuiz
   function restartQuiz() {
-       const savedQuestions = activeQuiz.questions;
-       const savedQuizId = activeQuiz.quizId;
-       document.getElementById('quiz-container').innerHTML =
-         renderQuizHTML({ questions: savedQuestions }, savedQuizId);
-   }
-
-  function copyText(id) {
-    const el = document.getElementById(id);
-    if (el) navigator.clipboard.writeText(el.textContent);
-    const btn = event.target; btn.textContent='✓ Copié!'; setTimeout(()=>btn.textContent='📋 Copier',2000);
-  }
-
-  function escapeHtml(str) {
-    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const savedQuestions = activeQuiz.questions;
+    const savedQuizId = activeQuiz.quizId;
+    const container = document.getElementById('quiz-container').parentElement;
+    container.innerHTML = renderQuizHTML({ questions: savedQuestions }, savedQuizId);
+    renderQuestion();
   }
 
   // ── BIBLIOTHÈQUE FICHES ──
@@ -1874,6 +2058,7 @@
         }
       }
       document.getElementById('modal-text').innerHTML = renderQuizHTML(quizData, id);
+      renderQuestion(); // ✅ affiche la 1re question dans la modale
       document.getElementById('modal').classList.add('visible');
     } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
   }
