@@ -363,6 +363,13 @@
     .quiz-restart { margin-top: 0.5rem; background: linear-gradient(135deg, var(--orange), #C0501A); color: #fff; box-shadow: 0 4px 16px rgba(232,105,42,0.3); }
     .quiz-restart:hover { transform: translateY(-2px); }
     .quiz-empty { text-align: center; color: var(--muted); padding: 2rem; }
+    /* Sélecteur de niveau de difficulté */
+    .difficulty-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+    .diff-btn { display: flex; flex-direction: column; align-items: center; gap: 0.15rem; padding: 0.6rem; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--text); cursor: pointer; font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 700; transition: all 0.2s; }
+    .diff-btn span { font-size: 0.72rem; color: var(--muted); font-weight: 500; }
+    .diff-btn:hover { border-color: var(--orange); transform: translateY(-2px); }
+    .diff-btn.active { border-color: var(--orange); background: var(--orange-glow); color: var(--orange); }
+    .diff-btn.active span { color: var(--orange); }
     @keyframes quizPop { 0% { transform: scale(0.9); } 50% { transform: scale(1.04); } 100% { transform: scale(1); } }
     @keyframes quizShake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
     @keyframes quizFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
@@ -616,6 +623,16 @@
               <div class="mode-icon">⚡</div>
               <div class="mode-name">Tout ensemble</div>
               <div class="mode-cost" style="color:#5CDB95">4 crédits (−1)</div>
+            </div>
+          </div>
+
+          <!-- NIVEAU DE DIFFICULTÉ DU QUIZ -->
+          <div id="quiz-difficulty-wrap" style="margin-bottom:1rem">
+            <p style="font-size:0.82rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem">Niveau du quiz 🎯</p>
+            <div class="difficulty-selector">
+              <button class="diff-btn active" data-diff="facile" onclick="setDifficulty('facile')">😎 Facile<span>10 questions</span></button>
+              <button class="diff-btn" data-diff="moyen" onclick="setDifficulty('moyen')">🤔 Moyen<span>15 questions</span></button>
+              <button class="diff-btn" data-diff="difficile" onclick="setDifficulty('difficile')">🔥 Difficile<span>20 questions</span></button>
             </div>
           </div>
 
@@ -1626,6 +1643,22 @@
   let activeQuiz = null;
   let quizAnswers = {};
 
+  // ── NIVEAU DE DIFFICULTÉ DU QUIZ ──
+  let quizDifficulty = 'facile';
+  const DIFFICULTY_QUESTIONS = { facile: 10, moyen: 15, difficile: 20 };
+  const DIFFICULTY_MIN_CHARS = { facile: 200, moyen: 500, difficile: 900 };
+
+  function setDifficulty(level) {
+    if (!DIFFICULTY_QUESTIONS[level]) return;
+    quizDifficulty = level;
+    document.querySelectorAll('.diff-btn').forEach(b =>
+      b.classList.toggle('active', b.dataset.diff === level)
+    );
+    // Met à jour le libellé de la carte Quiz
+    const lbl = document.querySelector('#mode-quiz .mode-name');
+    if (lbl) lbl.textContent = `Quiz (${DIFFICULTY_QUESTIONS[level]} questions)`;
+  }
+
   function toggleMode(mode) {
     const card = document.getElementById('mode-' + mode);
     const cb   = document.getElementById('cb-' + mode);
@@ -1662,6 +1695,16 @@
     if (!cours) { msg.className = 'msg error'; msg.textContent = 'Colle ton cours dans le champ.'; return; }
     if (selectedModes.size === 0) { msg.className = 'msg error'; msg.textContent = 'Sélectionne au moins une option.'; return; }
 
+    // Si un quiz est demandé, vérifier que le cours est assez long pour le niveau choisi
+    if (selectedModes.has('quiz')) {
+      const minChars = DIFFICULTY_MIN_CHARS[quizDifficulty];
+      if (cours.length < minChars) {
+        msg.className = 'msg error';
+        msg.textContent = `Pour un quiz « ${quizDifficulty} » (${DIFFICULTY_QUESTIONS[quizDifficulty]} questions), colle un cours d'au moins ${minChars} caractères (actuellement ${cours.length}).`;
+        return;
+      }
+    }
+
     const hasAll = selectedModes.has('resume') && selectedModes.has('fiche') && selectedModes.has('quiz');
     const mode   = hasAll ? 'all' : [...selectedModes][0];
     const cost   = updateCostPreview();
@@ -1683,7 +1726,7 @@
     }, 2000);
 
     try {
-      const data = await api('POST', '/api/study/generate', { cours, titre, mode });
+      const data = await api('POST', '/api/study/generate', { cours, titre, mode, difficulty: quizDifficulty });
       clearInterval(interval);
 
       currentUser.credits = data.creditsLeft;
@@ -2066,7 +2109,7 @@
           <div class="fiche-card" onclick="openQuizFromLibrary(${q.id})">
             <div>
               <div class="fc-title">🎯 ${escapeHtml(q.titre||'Quiz')}</div>
-              <div class="fc-date">${q.attempts>0 ? `Meilleur score : ${q.score}/10 · ${q.attempts} tentative${q.attempts>1?'s':''}` : 'Jamais joué'}</div>
+              <div class="fc-date">${q.attempts>0 ? `Meilleur score : ${q.score}/${q.total||10} · ${q.attempts} tentative${q.attempts>1?'s':''}` : 'Jamais joué'}</div>
             </div>
             <div class="fc-actions">
               <button class="hist-btn" onclick="event.stopPropagation();deleteQuiz(${q.id})">🗑️</button>
