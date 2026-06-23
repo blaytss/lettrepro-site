@@ -409,21 +409,19 @@
       .credit-badge { padding: 0.3rem 0.6rem; font-size: 0.72rem; }
       .logout-btn { padding: 0.35rem 0.7rem; font-size: 0.75rem; }
 
-      /* Sidebar -> barre horizontale scrollable */
+      /* Sidebar -> pastilles qui passent à la ligne (tout visible, pas de swipe) */
       .layout { flex-direction: column; }
       .sidebar {
         width: 100%;
         flex-direction: row;
-        overflow-x: auto;
+        flex-wrap: wrap;
+        justify-content: center;
         gap: 0.4rem;
-        padding: 0.55rem 0.75rem;
+        padding: 0.6rem 0.75rem;
         border-right: none;
         border-bottom: 1px solid var(--border);
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
       }
-      .sidebar::-webkit-scrollbar { display: none; }
-      .sidebar-item { width: auto; flex-shrink: 0; white-space: nowrap; padding: 0.5rem 0.8rem; font-size: 0.82rem; }
+      .sidebar-item { width: auto; flex-shrink: 0; white-space: nowrap; padding: 0.45rem 0.7rem; font-size: 0.8rem; }
       .sidebar-sep { display: none; }
 
       .main { padding: 1rem; }
