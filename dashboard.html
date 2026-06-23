@@ -602,6 +602,7 @@
         <button class="study-tab active" onclick="switchStudyTab('generate', this)">✦ Générer</button>
         <button class="study-tab" onclick="switchStudyTab('mescours', this)">📁 Mes cours</button>
         <button class="study-tab" onclick="switchStudyTab('eval', this)">📝 Évaluation</button>
+        <button class="study-tab" onclick="switchStudyTab('evalhist', this)">📊 Mes évaluations</button>
       </div>
 
       <!-- GÉNÉRER -->
@@ -690,6 +691,11 @@
       <!-- ÉVALUATION -->
       <div class="study-tab-content" id="study-eval">
         <div id="eval-content"></div>
+      </div>
+
+      <!-- MES ÉVALUATIONS (historique) -->
+      <div class="study-tab-content" id="study-evalhist">
+        <div id="evalhist-content"></div>
       </div>
     </div>
 
@@ -2187,6 +2193,7 @@
     document.getElementById('study-'+name).classList.add('active');
     if (name === 'mescours') loadCours();
     if (name === 'eval') loadEval();
+    if (name === 'evalhist') loadEvalHistory();
   }
 
   // ══════════════════════════════════════════
@@ -2375,22 +2382,6 @@
       }
     }
 
-    const pastHtml = evalPastList.length ? `
-      <div style="margin-top:2rem">
-        <div class="cours-folder-title">📊 Évaluations passées</div>
-        ${evalPastList.map(ev => {
-          const pct = ev.total ? Math.round(ev.score/ev.total*100) : 0;
-          return `<div class="chapter-card"><div class="chapter-main">
-            <div class="chapter-title">${escapeHtml(ev.titre||ev.matiere||'Évaluation')}</div>
-            <div class="chapter-tags">
-              <span class="chapter-tag">✅ ${ev.score}/${ev.total} (${pct}%)</span>
-              <span class="chapter-tag">🔒 Verrouillée</span>
-              <span class="chapter-tag">${new Date(ev.created_at).toLocaleDateString('fr-FR')}</span>
-            </div>
-          </div></div>`;
-        }).join('')}
-      </div>` : '';
-
     el.innerHTML = `
       <div class="gen-card">
         <h2>Mode Évaluation 📝</h2>
@@ -2403,8 +2394,7 @@
           </select>
         </div>
         ${chaptersHtml}
-      </div>
-      ${pastHtml}`;
+      </div>`;
   }
 
   function onEvalMatiere(val) {
@@ -2572,6 +2562,65 @@
 
     showToast(`Évaluation : ${score}/${total} (${pct}%)`, 'success');
     activeEval = null;
+  }
+
+  // ── Onglet « Mes évaluations » (historique complet) ──
+  function evalNiveau(pct) {
+    if (pct >= 85) return 'Maîtrisé';
+    if (pct >= 70) return 'Acquis';
+    if (pct >= 50) return 'Fragile';
+    return 'À consolider';
+  }
+
+  async function loadEvalHistory() {
+    const el = document.getElementById('evalhist-content');
+    el.innerHTML = '<p style="color:var(--muted);padding:1rem 0">Chargement…</p>';
+    try {
+      const evals = await api('GET', '/api/study/eval');
+      renderEvalHistory(evals || []);
+    } catch(e) {
+      el.innerHTML = `<p style="color:var(--muted);padding:1rem 0">Erreur : ${escapeHtml(e.message)}</p>`;
+    }
+  }
+
+  function renderEvalHistory(evals) {
+    const el = document.getElementById('evalhist-content');
+    if (!evals.length) {
+      el.innerHTML = `<div class="history-empty"><div class="icon">📊</div><p>Aucune évaluation pour l'instant.<br>Va dans l'onglet « 📝 Évaluation » pour en passer une.</p></div>`;
+      return;
+    }
+
+    const avg = Math.round(
+      evals.reduce((s,ev)=> s + (ev.total ? ev.score/ev.total*100 : 0), 0) / evals.length
+    );
+
+    el.innerHTML = `
+      <div class="gen-card" style="margin-bottom:1.25rem">
+        <h2>📊 Mes évaluations</h2>
+        <p style="color:var(--muted);font-size:0.88rem">${evals.length} évaluation${evals.length>1?'s':''} · Moyenne générale : <strong style="color:var(--orange)">${avg}%</strong></p>
+      </div>
+      ${evals.map(ev => {
+        const pct    = ev.total ? Math.round(ev.score/ev.total*100) : 0;
+        const niveau = evalNiveau(pct);
+        const date   = ev.created_at ? new Date(ev.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}) : '';
+        const color  = pct>=70 ? '#10B981' : (pct>=50 ? '#E8692A' : '#EF4444');
+        return `<div class="chapter-card" style="display:block">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap">
+            <div style="min-width:0;flex:1">
+              <div class="chapter-title">${escapeHtml(ev.titre || ev.matiere || 'Évaluation')}</div>
+              <div class="chapter-tags" style="margin-top:0.4rem">
+                <span class="chapter-tag">📚 ${escapeHtml(ev.matiere || '—')}</span>
+                <span class="chapter-tag">🔒 Verrouillée</span>
+                <span class="chapter-tag">${date}</span>
+              </div>
+            </div>
+            <div style="text-align:right;flex-shrink:0">
+              <div style="font-family:'Sora',sans-serif;font-weight:800;font-size:1.3rem;color:${color}">${ev.score}/${ev.total}</div>
+              <div style="font-size:0.8rem;color:var(--muted)">${pct}% · ${niveau}</div>
+            </div>
+          </div>
+        </div>`;
+      }).join('')}`;
   }
 
   // ══════════════════════════════════════════
