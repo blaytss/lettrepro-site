@@ -1973,7 +1973,7 @@
   ========================================================= */
 
   function renderQuizHTML(quizData, quizId) {
-    const questions = quizData.questions || [];
+    const questions = shuffleArray(quizData.questions || []);   // ordre aléatoire à chaque partie
     activeQuiz = {
       questions,
       quizId,
