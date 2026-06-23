@@ -273,6 +273,22 @@
     .quiz-score-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--orange), var(--orange-light)); transition: width 0.5s; }
     /* BIBLIOTHEQUE */
     .matiere-group { margin-bottom: 2rem; }
+    /* MES COURS — dossiers par matière */
+    .folder-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; }
+    .folder-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem 1rem; text-align: center; cursor: pointer; transition: all 0.2s; }
+    .folder-card:hover { border-color: var(--orange); transform: translateY(-3px); }
+    .folder-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .folder-name { font-family: 'Sora', sans-serif; font-weight: 700; color: var(--text); font-size: 0.95rem; margin-bottom: 0.25rem; }
+    .folder-count { font-size: 0.78rem; color: var(--muted); }
+    .cours-back { background: none; border: 1px solid var(--border); color: var(--muted); font-size: 0.85rem; padding: 0.4rem 0.9rem; border-radius: 8px; cursor: pointer; margin-bottom: 1rem; transition: all 0.2s; font-family: 'Inter', sans-serif; }
+    .cours-back:hover { border-color: var(--orange); color: var(--orange); }
+    .cours-folder-title { font-family: 'Sora', sans-serif; font-weight: 700; color: var(--text); font-size: 1.1rem; margin-bottom: 1rem; }
+    .chapter-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 0.6rem; transition: border-color 0.2s; }
+    .chapter-card:hover { border-color: var(--orange); }
+    .chapter-title { font-weight: 600; font-size: 0.92rem; color: var(--text); margin-bottom: 0.3rem; }
+    .chapter-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .chapter-tag { font-size: 0.72rem; background: var(--card); border: 1px solid var(--border); border-radius: 999px; padding: 0.15rem 0.6rem; color: var(--muted); }
+    .chapter-actions { display: flex; gap: 0.4rem; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
     .matiere-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
     .matiere-title { font-family: 'Sora', sans-serif; font-weight: 700; color: var(--text); font-size: 1rem; }
     .matiere-count { background: var(--card); border: 1px solid var(--border); border-radius: 999px; padding: 0.15rem 0.6rem; font-size: 0.72rem; color: var(--muted); }
@@ -579,8 +595,7 @@
 
       <div class="study-tabs">
         <button class="study-tab active" onclick="switchStudyTab('generate', this)">✦ Générer</button>
-        <button class="study-tab" onclick="switchStudyTab('fiches', this)">📄 Mes fiches</button>
-        <button class="study-tab" onclick="switchStudyTab('quizzes', this)">🎯 Mes quiz</button>
+        <button class="study-tab" onclick="switchStudyTab('mescours', this)">📁 Mes cours</button>
       </div>
 
       <!-- GÉNÉRER -->
@@ -659,17 +674,10 @@
         </div>
       </div>
 
-      <!-- MES FICHES -->
-      <div class="study-tab-content" id="study-fiches">
-        <div id="fiches-content">
-          <div class="history-empty"><div class="icon">📄</div><p>Aucune fiche pour l'instant.<br>Génère ta première fiche !</p></div>
-        </div>
-      </div>
-
-      <!-- MES QUIZ -->
-      <div class="study-tab-content" id="study-quizzes">
-        <div id="quizzes-content">
-          <div class="history-empty"><div class="icon">🎯</div><p>Aucun quiz pour l'instant.<br>Génère ton premier quiz !</p></div>
+      <!-- MES COURS (dossiers par matière) -->
+      <div class="study-tab-content" id="study-mescours">
+        <div id="cours-content">
+          <div class="history-empty"><div class="icon">📁</div><p>Aucun cours pour l'instant.<br>Génère ton premier contenu de révision !</p></div>
         </div>
       </div>
     </div>
@@ -2166,8 +2174,124 @@
     document.querySelectorAll('.study-tab-content').forEach(t=>t.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('study-'+name).classList.add('active');
-    if (name === 'fiches')   loadFiches();
-    if (name === 'quizzes')  loadQuizzes();
+    if (name === 'mescours') loadCours();
+  }
+
+  // ══════════════════════════════════════════
+  //  MES COURS — DOSSIERS PAR MATIÈRE
+  // ══════════════════════════════════════════
+  let coursData = { fiches: [], quizzes: [] };
+  let currentFolder = null; // matière ouverte, ou null = vue dossiers
+
+  async function loadCours() {
+    currentFolder = null;
+    const el = document.getElementById('cours-content');
+    el.innerHTML = '<p style="color:var(--muted);padding:1rem 0">Chargement…</p>';
+    try {
+      const [fiches, quizzes] = await Promise.all([
+        api('GET', '/api/study/fiches'),
+        api('GET', '/api/study/quiz')
+      ]);
+      coursData = { fiches: fiches || [], quizzes: quizzes || [] };
+      renderCoursFolders();
+    } catch(e) {
+      el.innerHTML = `<p style="color:var(--muted);padding:1rem 0">Erreur : ${escapeHtml(e.message)}</p>`;
+    }
+  }
+
+  // Vue 1 : la grille des dossiers (un par matière)
+  function renderCoursFolders() {
+    currentFolder = null;
+    const el = document.getElementById('cours-content');
+
+    // Compter les chapitres distincts par matière
+    const matieres = {};
+    coursData.fiches.forEach(f => {
+      (matieres[f.matiere] = matieres[f.matiere] || new Set()).add(f.titre || 'Sans titre');
+    });
+    coursData.quizzes.forEach(q => {
+      (matieres[q.matiere] = matieres[q.matiere] || new Set()).add(q.titre || 'Quiz');
+    });
+
+    const keys = Object.keys(matieres).sort((a,b)=>a.localeCompare(b,'fr'));
+    if (!keys.length) {
+      el.innerHTML = `<div class="history-empty"><div class="icon">📁</div><p>Aucun cours pour l'instant.<br>Génère ton premier contenu de révision !</p></div>`;
+      return;
+    }
+
+    el.innerHTML = `<div class="folder-grid">${keys.map(mat => {
+      const nb = matieres[mat].size;
+      return `<div class="folder-card" onclick="openFolder('${encodeURIComponent(mat)}')">
+        <div class="folder-icon">📁</div>
+        <div class="folder-name">${escapeHtml(mat)}</div>
+        <div class="folder-count">${nb} chapitre${nb>1?'s':''}</div>
+      </div>`;
+    }).join('')}</div>`;
+  }
+
+  // Vue 2 : le contenu d'un dossier (chapitres d'une matière)
+  function openFolder(matEncoded) {
+    const mat = decodeURIComponent(matEncoded);
+    currentFolder = mat;
+    const el = document.getElementById('cours-content');
+
+    // Regrouper par titre de chapitre : { titre: {fiche, quiz} }
+    const chapters = {};
+    coursData.fiches.filter(f => f.matiere === mat).forEach(f => {
+      const t = f.titre || 'Sans titre';
+      (chapters[t] = chapters[t] || {}).fiche = f;
+    });
+    coursData.quizzes.filter(q => q.matiere === mat).forEach(q => {
+      const t = q.titre || 'Quiz';
+      (chapters[t] = chapters[t] || {}).quiz = q;
+    });
+
+    const titres = Object.keys(chapters).sort((a,b)=>a.localeCompare(b,'fr'));
+
+    el.innerHTML = `
+      <button class="cours-back" onclick="renderCoursFolders()">← Tous les dossiers</button>
+      <div class="cours-folder-title">📁 ${escapeHtml(mat)}</div>
+      ${titres.map(t => {
+        const c = chapters[t];
+        const f = c.fiche, q = c.quiz;
+        const fid = f ? f.id : 0;
+        const qid = q ? q.id : 0;
+        const quizInfo = q && q.attempts > 0 ? ` · ${q.score}/${q.total || 10}` : '';
+        return `<div class="chapter-card">
+          <div class="chapter-main">
+            <div class="chapter-title">${escapeHtml(t)}</div>
+            <div class="chapter-tags">
+              ${f ? '<span class="chapter-tag">📋 Fiche</span>' : ''}
+              ${q ? `<span class="chapter-tag">🎯 Quiz${quizInfo}</span>` : ''}
+            </div>
+          </div>
+          <div class="chapter-actions">
+            ${f ? `<button class="hist-btn" onclick="viewFiche(${fid})">📋 Fiche</button>` : ''}
+            ${q ? `<button class="hist-btn" onclick="openQuizFromLibrary(${qid})">🎯 Quiz</button>` : ''}
+            <button class="hist-btn" onclick="deleteChapter(${fid}, ${qid})">🗑️</button>
+          </div>
+        </div>`;
+      }).join('')}
+    `;
+  }
+
+  // Supprime un chapitre entier (sa fiche ET son quiz)
+  async function deleteChapter(ficheId, quizId) {
+    if (!confirm('Supprimer ce chapitre (fiche + quiz) ?')) return;
+    try {
+      if (ficheId) await api('DELETE', `/api/study/fiches/${ficheId}`);
+      if (quizId)  await api('DELETE', `/api/study/quiz/${quizId}`);
+      showToast('Chapitre supprimé', 'success');
+      const folder = currentFolder;
+      await loadCours();
+      // Rouvrir le dossier s'il contient encore des chapitres
+      if (folder) {
+        const reste = coursData.fiches.some(f=>f.matiere===folder) || coursData.quizzes.some(q=>q.matiere===folder);
+        if (reste) openFolder(encodeURIComponent(folder));
+      }
+    } catch(e) {
+      showToast('Erreur : ' + e.message, 'error');
+    }
   }
 
   // ══════════════════════════════════════════
