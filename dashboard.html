@@ -401,6 +401,62 @@
       .quiz-question, .quiz-explication, .quiz-medal, .quiz-final { animation: none !important; transition: none !important; }
     }
     @media (max-width: 560px) { .quiz-options { grid-template-columns: 1fr; } }
+    /* ─────────── MOBILE / RESPONSIVE ─────────── */
+    @media (max-width: 768px) {
+      nav { padding: 0.7rem 1rem; }
+      .nav-logo { font-size: 1.05rem; }
+      .nav-right { gap: 0.45rem; }
+      .credit-badge { padding: 0.3rem 0.6rem; font-size: 0.72rem; }
+      .logout-btn { padding: 0.35rem 0.7rem; font-size: 0.75rem; }
+
+      /* Sidebar -> barre horizontale scrollable */
+      .layout { flex-direction: column; }
+      .sidebar {
+        width: 100%;
+        flex-direction: row;
+        overflow-x: auto;
+        gap: 0.4rem;
+        padding: 0.55rem 0.75rem;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+      .sidebar::-webkit-scrollbar { display: none; }
+      .sidebar-item { width: auto; flex-shrink: 0; white-space: nowrap; padding: 0.5rem 0.8rem; font-size: 0.82rem; }
+      .sidebar-sep { display: none; }
+
+      .main { padding: 1rem; }
+      .page-header h1 { font-size: 1.2rem; }
+
+      /* Grilles -> 1 colonne (ou 2 pour les stats) */
+      .stats-row { grid-template-columns: 1fr 1fr; gap: 0.7rem; margin-bottom: 1.25rem; }
+      .gen-grid { grid-template-columns: 1fr; }
+      .gen-card { padding: 1.25rem; }
+      .gen-card h2 { font-size: 1.05rem; }
+      .credits-hero { padding: 1.5rem; flex-direction: column; align-items: flex-start; gap: 1rem; }
+      .packs-grid, .plans-grid, .account-grid { grid-template-columns: 1fr; }
+
+      /* Listes / cartes empilées */
+      .history-item { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+      .history-actions { width: 100%; }
+      .chapter-card { flex-direction: column; align-items: flex-start; }
+      .chapter-actions { width: 100%; justify-content: flex-start; }
+
+      /* Onglets scrollables */
+      .study-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+      .study-tabs::-webkit-scrollbar { display: none; }
+      .study-tab { flex: 0 0 auto; white-space: nowrap; padding: 0.55rem 0.9rem; }
+
+      .modal { padding: 1.25rem; border-radius: 14px; }
+      .toast { left: 1rem; right: 1rem; bottom: 1rem; }
+    }
+
+    @media (max-width: 420px) {
+      .stats-row { grid-template-columns: 1fr; }
+      .plan-chip { display: none; }
+      .nav-logo { font-size: 1rem; }
+    }
   </style>
 </head>
 <body>
@@ -2321,6 +2377,7 @@
   let evalMatiere = null;
   let evalSelected = new Set(); // ids des chapitres choisis
   let activeEval = null;       // évaluation en cours
+  let lastEvalInfo = null;     // infos de la dernière éval terminée (pour les exercices)
 
   function shuffleArray(a) {
     a = a.slice();
@@ -2540,6 +2597,17 @@
     else if (pct >= 70) medal = '🎉';
     else if (pct >= 50) medal = '🙂';
 
+    // Mémoriser l'éval pour pouvoir générer les exercices ensuite
+    lastEvalInfo = { matiere: activeEval.matiere, chapters: activeEval.chapKey, pct };
+
+    // Barème dynamique (affichage) : plus le score est haut, moins ça coûte / plus ça rapporte
+    const delta = evalCreditDelta(pct);
+    const deltaTxt = delta > 0
+      ? `ça te <strong style="color:#10B981">rapporte +${delta} crédits</strong> 🎁`
+      : (delta < 0
+          ? `ça coûte <strong style="color:#EF4444">${-delta} crédits</strong>`
+          : 'c\'est gratuit');
+
     const el = document.getElementById('eval-content');
     el.innerHTML = `
       <div class="quiz-final" style="display:block">
@@ -2548,7 +2616,12 @@
         <div class="quiz-score-pct">${pct}% · Niveau : ${niveau}</div>
         <div class="quiz-score-phrase">Évaluation terminée — elle ne peut pas être refaite.</div>
       </div>
-      <div class="cours-folder-title" style="margin-top:1.5rem">📋 Correction</div>
+      <div class="gen-card" style="margin-top:1.5rem">
+        <h2>✏️ 2 exercices type bac</h2>
+        <p style="color:var(--muted);font-size:0.88rem;margin-bottom:1rem">Selon ton score de <strong>${pct}%</strong>, ${deltaTxt}.</p>
+        <button class="gen-btn" onclick="generateEvalExercises()">✏️ Générer les 2 exercices</button>
+      </div>
+      <div class="cours-folder-title" style="margin-top:1.5rem">📋 Correction du QCM</div>
       ${recap.map((r, i) => `
         <div class="chapter-card" style="display:block">
           <div class="chapter-title">${i+1}. ${escapeHtml(r.q)}</div>
@@ -2562,6 +2635,53 @@
 
     showToast(`Évaluation : ${score}/${total} (${pct}%)`, 'success');
     activeEval = null;
+  }
+
+  // Barème dynamique des crédits pour les exercices (selon le % au QCM)
+  function evalCreditDelta(pct) {
+    if (pct <= 9)  return -9;
+    if (pct <= 19) return -7;
+    if (pct <= 29) return -5;
+    if (pct <= 39) return -3;
+    if (pct <= 49) return -1;
+    if (pct <= 59) return 1;
+    if (pct <= 69) return 3;
+    if (pct <= 79) return 5;
+    if (pct <= 89) return 7;
+    return 9;
+  }
+
+  // Génère les 2 exercices type bac (appel serveur, crédits gérés côté serveur)
+  async function generateEvalExercises() {
+    if (!lastEvalInfo) return;
+    const el = document.getElementById('eval-content');
+    el.innerHTML = '<div class="loading" style="display:flex"><div class="spinner"></div><span>L\'IA prépare tes 2 exercices type bac…</span></div>';
+    try {
+      const res = await api('POST', '/api/study/eval/exercises', {
+        matiere: lastEvalInfo.matiere, chapters: lastEvalInfo.chapters
+      });
+      if (typeof res.creditsLeft === 'number') { currentUser.credits = res.creditsLeft; refreshUI(); }
+      renderEvalExercises(res.exercices || [], res.delta || 0);
+    } catch(e) {
+      showToast('Erreur : ' + e.message, 'error');
+      loadEval();
+    }
+  }
+
+  function renderEvalExercises(exos, delta) {
+    const el = document.getElementById('eval-content');
+    const deltaTxt = delta > 0 ? ` (+${delta} crédits gagnés 🎁)` : (delta < 0 ? ` (${delta} crédits)` : '');
+    el.innerHTML = `
+      <div class="quiz-final" style="display:block">
+        <div class="quiz-medal">✏️</div>
+        <div class="quiz-score-phrase">Voici tes 2 exercices type bac${deltaTxt}.<br>Fais-les sur papier — bientôt tu pourras importer ta copie pour la correction.</div>
+      </div>
+      ${exos.map((ex, i) => `
+        <div class="gen-card" style="margin-top:1rem">
+          <h2>Exercice ${i+1}</h2>
+          <div class="result-text" style="white-space:pre-wrap">${escapeHtml(ex)}</div>
+        </div>`).join('')}
+      <div style="margin-top:1.25rem"><button class="quiz-restart" onclick="loadEval()">← Retour aux évaluations</button></div>`;
   }
 
   // ── Onglet « Mes évaluations » (historique complet) ──
