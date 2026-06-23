@@ -401,6 +401,16 @@
       .quiz-question, .quiz-explication, .quiz-medal, .quiz-final { animation: none !important; transition: none !important; }
     }
     @media (max-width: 560px) { .quiz-options { grid-template-columns: 1fr; } }
+    /* UPLOAD PHOTOS (cours en image) */
+    .photo-upload { display: flex; align-items: center; gap: 0.75rem; margin-top: 0.75rem; flex-wrap: wrap; }
+    .photo-add-btn { background: var(--card); border: 1px dashed var(--border); color: var(--text); padding: 0.6rem 1rem; border-radius: 10px; cursor: pointer; font-size: 0.85rem; font-weight: 600; font-family: 'Inter', sans-serif; transition: all 0.2s; }
+    .photo-add-btn:hover { border-color: var(--orange); color: var(--orange); }
+    .photo-hint { font-size: 0.78rem; color: var(--muted); }
+    .photo-preview { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.75rem; }
+    .photo-thumb { position: relative; width: 80px; height: 80px; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+    .photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .photo-thumb button { position: absolute; top: 3px; right: 3px; background: rgba(0,0,0,0.7); color: #fff; border: none; width: 20px; height: 20px; border-radius: 50%; cursor: pointer; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; line-height: 1; padding: 0; }
+
     /* ─────────── MOBILE / RESPONSIVE ─────────── */
     @media (max-width: 768px) {
       nav { padding: 0.7rem 1rem; }
@@ -672,8 +682,14 @@
           </div>
 
           <div class="field" style="margin-bottom:1.25rem">
-            <label>Ton cours *</label>
+            <label>Ton cours <span style="font-weight:400;color:var(--muted)">(texte ou photos)</span></label>
             <textarea id="study-cours" rows="8" placeholder="Colle ici ton cours, tes notes, ou un extrait de manuel..."></textarea>
+            <div class="photo-upload">
+              <input type="file" id="study-photos-input" accept="image/*" multiple capture="environment" style="display:none" onchange="addStudyPhotos(this)" />
+              <button type="button" class="photo-add-btn" onclick="document.getElementById('study-photos-input').click()">📸 Ajouter des photos</button>
+              <span class="photo-hint">Manuscrit ou manuel — l'IA lit l'image</span>
+            </div>
+            <div id="study-photos-preview" class="photo-preview"></div>
           </div>
 
           <p style="font-size:0.82rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.75rem">Que veux-tu générer ?</p>
@@ -1766,17 +1782,73 @@
     return cost;
   }
 
+  // ── PHOTOS DU COURS (lecture par l'IA) ──
+  let studyImages = []; // { data: base64, media_type, dataUrl }
+
+  function addStudyPhotos(input) {
+    const files = Array.from(input.files || []);
+    input.value = ''; // reset pour pouvoir re-choisir le même fichier
+    files.forEach(file => {
+      if (!file.type.startsWith('image/')) return;
+      if (studyImages.length >= 5) { showToast('5 photos maximum', 'error'); return; }
+      compressImage(file).then(img => {
+        studyImages.push(img);
+        renderStudyPhotos();
+      }).catch(() => showToast('Image illisible', 'error'));
+    });
+  }
+
+  function compressImage(file, maxDim = 1500, quality = 0.8) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+          let w = img.width, h = img.height;
+          if (w > maxDim || h > maxDim) {
+            if (w >= h) { h = Math.round(h * maxDim / w); w = maxDim; }
+            else { w = Math.round(w * maxDim / h); h = maxDim; }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          const dataUrl = canvas.toDataURL('image/jpeg', quality);
+          resolve({ data: dataUrl.split(',')[1], media_type: 'image/jpeg', dataUrl });
+        };
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function renderStudyPhotos() {
+    const el = document.getElementById('study-photos-preview');
+    if (!el) return;
+    el.innerHTML = studyImages.map((im, i) => `
+      <div class="photo-thumb">
+        <img src="${im.dataUrl}" alt="photo ${i+1}">
+        <button onclick="removeStudyPhoto(${i})" title="Retirer">✕</button>
+      </div>`).join('');
+  }
+
+  function removeStudyPhoto(i) {
+    studyImages.splice(i, 1);
+    renderStudyPhotos();
+  }
+
   async function generateStudy() {
     const cours = document.getElementById('study-cours').value.trim();
     const titre = document.getElementById('study-titre').value.trim() || 'Mon cours';
     const msg   = document.getElementById('study-msg');
     msg.className = 'msg';
 
-    if (!cours) { msg.className = 'msg error'; msg.textContent = 'Colle ton cours dans le champ.'; return; }
+    if (!cours && studyImages.length === 0) { msg.className = 'msg error'; msg.textContent = 'Colle ton cours ou ajoute une photo.'; return; }
     if (selectedModes.size === 0) { msg.className = 'msg error'; msg.textContent = 'Sélectionne au moins une option.'; return; }
 
-    // Si un quiz est demandé, vérifier que le cours est assez long pour le niveau choisi
-    if (selectedModes.has('quiz')) {
+    // Si un quiz est demandé, vérifier la longueur — sauf si on envoie des photos (l'IA lira l'image)
+    if (selectedModes.has('quiz') && studyImages.length === 0) {
       const minChars = DIFFICULTY_MIN_CHARS[quizDifficulty];
       if (cours.length < minChars) {
         msg.className = 'msg error';
@@ -1806,13 +1878,15 @@
     }, 2000);
 
     try {
-      const data = await api('POST', '/api/study/generate', { cours, titre, mode, difficulty: quizDifficulty });
+      const data = await api('POST', '/api/study/generate', { cours, titre, mode, difficulty: quizDifficulty, images: studyImages.map(im => ({ media_type: im.media_type, data: im.data })) });
       clearInterval(interval);
 
       currentUser.credits = data.creditsLeft;
       currentUser.credits_used = (currentUser.credits_used || 0) + cost;
       creditLog.unshift({ type:'debit', amount:-cost, description:`Étude — ${mode} (${titre})`, date: new Date().toISOString() });
       currentStudyResult = data;
+
+      studyImages = []; renderStudyPhotos();   // réinitialiser les photos après génération
 
       renderStudyResult(data);
       document.getElementById('study-result-card').classList.add('visible');
