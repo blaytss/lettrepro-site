@@ -289,6 +289,11 @@
     .chapter-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }
     .chapter-tag { font-size: 0.72rem; background: var(--card); border: 1px solid var(--border); border-radius: 999px; padding: 0.15rem 0.6rem; color: var(--muted); }
     .chapter-actions { display: flex; gap: 0.4rem; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
+    /* ÉVALUATION — sélection des chapitres */
+    .eval-chapter { display: flex; align-items: center; gap: 0.6rem; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 0.7rem 1rem; margin-bottom: 0.5rem; cursor: pointer; transition: all 0.2s; font-size: 0.9rem; color: var(--text); }
+    .eval-chapter:hover { border-color: var(--orange); }
+    .eval-chapter.selected { border-color: var(--orange); background: var(--orange-glow); }
+    .eval-chapter input { accent-color: var(--orange); width: 16px; height: 16px; flex-shrink: 0; }
     .matiere-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
     .matiere-title { font-family: 'Sora', sans-serif; font-weight: 700; color: var(--text); font-size: 1rem; }
     .matiere-count { background: var(--card); border: 1px solid var(--border); border-radius: 999px; padding: 0.15rem 0.6rem; font-size: 0.72rem; color: var(--muted); }
@@ -596,6 +601,7 @@
       <div class="study-tabs">
         <button class="study-tab active" onclick="switchStudyTab('generate', this)">✦ Générer</button>
         <button class="study-tab" onclick="switchStudyTab('mescours', this)">📁 Mes cours</button>
+        <button class="study-tab" onclick="switchStudyTab('eval', this)">📝 Évaluation</button>
       </div>
 
       <!-- GÉNÉRER -->
@@ -679,6 +685,11 @@
         <div id="cours-content">
           <div class="history-empty"><div class="icon">📁</div><p>Aucun cours pour l'instant.<br>Génère ton premier contenu de révision !</p></div>
         </div>
+      </div>
+
+      <!-- ÉVALUATION -->
+      <div class="study-tab-content" id="study-eval">
+        <div id="eval-content"></div>
       </div>
     </div>
 
@@ -2175,6 +2186,7 @@
     btn.classList.add('active');
     document.getElementById('study-'+name).classList.add('active');
     if (name === 'mescours') loadCours();
+    if (name === 'eval') loadEval();
   }
 
   // ══════════════════════════════════════════
@@ -2292,6 +2304,274 @@
     } catch(e) {
       showToast('Erreur : ' + e.message, 'error');
     }
+  }
+
+  // ══════════════════════════════════════════
+  //  MODE ÉVALUATION (Phase 1 — QCM 30 questions)
+  // ══════════════════════════════════════════
+  let evalQuizzes = [];     // quiz dispo (= chapitres)
+  let evalPastList = [];     // évaluations déjà faites
+  let evalMatiere = null;
+  let evalSelected = new Set(); // ids des chapitres choisis
+  let activeEval = null;       // évaluation en cours
+
+  function shuffleArray(a) {
+    a = a.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  async function loadEval() {
+    activeEval = null;
+    const el = document.getElementById('eval-content');
+    el.innerHTML = '<p style="color:var(--muted);padding:1rem 0">Chargement…</p>';
+    try {
+      const [quizzes, evals] = await Promise.all([
+        api('GET', '/api/study/quiz'),
+        api('GET', '/api/study/eval').catch(() => [])
+      ]);
+      evalQuizzes  = quizzes || [];
+      evalPastList = evals || [];
+      evalMatiere  = null;
+      evalSelected = new Set();
+      renderEvalSetup();
+    } catch(e) {
+      el.innerHTML = `<p style="color:var(--muted);padding:1rem 0">Erreur : ${escapeHtml(e.message)}</p>`;
+    }
+  }
+
+  function renderEvalSetup() {
+    const el = document.getElementById('eval-content');
+    const mats = [...new Set(evalQuizzes.map(q => q.matiere))].sort((a,b)=>a.localeCompare(b,'fr'));
+
+    if (!mats.length) {
+      el.innerHTML = `<div class="history-empty"><div class="icon">📝</div><p>Aucun quiz disponible.<br>Génère au moins 3 quiz dans une matière pour créer une évaluation.</p></div>`;
+      return;
+    }
+
+    const matOptions = mats.map(m =>
+      `<option value="${encodeURIComponent(m)}" ${evalMatiere===m?'selected':''}>${escapeHtml(m)}</option>`
+    ).join('');
+
+    let chaptersHtml = '';
+    if (evalMatiere) {
+      const chaps = evalQuizzes.filter(q => q.matiere === evalMatiere);
+      if (chaps.length < 3) {
+        chaptersHtml = `<p style="color:var(--muted);margin-top:1rem">Il faut au moins <strong>3 chapitres avec quiz</strong> dans cette matière (tu en as ${chaps.length}).</p>`;
+      } else {
+        chaptersHtml = `
+          <p style="font-size:0.82rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin:1.25rem 0 0.5rem">Choisis exactement 3 chapitres</p>
+          ${chaps.map(c => `
+            <label class="eval-chapter ${evalSelected.has(c.id)?'selected':''}">
+              <input type="checkbox" ${evalSelected.has(c.id)?'checked':''} onchange="toggleEvalChapter(${c.id})">
+              <span>${escapeHtml(c.titre||'Quiz')}</span>
+            </label>`).join('')}
+          <div style="margin-top:1rem">
+            <button class="gen-btn" ${evalSelected.size!==3?'disabled':''} onclick="startEval()">📝 Démarrer l'évaluation (${evalSelected.size}/3)</button>
+          </div>`;
+      }
+    }
+
+    const pastHtml = evalPastList.length ? `
+      <div style="margin-top:2rem">
+        <div class="cours-folder-title">📊 Évaluations passées</div>
+        ${evalPastList.map(ev => {
+          const pct = ev.total ? Math.round(ev.score/ev.total*100) : 0;
+          return `<div class="chapter-card"><div class="chapter-main">
+            <div class="chapter-title">${escapeHtml(ev.titre||ev.matiere||'Évaluation')}</div>
+            <div class="chapter-tags">
+              <span class="chapter-tag">✅ ${ev.score}/${ev.total} (${pct}%)</span>
+              <span class="chapter-tag">🔒 Verrouillée</span>
+              <span class="chapter-tag">${new Date(ev.created_at).toLocaleDateString('fr-FR')}</span>
+            </div>
+          </div></div>`;
+        }).join('')}
+      </div>` : '';
+
+    el.innerHTML = `
+      <div class="gen-card">
+        <h2>Mode Évaluation 📝</h2>
+        <p style="color:var(--muted);font-size:0.88rem;margin-bottom:1.25rem">30 questions tirées au hasard de 3 chapitres. <strong style="color:var(--orange)">Une seule tentative</strong>, le score est définitif.</p>
+        <div class="field">
+          <label>Matière</label>
+          <select id="eval-matiere-select" onchange="onEvalMatiere(this.value)">
+            <option value="">— Choisis une matière —</option>
+            ${matOptions}
+          </select>
+        </div>
+        ${chaptersHtml}
+      </div>
+      ${pastHtml}`;
+  }
+
+  function onEvalMatiere(val) {
+    evalMatiere = val ? decodeURIComponent(val) : null;
+    evalSelected = new Set();
+    renderEvalSetup();
+  }
+
+  function toggleEvalChapter(id) {
+    if (evalSelected.has(id)) {
+      evalSelected.delete(id);
+    } else {
+      if (evalSelected.size >= 3) { showToast('3 chapitres maximum', 'error'); renderEvalSetup(); return; }
+      evalSelected.add(id);
+    }
+    renderEvalSetup();
+  }
+
+  async function startEval() {
+    if (evalSelected.size !== 3) return;
+    const chosen = evalQuizzes.filter(q => evalSelected.has(q.id));
+    const chapKey = chosen.map(c => c.titre || '').sort().join(' | ');
+
+    // Non-rejouable : déjà fait ?
+    const already = evalPastList.find(ev => ev.matiere === evalMatiere && (ev.chapters||'') === chapKey);
+    if (already) {
+      const pct = already.total ? Math.round(already.score/already.total*100) : 0;
+      showToast(`Évaluation déjà faite : ${already.score}/${already.total} (${pct}%)`, 'error');
+      return;
+    }
+
+    const el = document.getElementById('eval-content');
+    el.innerHTML = '<p style="color:var(--muted);padding:1rem 0">Préparation de l\'évaluation…</p>';
+
+    // Récupérer les questions des 3 quiz et les regrouper
+    let pool = [];
+    try {
+      for (const c of chosen) {
+        const full = await api('GET', `/api/study/quiz/${c.id}`);
+        let qs = full.questions || [];
+        if (typeof qs === 'string') { try { qs = JSON.parse(qs); } catch { qs = []; } }
+        if (!Array.isArray(qs) && qs && qs.questions) qs = qs.questions;
+        pool = pool.concat(Array.isArray(qs) ? qs : []);
+      }
+    } catch(e) {
+      showToast('Erreur : ' + e.message, 'error');
+      renderEvalSetup();
+      return;
+    }
+
+    pool = shuffleArray(pool).slice(0, 30);
+    if (pool.length < 5) {
+      showToast('Pas assez de questions dans ces chapitres', 'error');
+      renderEvalSetup();
+      return;
+    }
+
+    activeEval = {
+      questions: pool,
+      current: 0,
+      answers: {},
+      matiere: evalMatiere,
+      chapKey,
+      titre: 'Éval — ' + chosen.map(c => c.titre).join(', ').slice(0, 60)
+    };
+    renderEvalQuestion();
+  }
+
+  function renderEvalQuestion() {
+    const i = activeEval.current;
+    const q = activeEval.questions[i];
+    const total = activeEval.questions.length;
+    const sel = activeEval.answers[i];
+    const el = document.getElementById('eval-content');
+
+    const optionsHtml = (q.options || []).map((opt, j) => `
+      <button class="quiz-opt ${sel===j?'selected':''}" onclick="selectEvalOption(${j})">
+        <span class="quiz-opt-letter">${String.fromCharCode(65 + j)}</span>
+        <span class="quiz-opt-text">${escapeHtml(opt)}</span>
+      </button>`).join('');
+
+    el.innerHTML = `
+      <div class="quiz-wrap">
+        <div class="quiz-head">
+          <span class="quiz-counter">Question ${i + 1} / ${total}</span>
+          <span class="quiz-points">📝 Évaluation</span>
+        </div>
+        <div class="quiz-bar"><div class="quiz-bar-fill" style="width:${Math.round(i/total*100)}%"></div></div>
+        <div class="quiz-question quiz-fade">
+          <div class="quiz-q-text">${escapeHtml(q.q)}</div>
+          <div class="quiz-options">${optionsHtml}</div>
+          <div class="quiz-actions">
+            ${i>0 ? `<button class="quiz-next" onclick="prevEvalQuestion()">← Précédent</button>` : ''}
+            <button class="quiz-validate" ${sel===undefined?'disabled':''} onclick="nextEvalQuestion()">
+              ${i+1===total ? "Terminer l'évaluation" : 'Suivant →'}
+            </button>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function selectEvalOption(j) {
+    activeEval.answers[activeEval.current] = j;
+    renderEvalQuestion();
+  }
+  function prevEvalQuestion() {
+    if (activeEval.current > 0) { activeEval.current--; renderEvalQuestion(); }
+  }
+  function nextEvalQuestion() {
+    if (activeEval.answers[activeEval.current] === undefined) return;
+    if (activeEval.current + 1 >= activeEval.questions.length) finishEval();
+    else { activeEval.current++; renderEvalQuestion(); }
+  }
+
+  async function finishEval() {
+    const total = activeEval.questions.length;
+    let score = 0;
+    const recap = activeEval.questions.map((q, i) => {
+      const correct = getCorrectIndex(q);
+      const chosen = activeEval.answers[i];
+      const ok = chosen === correct;
+      if (ok) score++;
+      return { q: q.q, options: q.options || [], chosen, correct, ok, explication: q.explication || q.explanation || '' };
+    });
+    const pct = Math.round(score / total * 100);
+
+    // Enregistrement serveur (non-rejouable)
+    try {
+      await api('POST', '/api/study/eval', {
+        titre: activeEval.titre, matiere: activeEval.matiere,
+        chapters: activeEval.chapKey, score, total
+      });
+    } catch(e) { /* on affiche le résultat même si la sauvegarde échoue */ }
+
+    // Niveau estimé automatiquement à partir du score
+    let niveau = 'À consolider';
+    if (pct >= 85) niveau = 'Maîtrisé';
+    else if (pct >= 70) niveau = 'Acquis';
+    else if (pct >= 50) niveau = 'Fragile';
+
+    let medal = '👍';
+    if (pct === 100) medal = '🏆';
+    else if (pct >= 70) medal = '🎉';
+    else if (pct >= 50) medal = '🙂';
+
+    const el = document.getElementById('eval-content');
+    el.innerHTML = `
+      <div class="quiz-final" style="display:block">
+        <div class="quiz-medal">${medal}</div>
+        <div class="quiz-score-big">${score}/${total}</div>
+        <div class="quiz-score-pct">${pct}% · Niveau : ${niveau}</div>
+        <div class="quiz-score-phrase">Évaluation terminée — elle ne peut pas être refaite.</div>
+      </div>
+      <div class="cours-folder-title" style="margin-top:1.5rem">📋 Correction</div>
+      ${recap.map((r, i) => `
+        <div class="chapter-card" style="display:block">
+          <div class="chapter-title">${i+1}. ${escapeHtml(r.q)}</div>
+          <div style="font-size:0.85rem;margin-top:0.4rem;color:${r.ok?'#10B981':'#EF4444'}">
+            ${r.ok ? '✓ Bonne réponse' : '✗ Ta réponse : ' + escapeHtml(r.options[r.chosen] ?? '—')}
+          </div>
+          ${!r.ok ? `<div style="font-size:0.85rem;margin-top:0.2rem;color:#10B981">Bonne réponse : ${escapeHtml(r.options[r.correct] ?? '—')}</div>` : ''}
+          ${r.explication ? `<div style="font-size:0.82rem;color:var(--muted);margin-top:0.3rem">${escapeHtml(r.explication)}</div>` : ''}
+        </div>`).join('')}
+      <div style="margin-top:1.25rem"><button class="quiz-restart" onclick="loadEval()">← Retour aux évaluations</button></div>`;
+
+    showToast(`Évaluation : ${score}/${total} (${pct}%)`, 'success');
+    activeEval = null;
   }
 
   // ══════════════════════════════════════════
