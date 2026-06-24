@@ -1840,7 +1840,7 @@
 
   async function generateStudy() {
     const cours = document.getElementById('study-cours').value.trim();
-    const titre = document.getElementById('study-titre').value.trim() || 'Mon cours';
+    const titre = document.getElementById('study-titre').value.trim();
     const msg   = document.getElementById('study-msg');
     msg.className = 'msg';
 
@@ -2415,6 +2415,7 @@
           <div class="chapter-actions">
             ${f ? `<button class="hist-btn" onclick="viewFiche(${fid})">📋 Fiche</button>` : ''}
             ${q ? `<button class="hist-btn" onclick="openQuizFromLibrary(${qid})">🎯 Quiz</button>` : ''}
+            <button class="hist-btn" onclick="renameChapter(${fid}, ${qid}, '${encodeURIComponent(t)}')">✏️</button>
             <button class="hist-btn" onclick="deleteChapter(${fid}, ${qid})">🗑️</button>
           </div>
         </div>`;
@@ -2436,6 +2437,24 @@
         const reste = coursData.fiches.some(f=>f.matiere===folder) || coursData.quizzes.some(q=>q.matiere===folder);
         if (reste) openFolder(encodeURIComponent(folder));
       }
+    } catch(e) {
+      showToast('Erreur : ' + e.message, 'error');
+    }
+  }
+
+  // Renomme un chapitre (sa fiche ET son quiz)
+  async function renameChapter(ficheId, quizId, currentEncoded) {
+    const current = decodeURIComponent(currentEncoded || '');
+    const nouveau = prompt('Nouveau titre du chapitre :', current);
+    if (nouveau === null) return;            // annulé
+    const t = nouveau.trim();
+    if (!t) { showToast('Le titre ne peut pas être vide', 'error'); return; }
+    try {
+      await api('POST', '/api/study/chapter/rename', { ficheId: ficheId || 0, quizId: quizId || 0, titre: t });
+      showToast('Titre modifié', 'success');
+      const folder = currentFolder;
+      await loadCours();
+      if (folder) openFolder(encodeURIComponent(folder));
     } catch(e) {
       showToast('Erreur : ' + e.message, 'error');
     }
