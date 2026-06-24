@@ -2580,14 +2580,6 @@
     const chosen = evalQuizzes.filter(q => evalSelected.has(q.id));
     const chapKey = chosen.map(c => c.titre || '').sort().join(' | ');
 
-    // Non-rejouable : déjà fait ?
-    const already = evalPastList.find(ev => ev.matiere === evalMatiere && (ev.chapters||'') === chapKey);
-    if (already) {
-      const pct = already.total ? Math.round(already.score/already.total*100) : 0;
-      showToast(`Évaluation déjà faite : ${already.score}/${already.total} (${pct}%)`, 'error');
-      return;
-    }
-
     const el = document.getElementById('eval-content');
     el.innerHTML = '<p style="color:var(--muted);padding:1rem 0">Préparation de l\'évaluation…</p>';
 
