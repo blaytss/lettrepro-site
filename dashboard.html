@@ -2530,7 +2530,21 @@
       }
     }
 
-    el.innerHTML = `
+    // Bannière "reprendre les exercices" si une éval a été faite récemment
+    let resumeHtml = '';
+    try {
+      const saved = JSON.parse(localStorage.getItem('lp_lastEval') || 'null');
+      if (saved && saved.matiere) {
+        resumeHtml = `
+          <div class="gen-card" style="margin-bottom:1.25rem;border-color:rgba(232,105,42,0.4)">
+            <h2>✏️ Exercices en attente</h2>
+            <p style="color:var(--muted);font-size:0.88rem;margin-bottom:1rem">Tu as une évaluation terminée (${escapeHtml(saved.matiere)}). Reprends tes 2 exercices ou corrige ta copie.</p>
+            <button class="gen-btn" onclick="resumeEvalExercises()">Reprendre les exercices →</button>
+          </div>`;
+      }
+    } catch {}
+
+    el.innerHTML = resumeHtml + `
       <div class="gen-card">
         <h2>Mode Évaluation 📝</h2>
         <p style="color:var(--muted);font-size:0.88rem;margin-bottom:1.25rem">30 questions tirées au hasard de 3 chapitres. <strong style="color:var(--orange)">Une seule tentative</strong>, le score est définitif.</p>
@@ -2688,8 +2702,9 @@
     else if (pct >= 70) medal = '🎉';
     else if (pct >= 50) medal = '🙂';
 
-    // Mémoriser l'éval pour pouvoir générer les exercices ensuite
+    // Mémoriser l'éval pour pouvoir générer/corriger les exercices ensuite (même après rechargement)
     lastEvalInfo = { matiere: activeEval.matiere, chapters: activeEval.chapKey, pct };
+    try { localStorage.setItem('lp_lastEval', JSON.stringify(lastEvalInfo)); } catch {}
 
     // Barème dynamique (affichage) : plus le score est haut, moins ça coûte / plus ça rapporte
     const delta = evalCreditDelta(pct);
@@ -2726,6 +2741,18 @@
 
     showToast(`Évaluation : ${score}/${total} (${pct}%)`, 'success');
     activeEval = null;
+  }
+
+  // Reprend les exercices d'une éval déjà terminée (depuis la bannière)
+  async function resumeEvalExercises() {
+    try {
+      const saved = JSON.parse(localStorage.getItem('lp_lastEval') || 'null');
+      if (!saved || !saved.matiere) { showToast('Aucune évaluation à reprendre', 'error'); return; }
+      lastEvalInfo = saved;
+      await generateEvalExercises();   // la route renvoie les exercices déjà créés (sans recompter de crédits)
+    } catch(e) {
+      showToast('Erreur : ' + e.message, 'error');
+    }
   }
 
   // Barème dynamique des crédits pour les exercices (selon le % au QCM)
@@ -2765,13 +2792,81 @@
     el.innerHTML = `
       <div class="quiz-final" style="display:block">
         <div class="quiz-medal">✏️</div>
-        <div class="quiz-score-phrase">Voici tes 2 exercices type bac${deltaTxt}.<br>Fais-les sur papier — bientôt tu pourras importer ta copie pour la correction.</div>
+        <div class="quiz-score-phrase">Voici tes 2 exercices type bac${deltaTxt}.<br>Fais-les sur papier, puis prends ta copie en photo pour la correction.</div>
       </div>
       ${exos.map((ex, i) => `
         <div class="gen-card" style="margin-top:1rem">
           <h2>Exercice ${i+1}</h2>
           <div class="result-text" style="white-space:pre-wrap">${escapeHtml(ex)}</div>
         </div>`).join('')}
+      <div class="gen-card" style="margin-top:1rem">
+        <h2>📸 Corrige ta copie</h2>
+        <p style="color:var(--muted);font-size:0.85rem;margin-bottom:0.75rem">Prends en photo tes exercices faits sur papier — l'IA les corrige et te met une note.</p>
+        <div class="photo-upload">
+          <input type="file" id="eval-copy-input" accept="image/*" multiple capture="environment" style="display:none" onchange="addEvalCopy(this)" />
+          <button type="button" class="photo-add-btn" onclick="document.getElementById('eval-copy-input').click()">📸 Ajouter ma copie</button>
+        </div>
+        <div id="eval-copy-preview" class="photo-preview"></div>
+        <button class="gen-btn" style="margin-top:0.85rem" onclick="correctEvalCopy()">✅ Corriger ma copie</button>
+      </div>
+      <div style="margin-top:1.25rem"><button class="quiz-restart" onclick="loadEval()">← Retour aux évaluations</button></div>`;
+    renderEvalCopyPreview();
+  }
+
+  // ── PHASE 3 : correction de la copie par photo ──
+  let evalCopyImages = [];
+
+  function addEvalCopy(input) {
+    const files = Array.from(input.files || []);
+    input.value = '';
+    files.forEach(file => {
+      if (!file.type.startsWith('image/')) return;
+      if (evalCopyImages.length >= 5) { showToast('5 photos maximum', 'error'); return; }
+      compressImage(file).then(img => { evalCopyImages.push(img); renderEvalCopyPreview(); })
+        .catch(() => showToast('Image illisible', 'error'));
+    });
+  }
+
+  function renderEvalCopyPreview() {
+    const el = document.getElementById('eval-copy-preview');
+    if (!el) return;
+    el.innerHTML = evalCopyImages.map((im, i) => `
+      <div class="photo-thumb">
+        <img src="${im.dataUrl}" alt="copie ${i+1}">
+        <button onclick="removeEvalCopy(${i})" title="Retirer">✕</button>
+      </div>`).join('');
+  }
+
+  function removeEvalCopy(i) { evalCopyImages.splice(i, 1); renderEvalCopyPreview(); }
+
+  async function correctEvalCopy() {
+    if (!lastEvalInfo) { showToast('Aucune évaluation en cours', 'error'); return; }
+    if (evalCopyImages.length === 0) { showToast('Ajoute au moins une photo de ta copie', 'error'); return; }
+    const el = document.getElementById('eval-content');
+    el.innerHTML = '<div class="loading" style="display:flex"><div class="spinner"></div><span>L\'IA corrige ta copie…</span></div>';
+    try {
+      const res = await api('POST', '/api/study/eval/correct', {
+        matiere: lastEvalInfo.matiere, chapters: lastEvalInfo.chapters,
+        images: evalCopyImages.map(im => ({ media_type: im.media_type, data: im.data }))
+      });
+      evalCopyImages = [];
+      renderEvalCorrection(res.correction || 'Correction indisponible.');
+    } catch(e) {
+      showToast('Erreur : ' + e.message, 'error');
+      loadEval();
+    }
+  }
+
+  function renderEvalCorrection(text) {
+    const el = document.getElementById('eval-content');
+    el.innerHTML = `
+      <div class="quiz-final" style="display:block">
+        <div class="quiz-medal">✅</div>
+        <div class="quiz-score-phrase">Voici la correction de ta copie.</div>
+      </div>
+      <div class="gen-card" style="margin-top:1rem">
+        <div class="result-text" style="white-space:pre-wrap">${escapeHtml(text)}</div>
+      </div>
       <div style="margin-top:1.25rem"><button class="quiz-restart" onclick="loadEval()">← Retour aux évaluations</button></div>`;
   }
 
