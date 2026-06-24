@@ -100,15 +100,11 @@
       <li><strong>Email :</strong> sacha.guette@lettrepro.fr</li>
     </ul>
 
-    <div class="highlight-box">
-      <p>⚠️ Conformément à l'article L.123-1 du Code de commerce, l'activité commerciale est exercée avec <strong>autorisation parentale</strong> conformément aux dispositions applicables aux mineurs commerçants.</p>
-    </div>
-
     <h2>2. Hébergement</h2>
     <p>Le site est hébergé par :</p>
     <ul>
       <li><strong>Frontend :</strong> GitHub Pages — GitHub Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis</li>
-      <li><strong>Backend :</strong> Serveur privé situé en France (Var)</li>
+      <li><strong>Backend (serveur applicatif et base de données) :</strong> Railway Corporation — San Francisco, Californie, États-Unis</li>
     </ul>
 
     <h2>3. Propriété intellectuelle</h2>
@@ -197,8 +193,8 @@
     <div class="update-date">Dernière mise à jour : <span>Juin 2026</span></div>
 
     <h2>1. Responsable du traitement</h2>
-    <p><strong>[TON PRÉNOM NOM]</strong> — [TON ADRESSE], Var (83), France<br>
-    Contact DPO : <a href="mailto:contact@lettrepro.fr">contact@lettrepro.fr</a></p>
+    <p><strong>GUETTE Sacha</strong> — [TON ADRESSE], Var (83), France<br>
+    Contact : <a href="mailto:contact@lettrepro.fr">contact@lettrepro.fr</a></p>
 
     <h2>2. Données collectées</h2>
     <div class="table-wrap">
@@ -209,19 +205,25 @@
           <tr><td>Mot de passe (chiffré)</td><td>Authentification sécurisée</td><td>Exécution du contrat</td><td>Durée du compte</td></tr>
           <tr><td>Données de paiement</td><td>Traitement des paiements (via Stripe)</td><td>Obligation légale</td><td>10 ans (comptabilité)</td></tr>
           <tr><td>Lettres générées</td><td>Historique utilisateur</td><td>Consentement</td><td>Jusqu'à suppression par l'utilisateur</td></tr>
+          <tr><td>Contenus de révision (cours, photos, fiches, quiz, évaluations)</td><td>Outils de révision</td><td>Exécution du contrat</td><td>Jusqu'à suppression par l'utilisateur</td></tr>
           <tr><td>Logs de crédits</td><td>Traçabilité des transactions</td><td>Intérêt légitime</td><td>2 ans</td></tr>
           <tr><td>Adresse IP</td><td>Sécurité et lutte contre la fraude</td><td>Intérêt légitime</td><td>12 mois</td></tr>
         </tbody>
       </table>
     </div>
 
-    <h2>3. Données transmises à des tiers</h2>
+    <h2>3. Données transmises à des tiers (sous-traitants)</h2>
     <ul>
+      <li><strong>Railway</strong> (hébergement du serveur et de la base de données) — États-Unis</li>
       <li><strong>Stripe</strong> (paiements) — Politique disponible sur stripe.com/fr/privacy</li>
-      <li><strong>Anthropic</strong> (génération IA) — Les prompts envoyés à l'API Claude peuvent contenir des éléments de profil saisis par l'utilisateur. Voir la politique d'Anthropic sur anthropic.com/privacy</li>
-      <li><strong>GitHub Pages</strong> (hébergement frontend) — Pas de données personnelles transmises</li>
+      <li><strong>Anthropic</strong> (génération par IA « Claude ») — Les contenus que vous soumettez (informations de profil, textes de cours et <strong>photos</strong>) sont transmis à Anthropic pour produire les résultats. Voir anthropic.com/privacy</li>
+      <li><strong>GitHub Pages</strong> (hébergement du site) — États-Unis</li>
     </ul>
     <p>Aucune donnée personnelle n'est vendue ou transmise à des fins publicitaires.</p>
+
+    <div class="highlight-box">
+      <p>🌍 <strong>Transfert hors Union européenne :</strong> certains prestataires ci-dessus (Railway, Stripe, Anthropic, GitHub) sont situés aux <strong>États-Unis</strong>. Les contenus que vous soumettez à l'IA (textes, photos) y sont donc traités. Ces transferts sont encadrés par des garanties appropriées (clauses contractuelles types ou mécanismes équivalents).</p>
+    </div>
 
     <h2>4. Vos droits</h2>
     <p>Conformément au RGPD, vous disposez des droits suivants :</p>
@@ -242,12 +244,12 @@
       <li>Mots de passe chiffrés avec bcrypt (salage automatique)</li>
       <li>Authentification par token JWT (expiration 30 jours)</li>
       <li>Connexions HTTPS (TLS)</li>
-      <li>Accès à la base de données limité au serveur local</li>
+      <li>Accès à la base de données restreint au serveur applicatif</li>
       <li>Aucune donnée bancaire stockée (déléguée à Stripe)</li>
     </ul>
 
     <h2>6. Mineurs</h2>
-    <p>Le service est accessible aux mineurs de 13 ans et plus. Pour les moins de 16 ans, le consentement parental est requis conformément à l'article 8 du RGPD. LettrePro s'engage à ne pas collecter de données personnelles de mineurs de moins de 13 ans.</p>
+    <p>En France, l'âge du consentement numérique est fixé à <strong>15 ans</strong> (article 8 du RGPD et article 45 de la loi Informatique et Libertés). Le service est accessible aux personnes âgées de <strong>15 ans et plus</strong>. Pour les mineurs de moins de 15 ans, le consentement d'un titulaire de l'autorité parentale est requis. LettrePro ne collecte pas sciemment de données concernant des enfants de moins de 15 ans.</p>
   </div>
 
   <!-- ══ COOKIES ══ -->
