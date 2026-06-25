@@ -543,8 +543,7 @@
         <div class="stat-card">
           <div class="label">Plan actuel</div>
           <div class="value" id="stat-plan" style="font-size:1.1rem;margin-top:2px">—</div>
-          <div class="sub"><a href="tarifs.html" style="color:var(--orange);text-decoration:none;font-size:0.78rem">Changer →</a></div>
-        </div>
+          <div class="sub"><a href="#" onclick="showPage('abonnement', document.querySelector('[data-page=abonnement]'));return false;" style="color:var(--orange);text-decoration:none;font-size:0.78rem">Changer →</a></div>        </div>
       </div>
 
       <div class="gen-card">
@@ -584,7 +583,7 @@
               <option value="nl">🇳🇱 Nederlands</option>
               <option value="ar">🇸🇦 العربية</option>
             </select>
-            <div class="locked-overlay" id="lang-lock">🔒 <a href="tarifs.html">Starter ou Premium</a> requis</div>
+            <div class="locked-overlay" id="lang-lock">🔒 <a href="#" onclick="showPage('abonnement', document.querySelector('[data-page=abonnement]'));return false;">Starter ou Premium</a> requis</div>
           </div>
           <div class="field full locked-field" id="chars-field-wrap">
             <label>Nombre de caractères <span style="color:var(--muted);font-weight:400;font-size:0.75rem">(optionnel)</span></label>
@@ -600,7 +599,7 @@
               <span style="font-size:0.78rem;color:var(--muted)">ou exact :</span>
               <input type="number" id="g-chars-custom" placeholder="ex: 1500" min="200" max="4000" style="width:130px" />
             </div>
-            <div class="locked-overlay" id="chars-lock">🔒 <a href="tarifs.html">Starter ou Premium</a> requis</div>
+            <div class="locked-overlay" id="chars-lock">🔒 <a href="#" onclick="showPage('abonnement', document.querySelector('[data-page=abonnement]'));return false;">Starter ou Premium</a> requis</div>
           </div>
         </div>
         <button class="gen-btn" id="gen-btn" onclick="generateLetter()"><span>✦</span> Générer — 1 crédit</button>
@@ -631,7 +630,7 @@
         <div id="improve-msg" class="msg"></div>
         <div id="improve-locked-banner" style="display:none;background:rgba(232,105,42,0.08);border:1px solid rgba(232,105,42,0.25);border-radius:10px;padding:1.25rem;margin-bottom:1rem;text-align:center;">
           <p style="color:var(--muted);font-size:0.9rem;margin-bottom:0.75rem">🔒 La correction est disponible à partir du plan <strong style="color:var(--orange)">Starter</strong></p>
-          <a href="tarifs.html" style="background:var(--orange);color:white;text-decoration:none;border-radius:8px;padding:0.55rem 1.5rem;font-size:0.88rem;font-weight:700;">Passer Starter</a>
+          <a href="#" onclick="showPage('abonnement', document.querySelector('[data-page=abonnement]'));return false;" style="background:var(--orange);color:white;text-decoration:none;border-radius:8px;padding:0.55rem 1.5rem;font-size:0.88rem;font-weight:700;">Passer Starter</a>
         </div>
         <div class="gen-grid">
           <div class="field full"><label>Ta lettre actuelle *</label><textarea id="imp-letter" rows="8" placeholder="Colle ici ta lettre de motivation..."></textarea></div>
@@ -962,6 +961,9 @@
         <p>Choisis le plan qui correspond à tes besoins. Change à tout moment.</p>
       </div>
       <div class="plans-grid" id="plans-grid"></div>
+      <div id="manage-sub-row" style="display:none;margin-bottom:2rem;text-align:center">
+        <button class="plan-action-btn outline" style="max-width:320px;margin:0 auto" onclick="openPortal()">⚙️ Gérer / résilier mon abonnement</button>
+      </div>
       <h2 style="font-family:'Sora',sans-serif;font-weight:700;color:var(--text);margin-bottom:1.25rem;font-size:1.1rem">Comparaison complète</h2>
       <div class="compare-wrap">
         <table>
@@ -1080,7 +1082,7 @@
     return data;
   }
 
-  // ══════════════════════════════════════════
+  // ══════════════════════════════════════════  
   //  INIT
   // ══════════════════════════════════════════
   async function init() {
@@ -1092,7 +1094,10 @@
       showToast(`✦ +${params.get('credits') || '?'} crédits ajoutés !`, 'success');
       window.history.replaceState({}, '', 'dashboard.html');
     }
-
+    if (params.get('sub') === 'success') {
+      showToast(`⚡ Abonnement ${params.get('plan') || ''} activé !`, 'success');
+      window.history.replaceState({}, '', 'dashboard.html');
+    }
     try {
       const data = await api('GET', '/api/me');
       currentUser = data.user;
@@ -1457,7 +1462,7 @@
         ? `<button class="plan-action-btn active-plan" disabled>✓ Plan actuel</button>`
         : p.key === 'free'
           ? `<button class="plan-action-btn outline" onclick="downgradePlan('free')">Repasser en Gratuit</button>`
-          : `<a href="tarifs.html?plan=${p.key}" class="plan-action-btn filled">Passer ${plan.name}</a>`;
+          : `<button class="plan-action-btn filled" onclick="subscribePlan('${p.key}')">Passer ${plan.name}</button>`;
       return `<div class="plan-card ${isCurrent?'current':''}">
         ${badge}
         <div class="plan-card-name">${plan.name}</div>
@@ -1468,6 +1473,8 @@
         ${btnHTML}
       </div>`;
     }).join('');
+    const manageRow = document.getElementById('manage-sub-row');
+    if (manageRow) manageRow.style.display = (userPlan === 'starter' || userPlan === 'premium') ? 'block' : 'none';
   }
 
   async function downgradePlan(plan) {
@@ -1479,7 +1486,19 @@
       showToast('Plan mis à jour', 'success');
     } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
   }
+async function subscribePlan(plan) {
+    try {
+      const data = await api('POST', '/api/stripe/create-subscription', { plan });
+      window.location.href = data.url;
+    } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
+  }
 
+  async function openPortal() {
+    try {
+      const data = await api('POST', '/api/stripe/portal');
+      window.location.href = data.url;
+    } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
+  }
   // ══════════════════════════════════════════
   //  ACCOUNT
   // ══════════════════════════════════════════
