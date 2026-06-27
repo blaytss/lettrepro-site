@@ -929,20 +929,9 @@
     <div class="page" id="page-account">
       <div class="page-header"><h1>Mon compte</h1><p>Gère tes informations et la sécurité de ton compte.</p></div>
 
-      <div class="account-grid">
-        <div class="account-card">
-          <h3>Informations personnelles</h3>
-          <div id="account-info"></div>
-        </div>
-        <div class="account-card">
-          <h3>Clé API Claude</h3>
-          <p style="color:var(--muted);font-size:0.82rem;margin-bottom:0.75rem">Clé sur <a href="https://console.anthropic.com" target="_blank" style="color:var(--orange)">console.anthropic.com</a> → API Keys</p>
-          <div class="api-key-row">
-            <input type="password" id="api-key-input" placeholder="sk-ant-..." />
-            <button class="api-save-btn" onclick="saveApiKey()">Enregistrer</button>
-          </div>
-          <p id="api-key-status" style="font-size:0.78rem;color:var(--muted);margin-top:0.5rem"></p>
-        </div>
+      <div class="account-card">
+        <h3>Informations personnelles</h3>
+        <div id="account-info"></div>
       </div>
 
       <!-- SÉCURITÉ : MOT DE PASSE -->
