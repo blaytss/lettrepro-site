@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LettrePro — Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0F0D0A; --surface: #1A1612; --card: #231E17; --border: #3A2F22;
+      --orange: #E8692A; --orange-light: #F5A462; --orange-glow: rgba(232,105,42,0.15);
+      --text: #F5F0E8; --muted: #9A8A78;
+      --green: #5CDB95; --red: #FF6B6B; --gold: #FFB400; --blue: #5B9BD5;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
+
+    nav { display: flex; align-items: center; justify-content: space-between; padding: 1rem 2rem; border-bottom: 1px solid var(--border); background: var(--surface); position: sticky; top: 0; z-index: 100; flex-wrap: wrap; gap: 0.75rem; }
+    .nav-logo { font-family: 'Sora', sans-serif; font-weight: 800; font-size: 1.2rem; color: var(--text); text-decoration: none; }
+    .nav-logo span { color: var(--orange); }
+    .nav-admin-tag { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; background: var(--orange-glow); border: 1px solid rgba(232,105,42,0.4); color: var(--orange); padding: 0.2rem 0.6rem; border-radius: 999px; margin-left: 0.5rem; }
+    .nav-right { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .live-pill { display: flex; align-items: center; gap: 0.5rem; background: var(--card); border: 1px solid var(--border); border-radius: 999px; padding: 0.35rem 0.85rem; font-size: 0.8rem; color: var(--muted); }
+    .live-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 0 rgba(92,219,149,0.6); animation: pulse 1.8s infinite; }
+    .live-dot.paused { background: var(--muted); animation: none; box-shadow: none; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(92,219,149,0.5); } 70% { box-shadow: 0 0 0 8px rgba(92,219,149,0); } 100% { box-shadow: 0 0 0 0 rgba(92,219,149,0); } }
+    .refresh-btn { background: none; border: 1px solid var(--border); color: var(--muted); font-size: 0.82rem; padding: 0.4rem 0.85rem; border-radius: 8px; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; }
+    .refresh-btn:hover { border-color: var(--orange); color: var(--orange); }
+    .back-link { color: var(--muted); text-decoration: none; font-size: 0.82rem; }
+    .back-link:hover { color: var(--orange); }
+
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+    .page-header { margin-bottom: 1.75rem; }
+    .page-header h1 { font-family: 'Sora', sans-serif; font-weight: 800; font-size: 1.6rem; margin-bottom: 0.25rem; }
+    .page-header p { color: var(--muted); font-size: 0.9rem; }
+
+    .msg { padding: 1rem 1.25rem; border-radius: 10px; font-size: 0.9rem; margin-bottom: 1.5rem; display: none; }
+    .msg.error { background: rgba(220,50,50,0.1); border: 1px solid rgba(220,50,50,0.3); color: var(--red); display: block; }
+    .msg.info  { background: var(--orange-glow); border: 1px solid rgba(232,105,42,0.3); color: var(--orange); display: block; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.4rem 1.5rem; transition: border-color 0.2s; }
+    .stat-card:hover { border-color: var(--orange); }
+    .stat-card .label { font-size: 0.74rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.4rem; }
+    .stat-card .value { font-family: 'Sora', sans-serif; font-size: 2.1rem; font-weight: 800; line-height: 1; }
+    .stat-card .sub { font-size: 0.78rem; color: var(--muted); margin-top: 0.35rem; }
+    .stat-card.hl { background: linear-gradient(160deg, rgba(232,105,42,0.1), var(--surface)); border-color: rgba(232,105,42,0.3); }
+
+    .section-title { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 1.1rem; margin: 2rem 0 1rem; }
+
+    .plan-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1rem; }
+    .plan-box { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; text-align: center; }
+    .plan-box .pname { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 0.5rem; }
+    .plan-box .pcount { font-family: 'Sora', sans-serif; font-size: 2.4rem; font-weight: 800; line-height: 1; }
+    .plan-box .pcredits { font-size: 0.78rem; color: var(--muted); margin-top: 0.4rem; }
+    .plan-box .pbar { height: 6px; background: var(--card); border-radius: 999px; overflow: hidden; margin-top: 0.9rem; }
+    .plan-box .pbar-fill { height: 100%; border-radius: 999px; transition: width 0.6s ease; }
+
+    .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    th { padding: 0.85rem 1.1rem; text-align: left; font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); background: var(--card); border-bottom: 1px solid var(--border); }
+    td { padding: 0.8rem 1.1rem; font-size: 0.86rem; border-bottom: 1px solid rgba(58,47,34,0.4); }
+    tr:last-child td { border-bottom: none; }
+    .plan-chip { font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .plan-chip.free    { background: rgba(154,138,120,0.12); border: 1px solid var(--border); color: var(--muted); }
+    .plan-chip.starter { background: rgba(232,105,42,0.15); border: 1px solid rgba(232,105,42,0.3); color: var(--orange); }
+    .plan-chip.premium { background: rgba(255,180,0,0.12); border: 1px solid rgba(255,180,0,0.3); color: var(--gold); }
+    .plan-chip.prof    { background: rgba(91,155,213,0.12); border: 1px solid rgba(91,155,213,0.35); color: var(--blue); }
+
+    .updated-line { font-size: 0.78rem; color: var(--muted); margin-top: 1.25rem; text-align: right; }
+
+    .loader { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--orange); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 900px) {
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .plan-grid  { grid-template-columns: 1fr 1fr; }
+      .wrap { padding: 1.25rem; }
+      nav { padding: 0.8rem 1.1rem; }
+      .table-wrap { overflow-x: auto; }
+    }
+    @media (max-width: 520px) {
+      .stats-grid, .plan-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div>
+    <a href="dashboard.html" class="nav-logo">Lettre<span>Pro</span></a>
+    <span class="nav-admin-tag">Admin</span>
+  </div>
+  <div class="nav-right">
+    <div class="live-pill">
+      <span class="live-dot" id="live-dot"></span>
+      <span id="live-text">En direct</span>
+    </div>
+    <button class="refresh-btn" onclick="loadStats(true)">↻ Actualiser</button>
+    <a href="dashboard.html" class="back-link">← Retour au site</a>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="page-header">
+    <h1>Tableau de bord admin</h1>
+    <p>Vue d'ensemble de tes utilisateurs et abonnements. Les chiffres se mettent à jour automatiquement.</p>
+  </div>
+
+  <div class="msg" id="msg"></div>
+
+  <!-- CARTES PRINCIPALES -->
+  <div class="stats-grid">
+    <div class="stat-card hl">
+      <div class="label">👥 Utilisateurs total</div>
+      <div class="value" id="s-total">—</div>
+      <div class="sub" id="s-total-sub">comptes créés</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">⚡ Abonnés payants</div>
+      <div class="value" id="s-paid" style="color:var(--orange)">—</div>
+      <div class="sub" id="s-paid-sub">Starter + Premium</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">🎓 Profs</div>
+      <div class="value" id="s-prof" style="color:var(--blue)">—</div>
+      <div class="sub">comptes professeur</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">💶 Revenu mensuel estimé</div>
+      <div class="value" id="s-mrr" style="color:var(--green)">—</div>
+      <div class="sub">Starter ×3€ + Premium ×5€</div>
+    </div>
+  </div>
+
+  <!-- RÉPARTITION PAR PLAN -->
+  <div class="section-title">Répartition par abonnement</div>
+  <div class="plan-grid">
+    <div class="plan-box">
+      <div class="pname" style="color:var(--muted)">Gratuit</div>
+      <div class="pcount" id="p-free">—</div>
+      <div class="pcredits" id="p-free-cr">— crédits cumulés</div>
+      <div class="pbar"><div class="pbar-fill" id="p-free-bar" style="background:var(--muted);width:0%"></div></div>
+    </div>
+    <div class="plan-box">
+      <div class="pname" style="color:var(--orange)">Starter — 3€</div>
+      <div class="pcount" id="p-starter" style="color:var(--orange)">—</div>
+      <div class="pcredits" id="p-starter-cr">— crédits cumulés</div>
+      <div class="pbar"><div class="pbar-fill" id="p-starter-bar" style="background:var(--orange);width:0%"></div></div>
+    </div>
+    <div class="plan-box">
+      <div class="pname" style="color:var(--gold)">Premium — 5€</div>
+      <div class="pcount" id="p-premium" style="color:var(--gold)">—</div>
+      <div class="pcredits" id="p-premium-cr">— crédits cumulés</div>
+      <div class="pbar"><div class="pbar-fill" id="p-premium-bar" style="background:var(--gold);width:0%"></div></div>
+    </div>
+    <div class="plan-box">
+      <div class="pname" style="color:var(--blue)">Profs</div>
+      <div class="pcount" id="p-prof" style="color:var(--blue)">—</div>
+      <div class="pcredits">comptes enseignant</div>
+      <div class="pbar"><div class="pbar-fill" id="p-prof-bar" style="background:var(--blue);width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- DERNIERS INSCRITS -->
+  <div class="section-title">Derniers inscrits</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Nom</th><th>Email</th><th>Plan</th><th>Inscrit le</th></tr>
+      </thead>
+      <tbody id="recent-body">
+        <tr><td colspan="4" style="text-align:center;color:var(--muted);padding:2rem"><span class="loader"></span> Chargement…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="updated-line" id="updated-line">—</div>
+</div>
+
+<script>
+  // ⚙️ Même backend que le reste du site
+  const API_BASE = 'https://lettrepro-production.up.railway.app';
+  const REFRESH_MS = 15000; // 15 secondes
+  let refreshTimer = null;
+
+  // Pas de token = pas connecté → on renvoie vers la connexion
+  if (!localStorage.getItem('lp_token')) {
+    window.location.href = 'login.html';
+  }
+
+  async function api(method, path) {
+    const token = localStorage.getItem('lp_token');
+    const res = await fetch(API_BASE + path, {
+      method,
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }
+    });
+    if (res.status === 401) { window.location.href = 'login.html'; throw new Error('Session expirée'); }
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || ('Erreur ' + res.status));
+    return data;
+  }
+
+  function setLive(on) {
+    const dot = document.getElementById('live-dot');
+    const txt = document.getElementById('live-text');
+    if (on) { dot.classList.remove('paused'); txt.textContent = 'En direct'; }
+    else    { dot.classList.add('paused');    txt.textContent = 'Hors ligne'; }
+  }
+
+  function num(n) { return (n ?? 0).toLocaleString('fr-FR'); }
+
+  async function loadStats(manual = false) {
+    const msg = document.getElementById('msg');
+    try {
+      const d = await api('GET', '/api/admin/stats');
+      msg.className = 'msg';
+      setLive(true);
+
+      const bp = d.by_plan || {};
+      const free    = (bp.free    || {}).users || 0;
+      const starter = (bp.starter || {}).users || 0;
+      const premium = (bp.premium || {}).users || 0;
+      const prof    = (bp.prof    || {}).users || 0;
+
+      const paid = starter + premium;
+      const mrr  = starter * 3 + premium * 5;
+
+      // Cartes principales
+      document.getElementById('s-total').textContent = num(d.total);
+      document.getElementById('s-total-sub').textContent = (d.active_subs ?? 0) + ' abonnement(s) actif(s)';
+      document.getElementById('s-paid').textContent = num(paid);
+      document.getElementById('s-prof').textContent = num(prof);
+      document.getElementById('s-mrr').textContent  = num(mrr) + ' €';
+
+      // Répartition par plan
+      const maxPlan = Math.max(free, starter, premium, prof, 1);
+      const setPlan = (key, count, credits) => {
+        document.getElementById('p-' + key).textContent = num(count);
+        const crEl = document.getElementById('p-' + key + '-cr');
+        if (crEl) crEl.textContent = num(credits) + ' crédits cumulés';
+        document.getElementById('p-' + key + '-bar').style.width = Math.round(count / maxPlan * 100) + '%';
+      };
+      setPlan('free',    free,    (bp.free    || {}).credits);
+      setPlan('starter', starter, (bp.starter || {}).credits);
+      setPlan('premium', premium, (bp.premium || {}).credits);
+      // prof n'a pas de ligne crédits
+      document.getElementById('p-prof').textContent = num(prof);
+      document.getElementById('p-prof-bar').style.width = Math.round(prof / maxPlan * 100) + '%';
+
+      // Derniers inscrits
+      const body = document.getElementById('recent-body');
+      const recent = d.recent || [];
+      if (!recent.length) {
+        body.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:2rem">Aucun inscrit pour l\'instant.</td></tr>';
+      } else {
+        body.innerHTML = recent.map(u => {
+          const nom = ((u.prenom || '') + ' ' + (u.nom || '')).trim() || '—';
+          const planKey = (u.plan || 'free');
+          const planLabel = { free:'Gratuit', starter:'Starter', premium:'Premium', prof:'Prof' }[planKey] || planKey;
+          let date = '—';
+          if (u.created_at) { try { date = new Date(u.created_at).toLocaleDateString('fr-FR', { day:'numeric', month:'short', year:'numeric' }); } catch(e){} }
+          return `<tr>
+            <td>${esc(nom)}</td>
+            <td style="color:var(--muted)">${esc(u.email || '')}</td>
+            <td><span class="plan-chip ${planKey}">${planLabel}</span></td>
+            <td style="color:var(--muted)">${date}</td>
+          </tr>`;
+        }).join('');
+      }
+
+      const now = new Date();
+      document.getElementById('updated-line').textContent =
+        'Dernière mise à jour : ' + now.toLocaleTimeString('fr-FR') + ' · actualisation auto toutes les 15 s';
+
+    } catch (e) {
+      setLive(false);
+      if ((e.message || '').toLowerCase().includes('refus') || (e.message || '').includes('403')) {
+        msg.className = 'msg error';
+        msg.textContent = '🚫 Accès refusé : ce compte n\'est pas administrateur. Connecte-toi avec ton compte admin (celui défini dans ADMIN_EMAILS côté serveur).';
+        stopAuto();
+      } else {
+        msg.className = 'msg error';
+        msg.textContent = 'Erreur : ' + e.message;
+      }
+    }
+  }
+
+  function esc(s) {
+    return String(s ?? '')
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  function startAuto() {
+    stopAuto();
+    refreshTimer = setInterval(loadStats, REFRESH_MS);
+  }
+  function stopAuto() {
+    if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
+  }
+
+  // Met en pause quand l'onglet est caché (économise des appels), reprend au retour
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { stopAuto(); setLive(false); }
+    else { loadStats(); startAuto(); }
+  });
+
+  // Démarrage
+  loadStats();
+  startAuto();
+</script>
+
+</body>
+</html>
