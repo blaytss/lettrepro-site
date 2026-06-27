@@ -317,12 +317,23 @@ async function editEmail(id, currentEmail) {
     if (nouveau === null) return;                 // annulé
     const email = nouveau.trim().toLowerCase();
     if (!email || email === currentEmail.toLowerCase()) return;  // vide ou inchangé
+
     try {
-      await api('PUT', '/api/admin/user/' + id + '/email', { email });
-      alert('✓ Email modifié en : ' + email);
-      loadStats();   // rafraîchit la liste
+      const token = localStorage.getItem('lp_token');
+      const res = await fetch(API_BASE + '/api/admin/user/' + id + '/email', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        alert('❌ ' + (data.error || ('Erreur ' + res.status)));
+        return;
+      }
+      alert('✓ Email modifié en : ' + (data.email || email));
+      loadStats();
     } catch (e) {
-      alert('Erreur : ' + e.message);
+      alert('Erreur de connexion : ' + e.message);
     }
   }
 </script>
