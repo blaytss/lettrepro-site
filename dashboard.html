@@ -927,7 +927,8 @@
 
     <!-- PAGE ACCOUNT -->
     <div class="page" id="page-account">
-      <div class="page-header"><h1>Mon compte</h1><p>Gérez vos informations.</p></div>
+      <div class="page-header"><h1>Mon compte</h1><p>Gère tes informations et la sécurité de ton compte.</p></div>
+
       <div class="account-grid">
         <div class="account-card">
           <h3>Informations personnelles</h3>
@@ -943,6 +944,20 @@
           <p id="api-key-status" style="font-size:0.78rem;color:var(--muted);margin-top:0.5rem"></p>
         </div>
       </div>
+
+      <!-- SÉCURITÉ : MOT DE PASSE -->
+      <div class="account-card" style="margin-top:1.5rem">
+        <h3>🔑 Changer mon mot de passe</h3>
+        <div id="pw-msg" class="msg"></div>
+        <div class="gen-grid">
+          <div class="field full"><label>Mot de passe actuel</label><input type="password" id="pw-current" placeholder="Ton mot de passe actuel" /></div>
+          <div class="field"><label>Nouveau mot de passe</label><input type="password" id="pw-new" placeholder="8 caractères minimum" /></div>
+          <div class="field"><label>Confirmer le nouveau</label><input type="password" id="pw-confirm" placeholder="Répète le nouveau" /></div>
+        </div>
+        <button class="gen-btn" id="pw-btn" onclick="changePassword()"><span>🔑</span> Modifier le mot de passe</button>
+      </div>
+
+      <!-- DÉCONNEXION -->
       <div style="margin-top:1.5rem;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.75rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
         <div>
           <p style="font-weight:600;color:var(--text);margin-bottom:0.25rem">Se déconnecter</p>
@@ -950,6 +965,15 @@
         </div>
         <button onclick="logout()" style="background:transparent;border:1px solid rgba(220,50,50,0.4);color:#FF6B6B;border-radius:9px;padding:0.65rem 1.5rem;font-size:0.88rem;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='rgba(220,50,50,0.1)'" onmouseout="this.style.background='transparent'">
           Se déconnecter
+        </button>
+      </div>
+
+      <!-- ZONE DE DANGER : SUPPRESSION -->
+      <div class="account-card" style="margin-top:1.5rem;border-color:rgba(220,50,50,0.35);background:linear-gradient(160deg,rgba(220,50,50,0.05),var(--surface))">
+        <h3 style="color:#FF6B6B;border-bottom-color:rgba(220,50,50,0.25)">⚠️ Zone de danger</h3>
+        <p style="color:var(--muted);font-size:0.85rem;margin-bottom:1rem">Supprimer ton compte est <strong style="color:var(--text)">définitif</strong> : toutes tes lettres, fiches, quiz et données sont effacées, et ton abonnement est automatiquement annulé.</p>
+        <button onclick="deleteAccount()" style="background:transparent;border:1px solid rgba(220,50,50,0.5);color:#FF6B6B;border-radius:9px;padding:0.7rem 1.5rem;font-size:0.88rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='rgba(220,50,50,0.12)'" onmouseout="this.style.background='transparent'">
+          🗑️ Supprimer mon compte
         </button>
       </div>
     </div>
@@ -3078,7 +3102,49 @@ async function subscribePlan(plan) {
   })();
 </script>
 <!-- ===== FIN BOUTON ADMIN ===== -->
+<!-- ===== FONCTIONS COMPTE (mot de passe + suppression) ===== -->
+<script>
+  async function changePassword() {
+    const cur = document.getElementById('pw-current').value;
+    const nw  = document.getElementById('pw-new').value;
+    const cf  = document.getElementById('pw-confirm').value;
+    const msg = document.getElementById('pw-msg');
+    msg.className = 'msg';
 
+    if (!cur || !nw) { msg.className = 'msg error'; msg.textContent = 'Remplis le mot de passe actuel et le nouveau.'; return; }
+    if (nw.length < 8) { msg.className = 'msg error'; msg.textContent = 'Le nouveau mot de passe doit faire au moins 8 caractères.'; return; }
+    if (nw !== cf) { msg.className = 'msg error'; msg.textContent = 'La confirmation ne correspond pas au nouveau mot de passe.'; return; }
+
+    const btn = document.getElementById('pw-btn');
+    btn.disabled = true;
+    try {
+      await api('POST', '/api/account/password', { current: cur, new: nw });
+      ['pw-current','pw-new','pw-confirm'].forEach(id => document.getElementById(id).value = '');
+      msg.className = 'msg success'; msg.textContent = '✓ Mot de passe modifié avec succès.';
+      showToast('🔑 Mot de passe modifié', 'success');
+    } catch(e) {
+      msg.className = 'msg error'; msg.textContent = 'Erreur : ' + e.message;
+    }
+    btn.disabled = false;
+  }
+
+  async function deleteAccount() {
+    const txt = prompt("⚠️ ATTENTION : cette action est DÉFINITIVE.\n\nToutes tes données seront effacées et ton abonnement annulé.\n\nPour confirmer, écris en majuscules : SUPPRIMER");
+    if (txt === null) return; // annulé
+    if (txt.trim().toUpperCase() !== 'SUPPRIMER') { showToast('Suppression annulée', 'error'); return; }
+    try {
+      await api('DELETE', '/api/account');
+      localStorage.removeItem('lp_token');
+      localStorage.removeItem('lp_session');
+      localStorage.removeItem('lp_api_key');
+      alert('Ton compte a bien été supprimé. À bientôt !');
+      window.location.href = 'index.html';
+    } catch(e) {
+      showToast('Erreur : ' + e.message, 'error');
+    }
+  }
+</script>
+<!-- ===== FIN FONCTIONS COMPTE ===== -->
 </body>
 </html>
 </script>
