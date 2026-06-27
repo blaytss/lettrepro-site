@@ -3048,6 +3048,37 @@ async function subscribePlan(plan) {
   }
 </script>
 
+<!-- ===== BOUTON ADMIN (visible seulement par l'admin) ===== -->
+<script>
+  (function () {
+    // ⚠️ Mets ici le MÊME email que dans ADMIN_EMAILS de app.py (en minuscules)
+    const ADMIN_EMAILS_FRONT = ["ton.email@exemple.com"];
+
+    function tryInjectAdmin() {
+      // On attend que l'utilisateur soit chargé
+      if (typeof currentUser === 'undefined' || !currentUser || !currentUser.email) {
+        return setTimeout(tryInjectAdmin, 400);
+      }
+      const myEmail = (currentUser.email || '').toLowerCase();
+      const isAdmin = ADMIN_EMAILS_FRONT.map(e => e.toLowerCase()).includes(myEmail);
+      if (!isAdmin) return;
+      if (document.getElementById('admin-nav-link')) return; // déjà ajouté
+
+      const sidebar = document.querySelector('.sidebar');
+      if (!sidebar) return;
+      const link = document.createElement('a');
+      link.id = 'admin-nav-link';
+      link.href = 'admin.html';
+      link.className = 'sidebar-item';
+      link.innerHTML = '<span class="icon">📊</span> Admin';
+      // On l'ajoute en haut du menu
+      sidebar.insertBefore(link, sidebar.firstChild);
+    }
+    tryInjectAdmin();
+  })();
+</script>
+<!-- ===== FIN BOUTON ADMIN ===== -->
+ 
 </body>
 </html>
 </script>
