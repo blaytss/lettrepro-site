@@ -167,7 +167,7 @@
   <div class="table-wrap">
     <table>
       <thead>
-        <tr><th>Nom</th><th>Email</th><th>Plan</th><th>Inscrit le</th></tr>
+        <tr><th>Nom</th><th>Email</th><th>Plan</th><th>Inscrit le</th><th></th></tr>
       </thead>
       <tbody id="recent-body">
         <tr><td colspan="4" style="text-align:center;color:var(--muted);padding:2rem"><span class="loader"></span> Chargement…</td></tr>
@@ -265,6 +265,9 @@
             <td style="color:var(--muted)">${esc(u.email || '')}</td>
             <td><span class="plan-chip ${planKey}">${planLabel}</span></td>
             <td style="color:var(--muted)">${date}</td>
+            <td style="text-align:right">
+              <button class="refresh-btn" onclick="editEmail(${u.id}, '${esc(u.email || '')}')">✏️ Email</button>
+            </td>
           </tr>`;
         }).join('');
       }
@@ -309,6 +312,19 @@
   // Démarrage
   loadStats();
   startAuto();
+async function editEmail(id, currentEmail) {
+    const nouveau = prompt("Nouvel email pour ce compte :", currentEmail);
+    if (nouveau === null) return;                 // annulé
+    const email = nouveau.trim().toLowerCase();
+    if (!email || email === currentEmail.toLowerCase()) return;  // vide ou inchangé
+    try {
+      await api('PUT', '/api/admin/user/' + id + '/email', { email });
+      alert('✓ Email modifié en : ' + email);
+      loadStats();   // rafraîchit la liste
+    } catch (e) {
+      alert('Erreur : ' + e.message);
+    }
+  }
 </script>
 
 </body>
