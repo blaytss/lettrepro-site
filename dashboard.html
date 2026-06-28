@@ -502,6 +502,7 @@
     <button class="sidebar-item" data-page="study" onclick="showPage('study', this)"><span class="icon">📚</span> Cours & Révisions</button>
     <a class="sidebar-item" href="explorer.html"><span class="icon">🔍</span> Explorer les profs</a>
     <button class="sidebar-item" data-page="messages" onclick="showPage('messages', this)"><span class="icon">💬</span> Messages</button>
+    <button class="sidebar-item" data-page="myprofs" onclick="showPage('myprofs', this)"><span class="icon">👨‍🏫</span> Mes profs</button>
     <button class="sidebar-item" data-page="history" onclick="showPage('history', this)"><span class="icon">📄</span> Mes lettres</button>
     <div class="sidebar-sep"></div>
     <button class="sidebar-item" data-page="credits" onclick="showPage('credits', this)"><span class="icon">💳</span> Crédits</button>
@@ -785,6 +786,15 @@
         <div id="evalhist-content"></div>
       </div>
     </div>
+
+<!-- PAGE MES PROFS -->
+    <div class="page" id="page-myprofs">
+      <div class="page-header"><h1>Mes profs</h1><p>Tes abonnements et tes demandes de visio.</p></div>
+      <div id="myprofs-content">
+        <div class="empty"><div class="icon">👨‍🏫</div><p>Chargement…</p></div>
+      </div>
+    </div>
+
     <!-- PAGE MESSAGES -->
     <div class="page" id="page-messages">
       <div class="page-header"><h1>Messages</h1><p>Discute avec les profs auxquels tu es abonné.</p></div>
@@ -1028,6 +1038,24 @@
 
   </main>
 </div>
+
+<!-- MODAL DEMANDE VISIO -->
+<div class="modal-overlay" id="visio-request-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('visio-request-modal').classList.remove('visible')">✕</button>
+    <h3>📹 Demander une visio</h3>
+    <p style="color:var(--muted);font-size:0.85rem;margin-bottom:1.25rem">À <strong id="vr-prof-name" style="color:var(--text)"></strong>. Le prof recevra ta demande et pourra l'accepter ou la refuser. Les crédits ne sont débités que s'il accepte.</p>
+    <div id="vr-msg" class="msg"></div>
+    <div class="field"><label>Date et heure souhaitées</label><input type="datetime-local" id="vr-date" /></div>
+    <div class="field"><label>Durée (heures)</label><input type="number" id="vr-duration" value="1" min="0.5" step="0.5" /></div>
+    <div class="field"><label>Sujet (optionnel)</label><input type="text" id="vr-notes" placeholder="Ex : révision sur les intégrales" /></div>
+    <div style="display:flex;gap:0.75rem;margin-top:0.5rem">
+      <button class="gen-btn" onclick="sendVisioRequest()">Envoyer la demande</button>
+      <button class="hist-btn" onclick="document.getElementById('visio-request-modal').classList.remove('visible')">Annuler</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL CHOIX COURS DE PROF -->
 <div class="modal-overlay" id="prof-course-modal">
   <div class="modal">
@@ -1842,6 +1870,7 @@ async function subscribePlan(plan) {
     if (name === 'study')      { updateCostPreview(); }
     if (name === 'apparence')  { initThemePage(); }
     if (name === 'messages')   { loadConversations(); startChatPolling(); }
+    if (name === 'myprofs')    { loadMyProfs(); }
   }
 
   // ══════════════════════════════════════════
@@ -3316,6 +3345,78 @@ async function subscribePlan(plan) {
   }
 </script>
 <!-- ===== FIN CHOIX COURS DE PROF ===== -->
+
+<!-- ===== MES PROFS + DEMANDE VISIO ===== -->
+<script>
+  let vrCurrentProfId = null;
+
+  async function loadMyProfs() {
+    const el = document.getElementById('myprofs-content');
+    el.innerHTML = '<div class="empty"><div class="icon">👨‍🏫</div><p>Chargement…</p></div>';
+    try {
+      const subs = await api('GET', '/api/subscriptions');
+      if (!subs.length) {
+        el.innerHTML = `<div class="empty"><div class="icon">👨‍🏫</div><p>Tu n'es abonné à aucun prof.<br><a href="explorer.html" style="color:var(--orange)">Explorer les profs →</a></p></div>`;
+        return;
+      }
+      el.innerHTML = subs.map(s => {
+        const nom = ((s.prenom||'') + ' ' + (s.nom||'')).trim();
+        const matieres = Array.isArray(s.subjects) ? s.subjects.join(', ') : '';
+        return `<div class="fiche-card" style="align-items:flex-start">
+          <div>
+            <div class="fc-title">${escapeHtml(nom)}</div>
+            <div class="fc-date">${escapeHtml(matieres || 'Professeur')}</div>
+          </div>
+          <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+            <button class="hist-btn" onclick="openVisioRequest(${s.prof_id}, '${escapeHtml(nom).replace(/'/g,"\\'")}')">📹 Demander une visio</button>
+            <button class="hist-btn" style="border-color:rgba(220,50,50,0.4);color:#FF6B6B" onclick="unsubscribeProf(${s.id})">Résilier</button>
+          </div>
+        </div>`;
+      }).join('');
+    } catch(e) {
+      el.innerHTML = `<div class="empty"><p style="color:#FF6B6B">Erreur : ${escapeHtml(e.message)}</p></div>`;
+    }
+  }
+
+  async function unsubscribeProf(subId) {
+    if (!confirm('Résilier cet abonnement ? Tu perdras l\'accès aux cours payants de ce prof.')) return;
+    try {
+      await api('DELETE', '/api/subscriptions/' + subId);
+      showToast('Abonnement résilié', 'success');
+      loadMyProfs();
+    } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
+  }
+
+  function openVisioRequest(profId, profName) {
+    vrCurrentProfId = profId;
+    document.getElementById('vr-prof-name').textContent = profName;
+    document.getElementById('vr-msg').className = 'msg';
+    document.getElementById('vr-date').value = '';
+    document.getElementById('vr-duration').value = '1';
+    document.getElementById('vr-notes').value = '';
+    document.getElementById('visio-request-modal').classList.add('visible');
+  }
+
+  async function sendVisioRequest() {
+    const date = document.getElementById('vr-date').value;
+    const msg = document.getElementById('vr-msg');
+    msg.className = 'msg';
+    if (!date) { msg.className = 'msg error'; msg.textContent = 'Choisis une date et une heure.'; return; }
+    try {
+      await api('POST', '/api/video-sessions/request', {
+        profId: vrCurrentProfId,
+        scheduledAt: date,
+        duration: parseFloat(document.getElementById('vr-duration').value) || 1,
+        notes: document.getElementById('vr-notes').value
+      });
+      document.getElementById('visio-request-modal').classList.remove('visible');
+      showToast('✓ Demande envoyée au prof !', 'success');
+    } catch(e) {
+      msg.className = 'msg error'; msg.textContent = e.message;
+    }
+  }
+</script>
+<!-- ===== FIN MES PROFS ===== -->
 
 </body>
 </html>
