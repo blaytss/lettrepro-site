@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Installer LettrePro</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#E8692A" />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0F0D0A; --surface: #1A1612; --card: #231E17; --border: #3A2F22;
+      --orange: #E8692A; --orange-light: #F5A462; --orange-glow: rgba(232,105,42,0.15);
+      --text: #F5F0E8; --muted: #9A8A78;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1.25rem; }
+    .wrap { max-width: 460px; width: 100%; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 2.25rem 1.75rem; }
+    .logo { font-family: 'Sora', sans-serif; font-weight: 800; font-size: 1.6rem; text-align: center; }
+    .logo span { color: var(--orange); }
+    .tagline { text-align: center; color: var(--muted); font-size: 0.92rem; margin: 0.4rem 0 1.5rem; line-height: 1.5; }
+
+    .install-btn { width: 100%; background: linear-gradient(135deg, var(--orange), #C0501A); color: #fff; border: none; border-radius: 12px; padding: 1rem; font-size: 1rem; font-weight: 700; font-family: 'Sora', sans-serif; cursor: pointer; box-shadow: 0 4px 22px rgba(232,105,42,0.35); transition: transform 0.2s; margin-bottom: 1.5rem; display: none; }
+    .install-btn:hover { transform: translateY(-2px); }
+
+    .tabs { display: flex; gap: 0.4rem; background: var(--card); border-radius: 10px; padding: 4px; margin-bottom: 1.25rem; }
+    .tab { flex: 1; padding: 0.6rem; border-radius: 8px; font-size: 0.86rem; font-weight: 600; cursor: pointer; color: var(--muted); border: none; background: none; font-family: 'Inter', sans-serif; transition: all 0.2s; }
+    .tab.active { background: var(--orange); color: #fff; }
+
+    .steps { display: none; }
+    .steps.active { display: block; }
+    .step { display: flex; gap: 0.85rem; align-items: flex-start; padding: 0.85rem 0; border-bottom: 1px solid rgba(58,47,34,0.5); }
+    .step:last-child { border-bottom: none; }
+    .step-num { flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: var(--orange-glow); border: 1px solid rgba(232,105,42,0.4); color: var(--orange); font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; font-family: 'Sora', sans-serif; }
+    .step-txt { font-size: 0.92rem; line-height: 1.45; padding-top: 0.15rem; }
+    .step-txt b { color: var(--orange-light); }
+
+    .qr-zone { margin-top: 1.5rem; text-align: center; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .qr-zone p { color: var(--muted); font-size: 0.85rem; margin-bottom: 0.85rem; }
+    .qr-zone img { width: 150px; height: 150px; border-radius: 12px; background: #fff; padding: 8px; }
+
+    .open-link { display: block; text-align: center; margin-top: 1.5rem; color: var(--muted); text-decoration: none; font-size: 0.88rem; }
+    .open-link:hover { color: var(--orange); }
+
+    .done-banner { background: rgba(50,200,100,0.1); border: 1px solid rgba(50,200,100,0.3); color: #5CDB95; border-radius: 12px; padding: 1rem; text-align: center; font-size: 0.9rem; margin-bottom: 1.25rem; display: none; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="logo">Lettre<span>Pro</span></div>
+      <p class="tagline">Installe l'app sur ton téléphone pour un accès rapide, en plein écran, comme une vraie application.</p>
+
+      <div class="done-banner" id="done-banner">✅ L'application est déjà installée sur cet appareil !</div>
+
+      <button class="install-btn" id="install-btn" onclick="doInstall()">📲 Installer l'application</button>
+
+      <div class="tabs">
+        <button class="tab" id="tab-ios" onclick="showTab('ios')"> iPhone / iPad</button>
+        <button class="tab" id="tab-android" onclick="showTab('android')">🤖 Android</button>
+      </div>
+
+      <!-- iOS -->
+      <div class="steps" id="steps-ios">
+        <div class="step"><div class="step-num">1</div><div class="step-txt">Ouvre cette page dans <b>Safari</b> (le navigateur d'Apple).</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-txt">Appuie sur le bouton <b>Partager</b> ⬆️ en bas de l'écran.</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-txt">Fais défiler et choisis <b>« Sur l'écran d'accueil »</b>.</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-txt">Appuie sur <b>« Ajouter »</b> en haut à droite. C'est fait ! 🎉</div></div>
+      </div>
+
+      <!-- Android -->
+      <div class="steps" id="steps-android">
+        <div class="step"><div class="step-num">1</div><div class="step-txt">Ouvre cette page dans <b>Chrome</b>.</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-txt">Appuie sur le menu <b>⋮</b> (trois points) en haut à droite.</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-txt">Choisis <b>« Installer l'application »</b> (ou « Ajouter à l'écran d'accueil »).</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-txt">Confirme avec <b>« Installer »</b>. C'est fait ! 🎉</div></div>
+      </div>
+
+      <div class="qr-zone">
+        <p>Sur ordinateur ? Scanne pour ouvrir sur ton téléphone :</p>
+        <img src="qrcode-lettrepro.png" alt="QR code LettrePro" />
+      </div>
+
+      <a class="open-link" href="login.html">Ouvrir le site →</a>
+    </div>
+  </div>
+
+  <script>
+    // Détecte le téléphone et affiche le bon onglet par défaut
+    function showTab(which) {
+      document.getElementById('tab-ios').classList.toggle('active', which === 'ios');
+      document.getElementById('tab-android').classList.toggle('active', which === 'android');
+      document.getElementById('steps-ios').classList.toggle('active', which === 'ios');
+      document.getElementById('steps-android').classList.toggle('active', which === 'android');
+    }
+    const ua = navigator.userAgent || '';
+    const isIOS = /iphone|ipad|ipod/i.test(ua);
+    showTab(isIOS ? 'ios' : 'android');
+
+    // Bouton "Installer" automatique (Android / Chrome)
+    let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById('install-btn').style.display = 'block';
+    });
+    async function doInstall() {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      document.getElementById('install-btn').style.display = 'none';
+    }
+
+    // Déjà installée ?
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+      document.getElementById('done-banner').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
