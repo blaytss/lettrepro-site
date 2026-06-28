@@ -698,7 +698,7 @@
             <label>Ton cours <span style="font-weight:400;color:var(--muted)">(texte ou photos)</span></label>
             <textarea id="study-cours" rows="8" placeholder="Colle ici ton cours, tes notes, ou un extrait de manuel..."></textarea>
             <div class="photo-upload">
-              <input type="file" id="study-photos-input" accept="image/*" multiple capture="environment" style="display:none" onchange="addStudyPhotos(this)" />
+              <input type="file" id="study-photos-input" accept="image/*" multiple style="display:none" onchange="addStudyPhotos(this)" />
               <button type="button" class="photo-add-btn" onclick="document.getElementById('study-photos-input').click()">📸 Ajouter des photos</button>
               <span class="photo-hint">Manuscrit ou manuel — l'IA lit l'image</span>
             </div>
@@ -2894,7 +2894,7 @@ async function subscribePlan(plan) {
         <h2>📸 Corrige ta copie</h2>
         <p style="color:var(--muted);font-size:0.85rem;margin-bottom:0.75rem">Prends en photo tes exercices faits sur papier — l'IA les corrige et te met une note.</p>
         <div class="photo-upload">
-          <input type="file" id="eval-copy-input" accept="image/*" multiple capture="environment" style="display:none" onchange="addEvalCopy(this)" />
+          <input type="file" id="eval-copy-input" accept="image/*" multiple style="display:none" onchange="addEvalCopy(this)" />
           <button type="button" class="photo-add-btn" onclick="document.getElementById('eval-copy-input').click()">📸 Ajouter ma copie</button>
         </div>
         <div id="eval-copy-preview" class="photo-preview"></div>
