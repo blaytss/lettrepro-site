@@ -696,6 +696,10 @@
 
           <div class="field" style="margin-bottom:1.25rem">
             <label>Ton cours <span style="font-weight:400;color:var(--muted)">(texte ou photos)</span></label>
+            <div style="margin-bottom:0.6rem">
+              <button type="button" class="photo-add-btn" onclick="openProfCoursePicker()">📚 Depuis un cours de prof</button>
+              <span class="photo-hint">Choisis un cours d'un prof auquel tu es abonné</span>
+            </div>
             <textarea id="study-cours" rows="8" placeholder="Colle ici ton cours, tes notes, ou un extrait de manuel..."></textarea>
             <div class="photo-upload">
               <input type="file" id="study-photos-input" accept="image/*" multiple style="display:none" onchange="addStudyPhotos(this)" />
@@ -1023,6 +1027,16 @@
     </div>
 
   </main>
+</div>
+<!-- MODAL CHOIX COURS DE PROF -->
+<div class="modal-overlay" id="prof-course-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('prof-course-modal').classList.remove('visible')">✕</button>
+    <h3>📚 Choisis un cours de prof</h3>
+    <div id="prof-course-list" style="max-height:60vh;overflow-y:auto">
+      <p style="color:var(--muted);font-size:0.88rem">Chargement…</p>
+    </div>
+  </div>
 </div>
 
 <!-- MODAL LETTRE -->
@@ -3266,6 +3280,42 @@ async function subscribePlan(plan) {
 </script>
 <!-- ===== FIN MESSAGERIE ===== -->
 
+<!-- ===== CHOIX COURS DE PROF (révision) ===== -->
+<script>
+  async function openProfCoursePicker() {
+    const modal = document.getElementById('prof-course-modal');
+    const list = document.getElementById('prof-course-list');
+    modal.classList.add('visible');
+    list.innerHTML = '<p style="color:var(--muted);font-size:0.88rem">Chargement…</p>';
+    try {
+      const courses = await api('GET', '/api/student/prof-courses');
+      if (!courses.length) {
+        list.innerHTML = '<p style="color:var(--muted);font-size:0.88rem">Aucun cours disponible.<br>Abonne-toi à un prof qui a publié des cours en texte pour les retrouver ici.</p>';
+        return;
+      }
+      list.innerHTML = courses.map(c => `
+        <div class="fiche-card" onclick='useProfCourse(${JSON.stringify(c).replace(/'/g, "&#39;")})' style="cursor:pointer">
+          <div>
+            <div class="fc-title">${escapeHtml(c.titre || 'Cours')}</div>
+            <div class="fc-date">${escapeHtml(c.matiere || '')} · par ${escapeHtml((c.prof_prenom||'') + ' ' + (c.prof_nom||''))}</div>
+          </div>
+          <button class="hist-btn">Utiliser →</button>
+        </div>`).join('');
+    } catch(e) {
+      list.innerHTML = `<p style="color:#FF6B6B;font-size:0.88rem">Erreur : ${escapeHtml(e.message)}</p>`;
+    }
+  }
+
+  function useProfCourse(c) {
+    document.getElementById('study-cours').value = c.content || '';
+    const titreEl = document.getElementById('study-titre');
+    if (titreEl && !titreEl.value.trim()) titreEl.value = c.titre || '';
+    document.getElementById('prof-course-modal').classList.remove('visible');
+    showToast('✓ Cours chargé — tu peux générer ton quiz', 'success');
+    document.getElementById('study-cours').scrollIntoView({ behavior:'smooth', block:'center' });
+  }
+</script>
+<!-- ===== FIN CHOIX COURS DE PROF ===== -->
 
 </body>
 </html>
