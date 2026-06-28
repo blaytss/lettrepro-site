@@ -5,7 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LettrePro — Admin</title>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  
   <style>
+    .mod-section { margin-top: 2.5rem; }
+    .mod-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.4rem; margin-bottom: 0.85rem; }
+    .mod-card.high { border-color: rgba(239,68,68,0.5); background: linear-gradient(160deg, rgba(239,68,68,0.08), var(--surface)); }
+    .mod-card.medium { border-color: rgba(245,158,11,0.4); }
+    .mod-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+    .mod-sev { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.2rem 0.6rem; border-radius: 999px; }
+    .mod-sev.high { background: rgba(239,68,68,0.15); color: #EF4444; border: 1px solid rgba(239,68,68,0.4); }
+    .mod-sev.medium { background: rgba(245,158,11,0.15); color: #F59E0B; border: 1px solid rgba(245,158,11,0.4); }
+    .mod-people { font-size: 0.82rem; color: var(--muted); }
+    .mod-people strong { color: var(--text); }
+    .mod-reason { font-size: 0.82rem; color: var(--orange); margin-top: 0.2rem; }
+    .mod-content { background: var(--card); border: 1px solid var(--border); border-radius: 9px; padding: 0.85rem 1rem; font-size: 0.9rem; color: var(--text); margin: 0.5rem 0 0.85rem; white-space: pre-wrap; word-break: break-word; }
+    .mod-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+    .mod-btn { border: none; border-radius: 8px; padding: 0.5rem 1.1rem; font-size: 0.83rem; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.2s; }
+    .mod-btn.dismiss { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+    .mod-btn.dismiss:hover { border-color: var(--green); color: var(--green); }
+    .mod-btn.ban { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.4); color: #EF4444; }
+    .mod-btn.ban:hover { background: rgba(239,68,68,0.25); }
+    .mod-count-badge { background: #EF4444; color: #fff; font-size: 0.75rem; font-weight: 700; border-radius: 999px; padding: 0.1rem 0.6rem; margin-left: 0.5rem; }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --bg: #0F0D0A; --surface: #1A1612; --card: #231E17; --border: #3A2F22;
@@ -175,6 +195,14 @@
     </table>
   </div>
 
+<!-- MODÉRATION -->
+  <div class="mod-section">
+    <div class="section-title">🚨 Modération — messages signalés <span id="mod-count" class="mod-count-badge" style="display:none">0</span></div>
+    <div id="mod-list">
+      <p style="color:var(--muted);font-size:0.88rem">Chargement…</p>
+    </div>
+  </div>
+
   <div class="updated-line" id="updated-line">—</div>
 </div>
 
@@ -311,6 +339,8 @@
 
   // Démarrage
   loadStats();
+  loadFlagged();
+  setInterval(loadFlagged, 20000);  // rafraîchit toutes les 20 s
   startAuto();
 async function editEmail(id, currentEmail) {
     const nouveau = prompt("Nouvel email pour ce compte :", currentEmail);
@@ -334,6 +364,71 @@ async function editEmail(id, currentEmail) {
       loadStats();
     } catch (e) {
       alert('Erreur de connexion : ' + e.message);
+    }
+  }
+
+async function loadFlagged() {
+    const el = document.getElementById('mod-list');
+    const badge = document.getElementById('mod-count');
+    try {
+      const token = localStorage.getItem('lp_token');
+      const res = await fetch(API_BASE + '/api/admin/flagged', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Erreur');
+
+      if (!data.length) {
+        el.innerHTML = '<p style="color:var(--muted);font-size:0.88rem">✓ Aucun message signalé. Tout est calme.</p>';
+        badge.style.display = 'none';
+        return;
+      }
+      badge.style.display = 'inline-block';
+      badge.textContent = data.length;
+
+      el.innerHTML = data.map(f => {
+        const sender = ((f.s_prenom||'') + ' ' + (f.s_nom||'')).trim() || 'Inconnu';
+        const recv   = ((f.r_prenom||'') + ' ' + (f.r_nom||'')).trim() || 'Inconnu';
+        const sev = f.severity === 'high' ? 'high' : 'medium';
+        const sevLabel = sev === 'high' ? '🔴 Grave (bloqué)' : '🟠 À vérifier';
+        const date = f.created_at ? new Date(f.created_at + 'Z').toLocaleString('fr-FR') : '';
+        return `<div class="mod-card ${sev}">
+          <div class="mod-top">
+            <div>
+              <div class="mod-people">De <strong>${esc(sender)}</strong> (${esc(f.s_email||'')}) → à <strong>${esc(recv)}</strong></div>
+              <div class="mod-reason">⚠️ ${esc(f.reason || 'Signalé')}</div>
+            </div>
+            <div style="text-align:right">
+              <span class="mod-sev ${sev}">${sevLabel}</span>
+              <div style="font-size:0.72rem;color:var(--muted);margin-top:0.3rem">${date}</div>
+            </div>
+          </div>
+          <div class="mod-content">${esc(f.content || '')}</div>
+          <div class="mod-actions">
+            <button class="mod-btn dismiss" onclick="flaggedAction(${f.id}, 'dismiss')">✓ Ignorer (fausse alerte)</button>
+            <button class="mod-btn ban" onclick="flaggedAction(${f.id}, 'ban')">🚫 Bannir l'expéditeur</button>
+          </div>
+        </div>`;
+      }).join('');
+    } catch (e) {
+      el.innerHTML = `<p style="color:#FF6B6B;font-size:0.88rem">Erreur : ${esc(e.message)}</p>`;
+    }
+  }
+
+  async function flaggedAction(id, action) {
+    if (action === 'ban' && !confirm("Bannir cet expéditeur ? Il ne pourra plus utiliser la plateforme.")) return;
+    try {
+      const token = localStorage.getItem('lp_token');
+      const res = await fetch(API_BASE + '/api/admin/flagged/' + id, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ action })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Erreur');
+      loadFlagged();
+    } catch (e) {
+      alert('Erreur : ' + e.message);
     }
   }
 </script>
