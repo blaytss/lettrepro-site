@@ -214,6 +214,7 @@
     <div class="page" id="page-sessions">
       <div class="page-header"><h1>Visioconférences</h1><p>Planifie des créneaux. Un lien Jitsi Meet est généré automatiquement.</p></div>
       <button class="btn-primary" style="margin-bottom:1.5rem" onclick="openSessionModal()">+ Nouveau créneau</button>
+      <div id="requests-content"></div>
       <div id="sessions-content"><div class="empty"><div class="icon">📹</div><p>Aucun créneau créé.</p></div></div>
     </div>
 
@@ -664,6 +665,7 @@
   async function loadSessions(){
     try{
       const sessions=await api('GET','/api/video-sessions/prof');
+      renderRequests(sessions.filter(s=>s.status==='requested'));
       const avail=sessions.filter(s=>s.status==='available').length;
       document.getElementById('stat-sessions').textContent=avail;
       document.getElementById('ss-sessions').textContent=avail;
@@ -686,6 +688,42 @@
           </div>
         </div>`).join('');
     }catch(e){showToast(e.message,'error');}
+  }
+
+function renderRequests(requests){
+    const el=document.getElementById('requests-content');
+    if(!el) return;
+    if(!requests.length){ el.innerHTML=''; return; }
+    el.innerHTML=`<div class="card" style="border-color:rgba(232,105,42,0.4)">
+      <h3>🔔 Demandes en attente (${requests.length})</h3>
+      ${requests.map(s=>`
+        <div class="session-item available" style="border-color:rgba(232,105,42,0.3)">
+          <div>
+            <div style="font-weight:600;font-size:.92rem;color:var(--text);margin-bottom:.2rem">
+              ${s.notes?escapeHtmlProf(s.notes):'Visio'} 
+              ${s.prenom?`· demandé par <strong style="color:var(--text)">${escapeHtmlProf(s.prenom+' '+(s.nom||''))}</strong>`:''}
+            </div>
+            <div style="color:var(--muted);font-size:.8rem">
+              ${s.scheduled_at?new Date(s.scheduled_at).toLocaleString('fr-FR'):'Date non définie'} · ${s.duration_hours}h · ${s.price} crédits
+            </div>
+          </div>
+          <div style="display:flex;gap:.5rem;flex-shrink:0">
+            <button class="btn-primary" style="padding:.5rem 1rem;font-size:.82rem" onclick="respondRequest(${s.id},'accept')">✓ Accepter</button>
+            <button class="btn-danger" onclick="respondRequest(${s.id},'decline')">✗ Refuser</button>
+          </div>
+        </div>`).join('')}
+    </div>`;
+  }
+
+  function escapeHtmlProf(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+  async function respondRequest(id, action){
+    if(action==='decline' && !confirm('Refuser cette demande de visio ?')) return;
+    try{
+      await api('POST',`/api/video-sessions/${id}/respond`,{action});
+      showToast(action==='accept'?'✓ Visio confirmée !':'Demande refusée','success');
+      loadSessions();
+    }catch(e){ showToast('Erreur : '+e.message,'error'); }
   }
 
   function openSessionModal(){document.getElementById('session-modal').classList.add('visible');}
