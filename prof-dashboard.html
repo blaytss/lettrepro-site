@@ -161,6 +161,7 @@
     <button class="sidebar-item" onclick="showPage('verification',this)"><span class="icon">🔐</span> Vérification</button>
     <button class="sidebar-item" onclick="showPage('profile',this)"><span class="icon">👤</span> Mon profil</button>
     <a class="sidebar-item" href="explorer.html"><span class="icon">🔍</span> Explorer</a>
+    <button class="sidebar-item" onclick="showPage('messages',this)"><span class="icon">💬</span> Messages</button>
     <div class="sidebar-sep"></div>
     <div class="sidebar-stats">
       <div class="ss-row"><span>Abonnés</span><span class="ss-val" id="ss-subs">—</span></div>
@@ -360,6 +361,29 @@
       <button class="btn-primary" onclick="saveProfile()">Sauvegarder</button>
     </div>
 
+    <!-- MESSAGES -->
+    <div class="page" id="page-messages">
+      <div class="page-header"><h1>Messages</h1><p>Discute avec tes élèves abonnés.</p></div>
+      <div class="chat-layout">
+        <div class="chat-list" id="chat-list">
+          <div class="chat-empty" style="padding:1.5rem">Chargement…</div>
+        </div>
+        <div class="chat-main">
+          <div class="chat-main-empty" id="chat-empty-state">
+            <div style="font-size:2.5rem;margin-bottom:0.5rem">💬</div>
+            <p>Choisis une conversation à gauche pour commencer à discuter.</p>
+          </div>
+          <div class="chat-conv" id="chat-conv" style="display:none">
+            <div class="chat-conv-header" id="chat-conv-header"></div>
+            <div class="chat-messages" id="chat-messages"></div>
+            <div class="chat-input-row">
+              <input type="text" id="chat-input" placeholder="Écris ton message..." onkeydown="if(event.key==='Enter')sendChatMessage()" />
+              <button class="chat-send-btn" onclick="sendChatMessage()">Envoyer</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
 </div>
 
@@ -839,6 +863,7 @@
     if(name==='sessions') loadSessions();
     if(name==='subscribers') loadSubscribers();
     if(name==='earnings') { loadEarnings(); loadWithdrawals(); }
+    if(name==='messages') { loadConversations(); startChatPolling(); }
   }
 
   function logout(silent=false){
@@ -862,5 +887,109 @@
     navigator.serviceWorker.register('/sw.js').catch(()=>{});
   }
 </script>
+
+<!-- ===== STYLE + LOGIQUE MESSAGERIE (PROF) ===== -->
+<style>
+  .chat-layout{display:flex;gap:1rem;height:calc(100vh - 220px);min-height:420px}
+  .chat-list{width:280px;flex-shrink:0;background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow-y:auto}
+  .chat-list-item{padding:0.9rem 1rem;border-bottom:1px solid rgba(58,47,34,0.4);cursor:pointer;transition:background 0.15s}
+  .chat-list-item:hover{background:var(--card)}
+  .chat-list-item.active{background:var(--orange-glow)}
+  .chat-list-item .cli-name{font-weight:600;font-size:0.9rem;color:var(--text);display:flex;justify-content:space-between;align-items:center;gap:0.5rem}
+  .chat-list-item .cli-last{font-size:0.8rem;color:var(--muted);margin-top:0.2rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cli-badge{background:var(--orange);color:#fff;font-size:0.7rem;font-weight:700;border-radius:999px;padding:0.05rem 0.45rem;flex-shrink:0}
+  .chat-empty{color:var(--muted);font-size:0.88rem;text-align:center}
+  .chat-main{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:14px;display:flex;flex-direction:column;overflow:hidden}
+  .chat-main-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);font-size:0.9rem;text-align:center;padding:2rem}
+  .chat-conv{flex:1;display:flex;flex-direction:column;min-height:0}
+  .chat-conv-header{padding:1rem 1.25rem;border-bottom:1px solid var(--border);font-family:'Sora',sans-serif;font-weight:700;color:var(--text);flex-shrink:0}
+  .chat-messages{flex:1;overflow-y:auto;padding:1.25rem;display:flex;flex-direction:column;gap:0.6rem}
+  .chat-bubble{max-width:72%;padding:0.6rem 0.9rem;border-radius:14px;font-size:0.9rem;line-height:1.4;word-wrap:break-word}
+  .chat-bubble.mine{align-self:flex-end;background:linear-gradient(135deg,var(--orange),#C0501A);color:#fff;border-bottom-right-radius:4px}
+  .chat-bubble.theirs{align-self:flex-start;background:var(--card);border:1px solid var(--border);color:var(--text);border-bottom-left-radius:4px}
+  .chat-bubble .cb-time{font-size:0.68rem;opacity:0.7;margin-top:0.2rem;display:block}
+  .chat-input-row{display:flex;gap:0.5rem;padding:0.9rem;border-top:1px solid var(--border);flex-shrink:0}
+  .chat-input-row input{flex:1;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:0.7rem 1rem;color:var(--text);font-size:0.9rem;font-family:'Inter',sans-serif;outline:none}
+  .chat-input-row input:focus{border-color:var(--orange)}
+  .chat-send-btn{background:linear-gradient(135deg,var(--orange),#C0501A);color:#fff;border:none;border-radius:10px;padding:0 1.3rem;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer}
+  @media(max-width:768px){.chat-layout{flex-direction:column;height:auto}.chat-list{width:100%;max-height:180px}.chat-main{min-height:420px}}
+</style>
+<script>
+  let chatCurrentPartner=null, chatPollTimer=null;
+  function chatEsc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+
+  async function loadConversations(){
+    const listEl=document.getElementById('chat-list');
+    try{
+      const convs=await api('GET','/api/messages/conversations');
+      if(!convs.length){
+        listEl.innerHTML='<div class="chat-empty" style="padding:1.5rem">Aucun contact pour l\'instant.<br>Tes élèves abonnés apparaîtront ici.</div>';
+        return;
+      }
+      listEl.innerHTML=convs.map(c=>`
+        <div class="chat-list-item ${chatCurrentPartner===c.userId?'active':''}" onclick="openConversation(${c.userId}, '${(c.name||'').replace(/'/g,"\\'")}')">
+          <div class="cli-name">${chatEsc(c.name)} ${c.unread>0?`<span class="cli-badge">${c.unread}</span>`:''}</div>
+          <div class="cli-last">${chatEsc(c.lastMessage||'Nouvelle conversation')}</div>
+        </div>`).join('');
+    }catch(e){
+      listEl.innerHTML=`<div class="chat-empty" style="padding:1.5rem">Erreur : ${chatEsc(e.message)}</div>`;
+    }
+  }
+
+  async function openConversation(partnerId, partnerName){
+    chatCurrentPartner=partnerId;
+    document.getElementById('chat-empty-state').style.display='none';
+    document.getElementById('chat-conv').style.display='flex';
+    document.getElementById('chat-conv-header').textContent=partnerName;
+    document.querySelectorAll('.chat-list-item').forEach(el=>el.classList.remove('active'));
+    await refreshMessages();
+    loadConversations();
+    document.getElementById('chat-input').focus();
+  }
+
+  async function refreshMessages(){
+    if(!chatCurrentPartner) return;
+    try{
+      const data=await api('GET','/api/messages/'+chatCurrentPartner);
+      const box=document.getElementById('chat-messages');
+      const wasBottom=box.scrollHeight-box.scrollTop-box.clientHeight<60;
+      box.innerHTML=data.messages.map(m=>{
+        const mine=m.sender_id===data.me;
+        const t=m.created_at?new Date(m.created_at+'Z').toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'';
+        return `<div class="chat-bubble ${mine?'mine':'theirs'}">${chatEsc(m.content)}<span class="cb-time">${t}</span></div>`;
+      }).join('');
+      if(wasBottom) box.scrollTop=box.scrollHeight;
+    }catch(e){}
+  }
+
+  async function sendChatMessage(){
+    const input=document.getElementById('chat-input');
+    const content=input.value.trim();
+    if(!content||!chatCurrentPartner) return;
+    input.value='';
+    try{
+      await api('POST','/api/messages',{to:chatCurrentPartner,content});
+      await refreshMessages();
+      const box=document.getElementById('chat-messages');
+      box.scrollTop=box.scrollHeight;
+    }catch(e){
+      showToast('Erreur : '+e.message,'error');
+      input.value=content;
+    }
+  }
+
+  function startChatPolling(){
+    stopChatPolling();
+    chatPollTimer=setInterval(()=>{
+      if(document.getElementById('page-messages').classList.contains('active')){
+        if(chatCurrentPartner) refreshMessages();
+        loadConversations();
+      }
+    },3000);
+  }
+  function stopChatPolling(){if(chatPollTimer) clearInterval(chatPollTimer);}
+</script>
+<!-- ===== FIN MESSAGERIE (PROF) ===== -->
+
 </body>
 </html>
