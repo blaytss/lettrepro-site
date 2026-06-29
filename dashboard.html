@@ -14,19 +14,37 @@
   <title>LettrePro — Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <script>
-    // Applique le thème AVANT le rendu pour éviter le flash
-    (function() {
-      const t = JSON.parse(localStorage.getItem('lp_theme') || '{}');
-      if (t.primary) document.documentElement.style.setProperty('--orange', t.primary);
-      if (t.bg)      document.documentElement.style.setProperty('--bg', t.bg);
-      if (t.surface) document.documentElement.style.setProperty('--surface', t.surface);
-      if (t.card)    document.documentElement.style.setProperty('--card', t.card);
-      if (t.border)  document.documentElement.style.setProperty('--border', t.border);
-      if (t.text)    document.documentElement.style.setProperty('--text', t.text);
-      if (t.muted)   document.documentElement.style.setProperty('--muted', t.muted);
-      if (t.white)   document.documentElement.style.setProperty('--white', t.white);
-    })();
-  </script>
+  // Applique le thème AVANT le rendu pour éviter le flash
+  (function () {
+    const THEME_PRESETS_BOOT = {
+      orange: { primary:'#E8692A', dark:{bg:'#0F0D0A',surface:'#1A1612',card:'#231E17',border:'#3A2F22',text:'#F5F0E8',muted:'#9A8A78'}, light:{bg:'#FEF9F6',surface:'#FFFFFF',card:'#FFF4EE',border:'#FDDCC8',text:'#1C1107',muted:'#8B6E5A'} },
+      violet: { primary:'#7C3AED', dark:{bg:'#0A080F',surface:'#130F1E',card:'#1C1530',border:'#2D2450',text:'#F0EEFF',muted:'#8880BB'}, light:{bg:'#FAF8FF',surface:'#FFFFFF',card:'#F0EBFF',border:'#DDD0FF',text:'#1A0F2E',muted:'#7B6CA8'} },
+      vert:   { primary:'#10B981', dark:{bg:'#080F0C',surface:'#0F1A14',card:'#15231B',border:'#1E3628',text:'#ECFDF5',muted:'#6B9B7A'}, light:{bg:'#F0FDF8',surface:'#FFFFFF',card:'#DCFCE7',border:'#BBF7D0',text:'#052E16',muted:'#4B7A5E'} },
+      bleu:   { primary:'#3B82F6', dark:{bg:'#080C14',surface:'#0F1520',card:'#15202E',border:'#1E3048',text:'#EFF6FF',muted:'#6B8AB0'}, light:{bg:'#F0F7FF',surface:'#FFFFFF',card:'#DBEAFE',border:'#BFDBFE',text:'#0C2347',muted:'#4B6A90'} },
+      rose:   { primary:'#EC4899', dark:{bg:'#0F080D',surface:'#1A0F17',card:'#251521',border:'#3D1F33',text:'#FDF2F8',muted:'#A0688A'}, light:{bg:'#FDF2F8',surface:'#FFFFFF',card:'#FCE7F3',border:'#FBCFE8',text:'#2D1224',muted:'#9D4978'} },
+    };
+    const t = JSON.parse(localStorage.getItem('lp_theme') || '{}');
+
+    // Mode auto selon l'heure : sombre de 20h à 7h, clair de 7h à 20h
+    let mode = t.mode;
+    if (t.autoSchedule) {
+      const h = new Date().getHours();
+      mode = (h >= 20 || h < 7) ? 'dark' : 'light';
+    }
+    mode = mode || 'dark';
+
+    const preset = THEME_PRESETS_BOOT[t.preset] || THEME_PRESETS_BOOT.orange;
+    const colors = mode === 'light' ? preset.light : preset.dark;
+    const r = document.documentElement.style;
+    r.setProperty('--orange', t.primary || preset.primary);
+    r.setProperty('--bg', colors.bg);
+    r.setProperty('--surface', colors.surface);
+    r.setProperty('--card', colors.card);
+    r.setProperty('--border', colors.border);
+    r.setProperty('--text', colors.text);
+    r.setProperty('--muted', colors.muted);
+  })();
+</script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -876,6 +894,10 @@
         <div class="toggle-switch">
           <button id="mode-dark" class="on" onclick="setMode('dark')">🌙 Sombre</button>
           <button id="mode-light" onclick="setMode('light')">☀️ Clair</button>
+          <label style="display:flex;align-items:center;gap:0.6rem;margin-top:1rem;cursor:pointer;color:var(--text);font-size:0.9rem">
+          <input type="checkbox" id="auto-schedule" onchange="toggleAutoSchedule()" style="width:16px;height:16px;accent-color:var(--orange)" />
+          🌙 Passer automatiquement en sombre le soir (20h → 7h)
+        </label>
         </div>
 
         <!-- COULEUR PERSONNALISÉE -->
@@ -1663,6 +1685,10 @@ async function subscribePlan(plan) {
     // Mode toggle
     document.getElementById('mode-dark').classList.toggle('on', pendingMode === 'dark');
     document.getElementById('mode-light').classList.toggle('on', pendingMode === 'light');
+
+    const savedSched = JSON.parse(localStorage.getItem('lp_theme') || '{}').autoSchedule;
+    const cb = document.getElementById('auto-schedule');
+    if (cb) cb.checked = !!savedSched;
   }
 
   function selectPreset(id) {
@@ -1737,12 +1763,47 @@ async function subscribePlan(plan) {
     root.style.setProperty('--orange-glow', `rgba(${r},${g},${b},0.15)`);
   }
 
+  function toggleAutoSchedule() {
+    const on = document.getElementById('auto-schedule').checked;
+    const saved = JSON.parse(localStorage.getItem('lp_theme') || '{}');
+    saved.autoSchedule = on;
+    localStorage.setItem('lp_theme', JSON.stringify(saved));
+    if (on) {
+      const h = new Date().getHours();
+      pendingMode = (h >= 20 || h < 7) ? 'dark' : 'light';
+      applyTheme();
+    }
+    showToast(on ? '🌙 Mode auto activé' : 'Mode auto désactivé', 'success');
+  }
+
   function applyTheme() {
-    pendingTheme.mode   = pendingMode;
-    pendingTheme.preset = pendingPreset;
+    const preset = THEME_PRESETS.find(t => t.id === pendingPreset) || THEME_PRESETS[0];
+    const colors = pendingMode === 'light' ? preset.light : preset.dark;
+
+    // On enregistre les VRAIES couleurs (pour qu'elles tiennent au rechargement)
+    pendingTheme = {
+      mode: pendingMode,
+      preset: pendingPreset,
+      primary: pendingTheme.primary || preset.primary,
+      bg: colors.bg, surface: colors.surface, card: colors.card,
+      border: colors.border, text: colors.text, muted: colors.muted
+    };
+
     localStorage.setItem('lp_theme', JSON.stringify(pendingTheme));
-    previewTheme(pendingTheme);
+    applyThemeColors(pendingTheme);
     showToast('🎨 Thème appliqué !', 'success');
+  }
+
+  // Applique un objet thème aux variables CSS (utilisé partout)
+  function applyThemeColors(t) {
+    const r = document.documentElement.style;
+    if (t.primary) r.setProperty('--orange', t.primary);
+    if (t.bg)      r.setProperty('--bg', t.bg);
+    if (t.surface) r.setProperty('--surface', t.surface);
+    if (t.card)    r.setProperty('--card', t.card);
+    if (t.border)  r.setProperty('--border', t.border);
+    if (t.text)    r.setProperty('--text', t.text);
+    if (t.muted)   r.setProperty('--muted', t.muted);
   }
 
   function resetTheme() {
@@ -3417,6 +3478,40 @@ async function subscribePlan(plan) {
   }
 </script>
 <!-- ===== FIN MES PROFS ===== -->
+
+<!-- ===== AUTO THÈME : vérifie l'heure toutes les 10s ===== -->
+<script>
+  (function () {
+    let lastMode = null;
+
+    function checkAutoTheme() {
+      const saved = JSON.parse(localStorage.getItem('lp_theme') || '{}');
+      if (!saved.autoSchedule) return;            // actif seulement si "Auto" est coché
+
+      const h = new Date().getHours();
+      const mode = (h >= 20 || h < 7) ? 'dark' : 'light';
+      if (mode === lastMode) return;              // rien à faire si le mode n'a pas changé
+      lastMode = mode;
+
+      const preset = THEME_PRESETS.find(t => t.id === (saved.preset || 'orange')) || THEME_PRESETS[0];
+      const colors = mode === 'light' ? preset.light : preset.dark;
+
+      // Met à jour le stockage + applique les couleurs
+      const updated = {
+        ...saved, mode,
+        primary: saved.primary || preset.primary,
+        bg: colors.bg, surface: colors.surface, card: colors.card,
+        border: colors.border, text: colors.text, muted: colors.muted
+      };
+      localStorage.setItem('lp_theme', JSON.stringify(updated));
+      applyThemeColors(updated);
+    }
+
+    checkAutoTheme();                 // vérifie une fois au chargement
+    setInterval(checkAutoTheme, 10000); // puis toutes les 10 secondes
+  })();
+</script>
+<!-- ===== FIN AUTO THÈME ===== -->
 
 </body>
 </html>
