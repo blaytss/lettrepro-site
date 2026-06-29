@@ -31,7 +31,7 @@
       const h = new Date().getHours();
       mode = (h >= 20 || h < 7) ? 'dark' : 'light';
     }
-    mode = mode || 'dark';
+    mode = mode || 'light';
 
     const preset = THEME_PRESETS_BOOT[t.preset] || THEME_PRESETS_BOOT.orange;
     const colors = mode === 'light' ? preset.light : preset.dark;
@@ -48,9 +48,9 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #0F0D0A; --surface: #1A1612; --card: #231E17; --border: #3A2F22;
+      --bg: #FEF9F6; --surface: #FFFFFF; --card: #FFF4EE; --border: #FDDCC8;
       --orange: #E8692A; --orange-light: #F5A462; --orange-glow: rgba(232,105,42,0.15);
-      --text: #F5F0E8; --muted: #9A8A78; --white: #ffffff;
+      --text: #1C1107; --muted: #8B6E5A; --white: #ffffff;
     }
     body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
 
@@ -892,8 +892,8 @@
         <!-- MODE CLAIR / SOMBRE -->
         <p class="theme-section-title">Mode d'affichage</p>
         <div class="toggle-switch">
-          <button id="mode-dark" class="on" onclick="setMode('dark')">🌙 Sombre</button>
-          <button id="mode-light" onclick="setMode('light')">☀️ Clair</button>
+          <button id="mode-dark" onclick="setMode('dark')">🌙 Sombre</button>
+          <button id="mode-light" class="on" onclick="setMode('light')">☀️ Clair</button>
           <label style="display:flex;align-items:center;gap:0.6rem;margin-top:1rem;cursor:pointer;color:var(--text);font-size:0.9rem">
           <input type="checkbox" id="auto-schedule" onchange="toggleAutoSchedule()" style="width:16px;height:16px;accent-color:var(--orange)" />
           🌙 Passer automatiquement en sombre le soir (20h → 7h)
