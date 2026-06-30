@@ -521,6 +521,7 @@
     <a class="sidebar-item" href="explorer.html"><span class="icon">🔍</span> Explorer les profs</a>
     <button class="sidebar-item" data-page="messages" onclick="showPage('messages', this)"><span class="icon">💬</span> Messages</button>
     <button class="sidebar-item" data-page="myprofs" onclick="showPage('myprofs', this)"><span class="icon">👨‍🏫</span> Mes profs</button>
+    <button class="sidebar-item" data-page="planning" onclick="showPage('planning', this)"><span class="icon">📅</span> Mon planning</button>
     <button class="sidebar-item" data-page="history" onclick="showPage('history', this)"><span class="icon">📄</span> Mes lettres</button>
     <div class="sidebar-sep"></div>
     <button class="sidebar-item" data-page="credits" onclick="showPage('credits', this)"><span class="icon">💳</span> Crédits</button>
@@ -802,6 +803,14 @@
       <!-- MES ÉVALUATIONS (historique) -->
       <div class="study-tab-content" id="study-evalhist">
         <div id="evalhist-content"></div>
+      </div>
+    </div>
+
+<!-- PAGE MON PLANNING -->
+    <div class="page" id="page-planning">
+      <div class="page-header"><h1>Mon planning</h1><p>Tes visios demandées et confirmées.</p></div>
+      <div id="planning-content">
+        <div class="empty"><div class="icon">📅</div><p>Chargement…</p></div>
       </div>
     </div>
 
@@ -1932,6 +1941,7 @@ async function subscribePlan(plan) {
     if (name === 'apparence')  { initThemePage(); }
     if (name === 'messages')   { loadConversations(); startChatPolling(); }
     if (name === 'myprofs')    { loadMyProfs(); }
+    if (name === 'planning')   { loadPlanning(); }
   }
 
   // ══════════════════════════════════════════
@@ -3512,6 +3522,68 @@ async function subscribePlan(plan) {
   })();
 </script>
 <!-- ===== FIN AUTO THÈME ===== -->
+
+<!-- ===== MON PLANNING (élève) ===== -->
+<script>
+  async function loadPlanning() {
+    const el = document.getElementById('planning-content');
+    el.innerHTML = '<div class="empty"><div class="icon">📅</div><p>Chargement…</p></div>';
+    try {
+      const sessions = await api('GET', '/api/video-sessions/student');
+
+      // On garde les demandes en attente + les visios confirmées à venir
+      const pending = sessions.filter(s => s.status === 'requested');
+      const booked  = sessions.filter(s => s.status === 'booked');
+
+      if (!pending.length && !booked.length) {
+        el.innerHTML = `<div class="empty"><div class="icon">📅</div><p>Aucune visio prévue.<br>Va dans <a href="#" onclick="showPage('myprofs',document.querySelector('[data-page=myprofs]'));return false;" style="color:var(--orange)">Mes profs</a> pour en demander une.</p></div>`;
+        return;
+      }
+
+      let html = '';
+
+      // EN ATTENTE
+      if (pending.length) {
+        html += `<h2 style="font-family:'Sora',sans-serif;font-size:1rem;color:var(--text);margin:0 0 0.75rem">⏳ En attente de réponse</h2>`;
+        html += pending.map(s => planningCard(s, 'pending')).join('');
+      }
+
+      // CONFIRMÉES
+      if (booked.length) {
+        html += `<h2 style="font-family:'Sora',sans-serif;font-size:1rem;color:var(--text);margin:1.5rem 0 0.75rem">✅ Visios confirmées</h2>`;
+        html += booked.map(s => planningCard(s, 'booked')).join('');
+      }
+
+      el.innerHTML = html;
+    } catch(e) {
+      el.innerHTML = `<div class="empty"><p style="color:#FF6B6B">Erreur : ${escapeHtml(e.message)}</p></div>`;
+    }
+  }
+
+  function planningCard(s, type) {
+    const prof = ((s.prenom||'') + ' ' + (s.nom||'')).trim() || 'Professeur';
+    const date = s.scheduled_at ? new Date(s.scheduled_at).toLocaleString('fr-FR', {weekday:'long', day:'numeric', month:'long', hour:'2-digit', minute:'2-digit'}) : 'Date non définie';
+    const dureePrix = `${s.duration_hours||1}h · ${s.price||0} crédits`;
+
+    if (type === 'pending') {
+      return `<div class="fiche-card" style="align-items:flex-start;border-color:rgba(245,158,11,0.35)">
+        <div>
+          <div class="fc-title">${escapeHtml(s.notes || 'Visio')} <span style="font-size:0.72rem;background:rgba(245,158,11,0.15);color:#F59E0B;border-radius:999px;padding:0.1rem 0.5rem;margin-left:0.3rem">⏳ En attente</span></div>
+          <div class="fc-date">avec ${escapeHtml(prof)} · ${date} · ${dureePrix}</div>
+        </div>
+      </div>`;
+    }
+    return `<div class="fiche-card" style="align-items:flex-start;border-color:rgba(16,185,129,0.35)">
+      <div>
+        <div class="fc-title">${escapeHtml(s.notes || 'Visio')} <span style="font-size:0.72rem;background:rgba(16,185,129,0.15);color:#10B981;border-radius:999px;padding:0.1rem 0.5rem;margin-left:0.3rem">✅ Confirmée</span></div>
+        <div class="fc-date">avec ${escapeHtml(prof)} · ${date} · ${dureePrix}</div>
+      </div>
+      ${s.jitsi_room ? `<a href="${s.jitsi_room}" target="_blank" class="hist-btn" style="border-color:var(--orange);color:var(--orange);flex-shrink:0">📹 Rejoindre</a>` : ''}
+    </div>`;
+  }
+</script>
+<!-- ===== FIN MON PLANNING ===== -->
+
 
 </body>
 </html>
