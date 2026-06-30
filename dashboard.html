@@ -522,6 +522,7 @@
     <button class="sidebar-item" data-page="messages" onclick="showPage('messages', this)"><span class="icon">💬</span> Messages</button>
     <button class="sidebar-item" data-page="myprofs" onclick="showPage('myprofs', this)"><span class="icon">👨‍🏫</span> Mes profs</button>
     <button class="sidebar-item" data-page="planning" onclick="showPage('planning', this)"><span class="icon">📅</span> Mon planning</button>
+    <button class="sidebar-item" data-page="quete" onclick="showPage('quete', this)"><span class="icon">🎯</span> Quête du jour</button>
     <button class="sidebar-item" data-page="history" onclick="showPage('history', this)"><span class="icon">📄</span> Mes lettres</button>
     <div class="sidebar-sep"></div>
     <button class="sidebar-item" data-page="credits" onclick="showPage('credits', this)"><span class="icon">💳</span> Crédits</button>
@@ -803,6 +804,14 @@
       <!-- MES ÉVALUATIONS (historique) -->
       <div class="study-tab-content" id="study-evalhist">
         <div id="evalhist-content"></div>
+      </div>
+    </div>
+    f
+<!-- PAGE QUÊTE DU JOUR -->
+    <div class="page" id="page-quete">
+      <div class="page-header"><h1>Quête du jour 🎯</h1><p>Réussis un quiz au hasard sans aucune faute pour gagner 1 crédit. Une fois par jour !</p></div>
+      <div id="quete-content">
+        <div class="empty"><div class="icon">🎯</div><p>Chargement…</p></div>
       </div>
     </div>
 
@@ -1942,6 +1951,7 @@ async function subscribePlan(plan) {
     if (name === 'messages')   { loadConversations(); startChatPolling(); }
     if (name === 'myprofs')    { loadMyProfs(); }
     if (name === 'planning')   { loadPlanning(); }
+    if (name === 'quete')      { loadQuete(); }
   }
 
   // ══════════════════════════════════════════
@@ -2361,6 +2371,8 @@ async function subscribePlan(plan) {
   async function finishQuiz() {
     const score = activeQuiz.score;
     const total = activeQuiz.questions.length;
+    // Si c'est la quête du jour, on bascule sur sa logique dédiée
+    if (activeQuiz.isQuete) { return finishQuete(score, total); }
     const pct   = Math.round((score / total) * 100);
 
     // barre à 100%
@@ -3584,6 +3596,83 @@ async function subscribePlan(plan) {
 </script>
 <!-- ===== FIN MON PLANNING ===== -->
 
+<!-- ===== QUÊTE DU JOUR ===== -->
+<script>
+  let queteQuiz = null;
+
+  async function loadQuete() {
+    const el = document.getElementById('quete-content');
+    el.innerHTML = '<div class="empty"><div class="icon">🎯</div><p>Chargement…</p></div>';
+    try {
+      const data = await api('GET', '/api/quests/quiz');
+
+      if (data.claimed) {
+        el.innerHTML = `<div class="gen-card" style="text-align:center">
+          <div style="font-size:3rem;margin-bottom:0.5rem">✅</div>
+          <h2>Quête déjà réussie aujourd'hui !</h2>
+          <p style="color:var(--muted);margin-top:0.5rem">Reviens demain pour gagner 1 crédit de plus. 😉</p>
+        </div>`;
+        return;
+      }
+      if (!data.quiz) {
+        el.innerHTML = `<div class="gen-card" style="text-align:center">
+          <div style="font-size:3rem;margin-bottom:0.5rem">📚</div>
+          <h2>Aucun quiz disponible</h2>
+          <p style="color:var(--muted);margin-top:0.5rem">Génère d'abord au moins un quiz dans <a href="#" onclick="showPage('study',document.querySelector('[data-page=study]'));return false;" style="color:var(--orange)">Cours & Révisions</a>, puis reviens ici !</p>
+        </div>`;
+        return;
+      }
+
+      queteQuiz = data.quiz;
+      el.innerHTML = `<div class="gen-card" style="text-align:center">
+        <div style="font-size:3rem;margin-bottom:0.5rem">🎯</div>
+        <h2>Ta quête du jour</h2>
+        <p style="color:var(--muted);margin:0.5rem 0 1.25rem">Un quiz tiré au hasard : <strong style="color:var(--text)">${escapeHtml(queteQuiz.titre || 'Quiz')}</strong> (${escapeHtml(queteQuiz.matiere||'')}).<br>Réussis-le <strong style="color:var(--orange)">sans aucune faute</strong> pour gagner <strong style="color:var(--orange)">1 crédit</strong> !</p>
+        <button class="gen-btn" onclick="startQuete()"><span>🚀</span> Lancer la quête</button>
+      </div>`;
+    } catch(e) {
+      el.innerHTML = `<div class="empty"><p style="color:#FF6B6B">Erreur : ${escapeHtml(e.message)}</p></div>`;
+    }
+  }
+
+  function startQuete() {
+    const el = document.getElementById('quete-content');
+    el.innerHTML = `<div class="gen-card">${renderQuizHTML({ questions: queteQuiz.questions }, null)}</div>`;
+    // On marque ce quiz comme "quête" pour intercepter la fin
+    activeQuiz.isQuete = true;
+    activeQuiz.queteQuizId = queteQuiz.id;
+    renderQuestion();
+  }
+
+  // Appelée à la fin d'un quiz quête (sans-faute = crédit)
+  async function finishQuete(score, total) {
+    const el = document.getElementById('quete-content');
+    const perfect = score >= total;
+    let extra = '';
+    if (perfect) {
+      try {
+        const res = await api('POST', '/api/quests/quiz/complete', { quizId: activeQuiz.queteQuizId, score, total });
+        if (res.perfect && res.reward) {
+          if (typeof res.creditsLeft === 'number') { currentUser.credits = res.creditsLeft; refreshUI(); }
+          extra = `<div class="quiz-reward">🎁 +${res.reward} crédit gagné !</div>`;
+          showToast('🎉 Quête réussie — +1 crédit !', 'success');
+        }
+      } catch(e) {
+        if (e.message.includes('déjà')) extra = `<p style="color:var(--muted)">Tu as déjà réussi la quête aujourd'hui.</p>`;
+      }
+    }
+
+    el.innerHTML = `<div class="gen-card" style="text-align:center">
+      <div style="font-size:3rem">${perfect ? '🏆' : '😅'}</div>
+      <h2>${perfect ? 'Sans faute, bravo !' : 'Presque !'}</h2>
+      <div class="quiz-score-big" style="margin:0.5rem 0">${score}/${total}</div>
+      ${perfect ? extra : `<p style="color:var(--muted);margin-bottom:1rem">Il fallait un sans-faute pour gagner le crédit. Réessaie !</p>
+        <button class="gen-btn" onclick="loadQuete()"><span>🔄</span> Réessayer</button>`}
+      <div style="margin-top:1rem"><button class="hist-btn" onclick="loadQuete()">← Retour</button></div>
+    </div>`;
+  }
+</script>
+<!-- ===== FIN QUÊTE DU JOUR ===== -->
 
 </body>
 </html>
