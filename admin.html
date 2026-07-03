@@ -102,6 +102,16 @@
     @media (max-width: 520px) {
       .stats-grid, .plan-grid { grid-template-columns: 1fr 1fr; }
     }
+
+    .noshow-section { margin-top: 2.5rem; }
+    .noshow-card { background: var(--surface); border: 1px solid rgba(245,158,11,0.4); border-radius: 12px; padding: 1.25rem 1.4rem; margin-bottom: 0.85rem; }
+    .noshow-card .ns-people { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+    .noshow-card .ns-people strong { color: var(--text); }
+    .noshow-card .ns-date { font-size: 0.78rem; color: var(--muted); margin-top: 0.3rem; }
+    .ns-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.85rem; }
+    .ns-btn { border: none; border-radius: 8px; padding: 0.5rem 1.1rem; font-size: 0.83rem; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; }
+    .ns-btn.refund { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.4); color: #10B981; }
+    .ns-btn.reject { background: transparent; border: 1px solid var(--border); color: var(--muted); }
   </style>
 </head>
 <body>
@@ -193,6 +203,14 @@
         <tr><td colspan="4" style="text-align:center;color:var(--muted);padding:2rem"><span class="loader"></span> Chargement…</td></tr>
       </tbody>
     </table>
+  </div>
+
+  <!-- ABSENCES SIGNALÉES -->
+  <div class="noshow-section">
+    <div class="section-title">🚫 Absences signalées (prof absent) <span id="noshow-count" class="mod-count-badge" style="display:none">0</span></div>
+    <div id="noshow-list">
+      <p style="color:var(--muted);font-size:0.88rem">Chargement…</p>
+    </div>
   </div>
 
 <!-- MODÉRATION -->
@@ -340,6 +358,8 @@
   // Démarrage
   loadStats();
   loadFlagged();
+  loadNoShows();
+  setInterval(loadNoShows, 20000);
   setInterval(loadFlagged, 20000);  // rafraîchit toutes les 20 s
   startAuto();
 async function editEmail(id, currentEmail) {
@@ -427,6 +447,63 @@ async function loadFlagged() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Erreur');
       loadFlagged();
+    } catch (e) {
+      alert('Erreur : ' + e.message);
+    }
+  }
+
+  async function loadNoShows() {
+    const el = document.getElementById('noshow-list');
+    const badge = document.getElementById('noshow-count');
+    try {
+      const token = localStorage.getItem('lp_token');
+      const res = await fetch(API_BASE + '/api/admin/noshows', { headers: { 'Authorization': 'Bearer ' + token } });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Erreur');
+
+      if (!data.length) {
+        el.innerHTML = '<p style="color:var(--muted);font-size:0.88rem">✓ Aucune absence signalée.</p>';
+        badge.style.display = 'none';
+        return;
+      }
+      badge.style.display = 'inline-block';
+      badge.textContent = data.length;
+
+      el.innerHTML = data.map(n => {
+        const student = ((n.s_prenom||'') + ' ' + (n.s_nom||'')).trim() || 'Élève';
+        const prof    = ((n.p_prenom||'') + ' ' + (n.p_nom||'')).trim() || 'Prof';
+        const date    = n.scheduled_at ? new Date(n.scheduled_at).toLocaleString('fr-FR') : '';
+        const signaled = n.created_at ? new Date(n.created_at + 'Z').toLocaleString('fr-FR') : '';
+        return `<div class="noshow-card">
+          <div class="ns-people">
+            <strong>${esc(student)}</strong> (${esc(n.s_email||'')}) signale l'absence de<br>
+            le prof <strong>${esc(prof)}</strong> (${esc(n.p_email||'')})
+          </div>
+          <div class="ns-date">📅 Visio prévue : ${date} · 💰 ${n.price||0} crédits visio · Signalé le ${signaled}</div>
+          <div class="ns-actions">
+            <button class="ns-btn refund" onclick="noShowAction(${n.id}, 'refund')">✓ Rembourser l'élève</button>
+            <button class="ns-btn reject" onclick="noShowAction(${n.id}, 'reject')">✗ Rejeter</button>
+          </div>
+        </div>`;
+      }).join('');
+    } catch (e) {
+      el.innerHTML = `<p style="color:#FF6B6B;font-size:0.88rem">Erreur : ${esc(e.message)}</p>`;
+    }
+  }
+
+  async function noShowAction(id, action) {
+    const label = action === 'refund' ? 'Rembourser l\'élève et retirer le gain du prof ?' : 'Rejeter ce signalement ?';
+    if (!confirm(label)) return;
+    try {
+      const token = localStorage.getItem('lp_token');
+      const res = await fetch(API_BASE + '/api/admin/noshows/' + id, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ action })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Erreur');
+      loadNoShows();
     } catch (e) {
       alert('Erreur : ' + e.message);
     }
