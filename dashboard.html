@@ -3582,7 +3582,7 @@ async function subscribePlan(plan) {
   function planningCard(s, type) {
     const prof = ((s.prenom||'') + ' ' + (s.nom||'')).trim() || 'Professeur';
     const date = s.scheduled_at ? new Date(s.scheduled_at).toLocaleString('fr-FR', {weekday:'long', day:'numeric', month:'long', hour:'2-digit', minute:'2-digit'}) : 'Date non définie';
-    const dureePrix = `${s.duration_hours||1}h · ${s.price||0} crédits`;
+    const dureePrix = `${s.duration_hours||1}h · ${s.price||0} crédits visio`;
 
     if (type === 'pending') {
       return `<div class="fiche-card" style="align-items:flex-start;border-color:rgba(245,158,11,0.35)">
@@ -3590,6 +3590,7 @@ async function subscribePlan(plan) {
           <div class="fc-title">${escapeHtml(s.notes || 'Visio')} <span style="font-size:0.72rem;background:rgba(245,158,11,0.15);color:#F59E0B;border-radius:999px;padding:0.1rem 0.5rem;margin-left:0.3rem">⏳ En attente</span></div>
           <div class="fc-date">avec ${escapeHtml(prof)} · ${date} · ${dureePrix}</div>
         </div>
+        <button class="hist-btn" style="border-color:rgba(220,50,50,0.4);color:#FF6B6B;flex-shrink:0" onclick="cancelVisio(${s.id})">Annuler</button>
       </div>`;
     }
     return `<div class="fiche-card" style="align-items:flex-start;border-color:rgba(16,185,129,0.35)">
@@ -3597,8 +3598,24 @@ async function subscribePlan(plan) {
         <div class="fc-title">${escapeHtml(s.notes || 'Visio')} <span style="font-size:0.72rem;background:rgba(16,185,129,0.15);color:#10B981;border-radius:999px;padding:0.1rem 0.5rem;margin-left:0.3rem">✅ Confirmée</span></div>
         <div class="fc-date">avec ${escapeHtml(prof)} · ${date} · ${dureePrix}</div>
       </div>
-      ${s.jitsi_room ? `<a href="${s.jitsi_room}" target="_blank" class="hist-btn" style="border-color:var(--orange);color:var(--orange);flex-shrink:0">📹 Rejoindre</a>` : ''}
+      <div style="display:flex;gap:0.5rem;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end">
+        ${s.jitsi_room ? `<a href="${s.jitsi_room}" target="_blank" class="hist-btn" style="border-color:var(--orange);color:var(--orange)">📹 Rejoindre</a>` : ''}
+        <button class="hist-btn" style="border-color:rgba(220,50,50,0.4);color:#FF6B6B" onclick="cancelVisio(${s.id})">Annuler</button>
+      </div>
     </div>`;
+  }
+
+  async function cancelVisio(id) {
+    if (!confirm('Annuler cette visio ? Tes crédits visio te seront remboursés.')) return;
+    try {
+      const res = await api('DELETE', '/api/video-sessions/' + id);
+      showToast(res.message || 'Visio annulée', 'success');
+      // Rafraîchir le solde de crédits visio + la liste
+      try { const me = await api('GET', '/api/me'); currentUser = me.user; refreshUI(); } catch {}
+      loadPlanning();
+    } catch(e) {
+      showToast('Erreur : ' + e.message, 'error');
+    }
   }
 </script>
 <!-- ===== FIN MON PLANNING ===== -->
