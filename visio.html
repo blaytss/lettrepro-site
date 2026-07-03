@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LettrePro — Visio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://meet.jit.si/external_api.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0F0D0A; --surface: #1A1612; --border: #3A2F22;
+      --orange: #E8692A; --text: #F5F0E8; --muted: #9A8A78;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1.25rem; background: var(--surface); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .logo { font-family: 'Sora', sans-serif; font-weight: 800; font-size: 1.15rem; }
+    .logo span { color: var(--orange); }
+    .leave-btn { background: transparent; border: 1px solid rgba(220,50,50,0.4); color: #FF6B6B; border-radius: 9px; padding: 0.5rem 1.1rem; font-size: 0.85rem; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; text-decoration: none; }
+    .leave-btn:hover { background: rgba(220,50,50,0.1); }
+    #jitsi-container { flex: 1; min-height: 0; }
+    .msg-screen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 2rem; }
+    .msg-screen .icon { font-size: 3rem; margin-bottom: 0.75rem; }
+    .msg-screen h2 { font-family: 'Sora', sans-serif; margin-bottom: 0.5rem; }
+    .msg-screen p { color: var(--muted); font-size: 0.92rem; line-height: 1.5; max-width: 420px; }
+    .msg-screen a { display: inline-block; margin-top: 1.25rem; background: var(--orange); color: #fff; text-decoration: none; padding: 0.7rem 1.5rem; border-radius: 10px; font-weight: 700; font-family: 'Sora', sans-serif; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="logo">Lettre<span>Pro</span> · Visio</div>
+    <a href="dashboard.html" class="leave-btn">← Quitter</a>
+  </div>
+
+  <div id="jitsi-container"></div>
+
+  <script>
+    // Récupère le nom de la salle depuis l'URL : visio.html?room=lettrepro-abc123
+    const params = new URLSearchParams(window.location.search);
+    let room = params.get('room');
+
+    // Si on a passé une URL Jitsi complète, on extrait juste le nom de salle
+    if (room && room.includes('meet.jit.si/')) {
+      room = room.split('meet.jit.si/')[1];
+    }
+
+    const container = document.getElementById('jitsi-container');
+
+    if (!room) {
+      container.outerHTML = `<div class="msg-screen">
+        <div class="icon">📹</div>
+        <h2>Aucune visio spécifiée</h2>
+        <p>Le lien de visio semble incomplet. Retourne sur ton planning et clique à nouveau sur « Rejoindre ».</p>
+        <a href="dashboard.html">Retour au dashboard</a>
+      </div>`;
+    } else {
+      try {
+        const domain = 'meet.jit.si';
+        const options = {
+          roomName: room,
+          parentNode: container,
+          width: '100%',
+          height: '100%',
+          configOverwrite: {
+            prejoinPageEnabled: true,       // écran d'attente avant d'entrer
+            disableDeepLinking: true,        // reste dans le navigateur
+          },
+          interfaceConfigOverwrite: {
+            DEFAULT_BACKGROUND: '#0F0D0A',
+            TOOLBAR_BUTTONS: [
+              'microphone', 'camera', 'desktop', 'fullscreen',
+              'hangup', 'chat', 'settings', 'raisehand',
+              'videoquality', 'tileview'
+            ],
+          },
+        };
+        const api = new JitsiMeetExternalAPI(domain, options);
+
+        // Quand la personne raccroche → retour au dashboard
+        api.addEventListener('readyToClose', () => {
+          window.location.href = 'dashboard.html';
+        });
+      } catch (e) {
+        container.outerHTML = `<div class="msg-screen">
+          <div class="icon">⚠️</div>
+          <h2>Impossible de charger la visio</h2>
+          <p>Réessaie, ou vérifie ta connexion. Si le problème persiste, utilise un autre navigateur (Chrome recommandé).</p>
+          <a href="dashboard.html">Retour au dashboard</a>
+        </div>`;
+      }
+    }
+  </script>
+</body>
+</html>
