@@ -884,6 +884,13 @@
       <h2 style="font-family:'Sora',sans-serif;font-weight:700;color:var(--text);margin-bottom:1.25rem;font-size:1.1rem" id="packs-title">Packs de crédits</h2>
       <div class="packs-grid" id="packs-grid"></div>
 
+      <!-- CRÉDITS VISIO -->
+      <div style="margin-top:2rem">
+        <h2 style="font-family:'Sora',sans-serif;font-weight:700;color:var(--text);margin-bottom:0.4rem;font-size:1.1rem">🎓 Crédits visio</h2>
+        <p style="color:var(--muted);font-size:0.85rem;margin-bottom:1.25rem">Pour t'abonner à des profs, réserver des visios et accéder aux cours payants. Tu en as <strong id="visio-balance" style="color:#3B82F6">—</strong>.</p>
+        <div class="packs-grid" id="visio-packs-grid"></div>
+      </div>
+
       <div class="credit-history">
         <h3>Historique des crédits</h3>
         <div class="credit-log" id="credit-log"></div>
@@ -1951,7 +1958,7 @@ async function subscribePlan(plan) {
     if (btn) btn.classList.add('active');
     if (name === 'history')    { renderHistory(); }
     if (name === 'account')    { renderAccount(); }
-    if (name === 'credits')    { renderCreditsPage(); }
+    if (name === 'credits') { loadCredits(); renderVisioPacks(); document.getElementById('visio-balance').textContent = (currentUser.visio_credits||0) + ' crédits'; }
     if (name === 'abonnement') { renderAbonnement(); }
     if (name === 'study')      { updateCostPreview(); }
     if (name === 'apparence')  { initThemePage(); }
@@ -3697,6 +3704,42 @@ async function subscribePlan(plan) {
   }
 </script>
 <!-- ===== FIN QUÊTE DU JOUR ===== -->
+
+<!-- ===== ACHAT CRÉDITS VISIO ===== -->
+<script>
+  const VISIO_PACKS_FRONT = [
+    { id: 'visio_17', credits: 17, price: '11,99€' },
+    { id: 'visio_30', credits: 30, price: '23,99€', popular: true },
+    { id: 'visio_50', credits: 50, price: '44,99€' },
+  ];
+
+  function renderVisioPacks() {
+    const grid = document.getElementById('visio-packs-grid');
+    if (!grid) return;
+    grid.innerHTML = VISIO_PACKS_FRONT.map(p => `
+      <div class="pack-card" style="${p.popular ? 'border-color:#3B82F6' : ''}">
+        ${p.popular ? '<div class="pack-badge" style="background:#3B82F6">Populaire</div>' : ''}
+        <div class="pack-credits" style="color:#3B82F6">${p.credits}</div>
+        <div class="pack-label">crédits visio</div>
+        <div class="pack-price">${p.price}</div>
+        <button class="pack-buy-btn" onclick="buyVisioCredits('${p.id}')">Acheter</button>
+      </div>
+    `).join('');
+  }
+
+  async function buyVisioCredits(packId) {
+    const btn = event.target;
+    btn.disabled = true; btn.textContent = 'Chargement…';
+    try {
+      const data = await api('POST', '/api/stripe/create-visio-checkout', { packId });
+      window.location.href = data.url;
+    } catch(e) {
+      showToast('Erreur : ' + e.message, 'error');
+      btn.disabled = false; btn.textContent = 'Acheter';
+    }
+  }
+</script>
+<!-- ===== FIN ACHAT CRÉDITS VISIO ===== -->
 
 </body>
 </html>
