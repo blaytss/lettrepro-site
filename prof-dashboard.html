@@ -683,7 +683,7 @@
             </div>
           </div>
           <div style="display:flex;gap:.5rem;flex-shrink:0">
-            ${s.status==='booked'?`<a href="${s.jitsi_room}" target="_blank" class="jitsi-btn">📹 Rejoindre</a>`:''}
+            ${s.status==='booked'?`<a href="visio.html?room=${encodeURIComponent(s.jitsi_room)}" class="jitsi-btn">📹 Rejoindre</a>`:''}
             <button class="btn-danger" onclick="cancelSession(${s.id})">Annuler</button>
           </div>
         </div>`).join('');
