@@ -3615,6 +3615,7 @@ async function subscribePlan(plan) {
       </div>
       <div style="display:flex;gap:0.5rem;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end">
         ${s.jitsi_room ? `<a href="${s.jitsi_room}" target="_blank" class="hist-btn" style="border-color:var(--orange);color:var(--orange)">📹 Rejoindre</a>` : ''}
+        ${isVisioPast(s.scheduled_at) ? `<button class="hist-btn" style="border-color:rgba(245,158,11,0.5);color:#F59E0B" onclick="reportNoShow(${s.id})">🚫 Prof absent</button>` : ''}
         <button class="hist-btn" style="border-color:rgba(220,50,50,0.4);color:#FF6B6B" onclick="cancelVisio(${s.id})">Annuler</button>
       </div>
     </div>`;
@@ -3627,6 +3628,23 @@ async function subscribePlan(plan) {
       showToast(res.message || 'Visio annulée', 'success');
       // Rafraîchir le solde de crédits visio + la liste
       try { const me = await api('GET', '/api/me'); currentUser = me.user; refreshUI(); } catch {}
+      loadPlanning();
+    } catch(e) {
+      showToast('Erreur : ' + e.message, 'error');
+    }
+  }
+  // Vrai seulement 20 min après l'heure prévue
+  function isVisioPast(scheduledAt) {
+    if (!scheduledAt) return false;
+    const sched = new Date(scheduledAt);
+    return (Date.now() - sched.getTime()) > 20 * 60 * 1000; // +20 min
+  }
+
+  async function reportNoShow(id) {
+    if (!confirm('Signaler que le prof n\'est pas venu ?\n\nNotre équipe va vérifier, et tu seras remboursé si l\'absence est confirmée.')) return;
+    try {
+      const res = await api('POST', '/api/video-sessions/' + id + '/noshow');
+      showToast(res.message || 'Signalement envoyé', 'success');
       loadPlanning();
     } catch(e) {
       showToast('Erreur : ' + e.message, 'error');
@@ -3748,6 +3766,8 @@ async function subscribePlan(plan) {
   }
 </script>
 <!-- ===== FIN ACHAT CRÉDITS VISIO ===== -->
+
+
 
 </body>
 </html>
