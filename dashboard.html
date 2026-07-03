@@ -1140,6 +1140,7 @@
     free:    { name: 'Gratuit',  monthlyCredits: 5,   canImprove: false, langs: ['fr'],                                    color: 'free' },
     starter: { name: 'Starter',  monthlyCredits: 30,  canImprove: true,  langs: ['fr','en','es','de','it'],                color: 'starter' },
     premium: { name: 'Premium',  monthlyCredits: 60, canImprove: true,  langs: ['fr','en','es','de','it','pt','nl','ar'], color: 'premium' }
+    pro: { name: 'Pro', monthlyCredits: 100, canImprove: true, langs: ['fr','en','es','de','it','pt','nl','ar'], color: 'pro' },
   };
   const CREDIT_PACKS = [
     { id: 'pack_10',  credits: 10,  price: 5.00,  label: 'Mini pack',    featured: false },
@@ -1581,32 +1582,39 @@
   function renderAbonnement() {
     const userPlan = currentUser.plan || 'free';
     const planDefs = [
-      { key:'free',    price:'0€',  period:'Pour toujours',        features:['5 crédits / mois','Français uniquement','off:Correction de lettre','off:Multilingue'] },
-      { key:'starter', price:'3€',  period:'/mois · sans engagement', features:['30 crédits / mois','5 langues','Correction de lettre ✓','Caractères personnalisés ✓'] },
-      { key:'premium', price:'5€',  period:'/mois · sans engagement', features:['60 crédits / mois','8 langues','Correction de lettre ✓','Support prioritaire ✓'] }
+      { key:'free',    price:'0€', period:'Pour toujours',           visio:0,  features:['5 crédits / mois','Français uniquement','off:Correction de lettre','off:Multilingue'] },
+      { key:'starter', price:'3€', period:'/mois · sans engagement', visio:8,  features:['30 crédits / mois','5 langues','Correction de lettre ✓','Caractères personnalisés ✓'] },
+      { key:'premium', price:'5€', period:'/mois · sans engagement', visio:14, features:['60 crédits / mois','8 langues','Correction de lettre ✓','Support prioritaire ✓'] },
+      { key:'pro',     price:'9€', period:'/mois · sans engagement', visio:30, features:['100 crédits / mois','Toutes les langues','Correction de lettre ✓','Support prioritaire ✓'] }
     ];
     document.getElementById('plans-grid').innerHTML = planDefs.map(p => {
       const isCurrent = p.key === userPlan;
-      const plan = PLANS[p.key];
-      const badge = isCurrent ? `<div class="plan-card-badge cur">✓ Plan actuel</div>` : (p.key === 'starter' && userPlan === 'free' ? `<div class="plan-card-badge rec">⚡ Recommandé</div>` : '');
+      const plan = PLANS[p.key] || { name: p.key.charAt(0).toUpperCase()+p.key.slice(1), monthlyCredits: 0 };
+      const badge = isCurrent
+        ? `<div class="plan-card-badge cur">✓ Plan actuel</div>`
+        : (p.key === 'starter' && userPlan === 'free' ? `<div class="plan-card-badge rec">⚡ Recommandé</div>` : '');
       const featuresHTML = p.features.map(f => { const isOff = f.startsWith('off:'); return `<li class="${isOff?'off':''}">${isOff?f.slice(4):f}</li>`; }).join('');
       let btnHTML = isCurrent
         ? `<button class="plan-action-btn active-plan" disabled>✓ Plan actuel</button>`
         : p.key === 'free'
           ? `<button class="plan-action-btn outline" onclick="downgradePlan('free')">Repasser en Gratuit</button>`
           : `<button class="plan-action-btn filled" onclick="subscribePlan('${p.key}')">Passer ${plan.name}</button>`;
+      const visioHTML = p.visio > 0
+        ? `<div class="plan-card-credits" style="color:#3B82F6;background:rgba(59,130,246,0.1)">🎓 ${p.visio} crédits visio / mois</div>`
+        : '';
       return `<div class="plan-card ${isCurrent?'current':''}">
         ${badge}
         <div class="plan-card-name">${plan.name}</div>
         <div class="plan-card-price">${p.price}<sub>${p.key!=='free'?'/mois':''}</sub></div>
         <div class="plan-card-period">${p.period}</div>
         <div class="plan-card-credits">💳 ${plan.monthlyCredits} crédits / mois</div>
+        ${visioHTML}
         <ul class="plan-card-features">${featuresHTML}</ul>
         ${btnHTML}
       </div>`;
     }).join('');
     const manageRow = document.getElementById('manage-sub-row');
-    if (manageRow) manageRow.style.display = (userPlan === 'starter' || userPlan === 'premium') ? 'block' : 'none';
+    if (manageRow) manageRow.style.display = (userPlan === 'starter' || userPlan === 'premium' || userPlan === 'pro') ? 'block' : 'none';
   }
 
   async function downgradePlan(plan) {
