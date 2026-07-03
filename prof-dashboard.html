@@ -855,7 +855,7 @@ function renderRequests(requests){
   function updateWithdrawalAmount() {
     const val = parseInt(document.getElementById('withdrawal-slider').value) || 0;
     document.getElementById('withdrawal-amount').value = val;
-    document.getElementById('withdrawal-euros').textContent = (val * 0.5).toFixed(2) + '€';
+    document.getElementById('withdrawal-euros').textContent = (val * 0.35).toFixed(2) + '€';
   }
 
   async function requestWithdrawal() {
