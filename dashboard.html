@@ -508,6 +508,10 @@
       <div class="dot"></div>
       <span id="nav-credits">—</span> crédits
     </button>
+    <button class="credit-badge" style="color:#3B82F6" onclick="showPage('myprofs', document.querySelector('[data-page=myprofs]'))" title="Crédits visio (profs & visios)">
+      <div class="dot" style="background:#3B82F6"></div>
+      <span id="nav-visio-credits">—</span> 🎓
+    </button>
     <div class="avatar-btn" id="nav-avatar">?</div>
     <button class="logout-btn" onclick="logout()">Déconnexion</button>
   </div>
@@ -1252,6 +1256,9 @@
     document.getElementById('nav-plan').textContent   = plan.name;
     document.getElementById('nav-plan').className     = 'plan-chip ' + plan.color;
     document.getElementById('nav-credits').textContent = credits;
+    const vc = currentUser.visio_credits || 0;
+    const navVc = document.getElementById('nav-visio-credits');
+    if (navVc) navVc.textContent = vc;
     document.getElementById('sidebar-credits-val').textContent = credits;
 
     document.getElementById('stat-credits').textContent = credits;
