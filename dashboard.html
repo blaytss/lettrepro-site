@@ -810,7 +810,7 @@
         <div id="evalhist-content"></div>
       </div>
     </div>
-    f
+    
 <!-- PAGE QUÊTE DU JOUR -->
     <div class="page" id="page-quete">
       <div class="page-header"><h1>Quête du jour 🎯</h1><p>Réussis un quiz au hasard sans aucune faute pour gagner 1 crédit. Une fois par jour !</p></div>
@@ -1966,7 +1966,7 @@ async function subscribePlan(plan) {
     if (btn) btn.classList.add('active');
     if (name === 'history')    { renderHistory(); }
     if (name === 'account')    { renderAccount(); }
-    if (name === 'credits') { loadCredits(); renderVisioPacks(); document.getElementById('visio-balance').textContent = (currentUser.visio_credits||0) + ' crédits'; }
+    if (name === 'credits') { renderCreditsPage(); renderVisioPacks(); document.getElementById('visio-balance').textContent = (currentUser.visio_credits||0) + ' crédits'; }
     if (name === 'abonnement') { renderAbonnement(); }
     if (name === 'study')      { updateCostPreview(); }
     if (name === 'apparence')  { initThemePage(); }
