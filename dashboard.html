@@ -3748,7 +3748,7 @@ async function subscribePlan(plan) {
         <div class="pack-credits" style="color:#3B82F6">${p.credits}</div>
         <div class="pack-label">crédits visio</div>
         <div class="pack-price">${p.price}</div>
-        <button class="pack-buy-btn" onclick="buyVisioCredits('${p.id}')">Acheter</button>
+        <button class="pack-btn" onclick="buyVisioCredits('${p.id}')">Acheter — ${p.price}</button>
       </div>
     `).join('');
   }
