@@ -1138,9 +1138,9 @@
   const API_BASE = 'https://lettrepro-production.up.railway.app';
   const PLANS = {
     free:    { name: 'Gratuit',  monthlyCredits: 5,   canImprove: false, langs: ['fr'],                                    color: 'free' },
-    starter: { name: 'Starter',  monthlyCredits: 30,  canImprove: true,  langs: ['fr','en','es','de','it'],                color: 'starter' },
-    premium: { name: 'Premium',  monthlyCredits: 60, canImprove: true,  langs: ['fr','en','es','de','it','pt','nl','ar'], color: 'premium' },
-    pro: { name: 'Pro', monthlyCredits: 100, canImprove: true, langs: ['fr','en','es','de','it','pt','nl','ar'], color: 'pro' },
+    starter: { name: 'Starter',  monthlyCredits: 15,  canImprove: true,  langs: ['fr','en','es','de','it'],                color: 'starter' },
+    premium: { name: 'Premium',  monthlyCredits: 30, canImprove: true,  langs: ['fr','en','es','de','it','pt','nl','ar'], color: 'premium' },
+    pro: { name: 'Pro', monthlyCredits: 70, canImprove: true, langs: ['fr','en','es','de','it','pt','nl','ar'], color: 'pro' },
   };
   const CREDIT_PACKS = [
     { id: 'pack_10',  credits: 10,  price: 5.00,  label: 'Mini pack',    featured: false },
@@ -1583,9 +1583,9 @@
     const userPlan = currentUser.plan || 'free';
     const planDefs = [
       { key:'free',    price:'0€', period:'Pour toujours',           visio:0,  features:['5 crédits / mois','Français uniquement','off:Correction de lettre','off:Multilingue'] },
-      { key:'starter', price:'3€', period:'/mois · sans engagement', visio:8,  features:['30 crédits / mois','5 langues','Correction de lettre ✓','Caractères personnalisés ✓'] },
-      { key:'premium', price:'5€', period:'/mois · sans engagement', visio:14, features:['60 crédits / mois','8 langues','Correction de lettre ✓','Support prioritaire ✓'] },
-      { key:'pro',     price:'9€', period:'/mois · sans engagement', visio:30, features:['100 crédits / mois','Toutes les langues','Correction de lettre ✓','Support prioritaire ✓'] }
+      { key:'starter', price:'3€', period:'/mois · sans engagement', visio:4,  features:['15 crédits / mois','5 langues','Correction de lettre ✓','Caractères personnalisés ✓'] },
+      { key:'premium', price:'5€', period:'/mois · sans engagement', visio:8, features:['30 crédits / mois','8 langues','Correction de lettre ✓','Support prioritaire ✓'] },
+      { key:'pro',     price:'9€', period:'/mois · sans engagement', visio:20, features:['70 crédits / mois','Toutes les langues','Correction de lettre ✓','Support prioritaire ✓'] }
     ];
     document.getElementById('plans-grid').innerHTML = planDefs.map(p => {
       const isCurrent = p.key === userPlan;
