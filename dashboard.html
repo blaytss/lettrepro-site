@@ -12,7 +12,9 @@
   <meta name="apple-mobile-web-app-title" content="LettrePro" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
   <title>LettrePro — Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap"  rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&family=Kalam:wght@400;700&display=swap" rel="stylesheet" />
+
   <script>
   // Applique le thème AVANT le rendu pour éviter le flash
   (function () {
@@ -320,6 +322,18 @@
     .fiche-card .fc-title { font-weight: 600; font-size: 0.9rem; color: var(--text); margin-bottom: 0.15rem; }
     .fiche-card .fc-date { font-size: 0.75rem; color: var(--muted); }
     .fiche-card .fc-actions { display: flex; gap: 0.4rem; flex-shrink: 0; }
+    .cahier-page { background-color: #fff; background-image: linear-gradient(#dbeafe 1px, transparent 1px), linear-gradient(90deg, #dbeafe 1px, transparent 1px); background-size: 22px 22px; padding: 2rem; border-radius: 8px; font-family: 'Kalam', cursive; color: #1E293B; }
+    .cahier-title { font-family:'Kalam',cursive; font-weight:700; font-size:1.8rem; color:#1E3A8A; position:relative; display:inline-block; margin-bottom:1.2rem; }
+    .cahier-title::after { content:''; position:absolute; left:0; bottom:-6px; width:100%; height:6px; background:repeating-linear-gradient(90deg,#1E3A8A 0 8px,transparent 8px 12px); border-radius:3px; }
+    .cahier-h2 { font-family:'Kalam',cursive; font-weight:700; font-size:1.15rem; color:#1E3A8A; margin:1.1rem 0 .5rem; }
+    .cahier-bullet { margin:.35rem 0 .35rem 1.4rem; font-size:1rem; line-height:1.5; position:relative; }
+    .cahier-bullet::before { content:'•'; position:absolute; left:-1.1rem; color:#1E3A8A; font-weight:700; }
+    .cahier-sub { margin:.25rem 0 .25rem 2.6rem; font-size:.95rem; line-height:1.5; }
+    .cahier-mark-yellow { background:#FEF08A; padding:0 4px; border-radius:3px; }
+    .cahier-mark-green  { background:#BBF7D0; padding:0 4px; border-radius:3px; }
+    .cahier-mark-pink   { background:#FBCFE8; padding:0 4px; border-radius:3px; }
+    .cahier-attention { border:2px solid #7C2D12; border-radius:8px; padding:.6rem 1rem; margin:.6rem 0; color:#7C2D12; font-size:.9rem; background:#FEF3EE; }
+    .cahier-attention b { text-decoration:underline; }
 
     @media (max-width: 900px) { .mode-selector { grid-template-columns: 1fr 1fr; } }
 
@@ -1005,6 +1019,15 @@
               <span style="background:#FBEAF0;color:#993556;font-size:9px;padding:2px 6px;border-radius:8px">important</span>
             </div>
             <div style="background:#FFF0F5;padding:6px 10px;font-size:11px;color:#993556;font-weight:500">Rose study</div>
+          </div>
+
+        <div class="fiche-theme-card" data-theme="cahier" onclick="selectFicheTheme('cahier',this)" style="border-radius:10px;border:2px solid transparent;cursor:pointer;overflow:hidden;transition:border-color .2s">
+            <div style="background:#fff;padding:10px;background-image:linear-gradient(#dbeafe 1px,transparent 1px),linear-gradient(90deg,#dbeafe 1px,transparent 1px);background-size:8px 8px;border-bottom:1px solid #eee">
+              <div style="color:#1E3A8A;font-weight:700;font-size:11px;margin-bottom:6px;font-family:cursive">Trigonométrie</div>
+              <div style="color:#1E293B;font-size:10px;margin-bottom:4px">• <span style="background:#FEF08A;padding:0 3px">cos²θ + sin²θ = 1</span></div>
+              <div style="border:1.5px solid #7C2D12;border-radius:5px;padding:2px 5px;color:#7C2D12;font-size:8px">ATTENTION</div>
+            </div>
+            <div style="background:#f5f5f5;padding:6px 10px;font-size:11px;color:#1E3A8A;font-weight:500">Cahier surligné</div>
           </div>
 
         </div>
@@ -1878,9 +1901,10 @@ async function subscribePlan(plan) {
     minimaliste: { bg:'#ffffff', cardBg:'#F8FAFC', titleColor:'#185FA5', textColor:'#1e293b', accentColor:'#378ADD', keyBg:'#E6F1FB', keyBorder:'#378ADD', sectionBorder:'1px solid #e2e8f0' },
     neon: { bg:'#0D0D1A', cardBg:'#12122A', titleColor:'#AFA9EC', textColor:'#CECBF6', accentColor:'#AFA9EC', keyBg:'#12122A', keyBorder:'#5DCAA5', sectionBorder:'1px solid #3C3489' },
     pastel: { bg:'#FFFDF7', cardBg:'#FFF8ED', titleColor:'#854F0B', textColor:'#633806', accentColor:'#EF9F27', keyBg:'#FAEEDA', keyBorder:'#EF9F27', sectionBorder:'1px solid #FAEEDA' },
-    rose: { bg:'#FFF5F8', cardBg:'#FBEAF0', titleColor:'#993556', textColor:'#72243E', accentColor:'#D4537E', keyBg:'#FBEAF0', keyBorder:'#D4537E', sectionBorder:'1px solid #F4C0D1' }
-  };
-  const THEME_COLORS = { moderne:'#F97316', minimaliste:'#378ADD', neon:'#534AB7', pastel:'#EF9F27', rose:'#D4537E' };
+    rose: { bg:'#FFF5F8', cardBg:'#FBEAF0', titleColor:'#993556', textColor:'#72243E', accentColor:'#D4537E', keyBg:'#FBEAF0', keyBorder:'#D4537E', sectionBorder:'1px solid #F4C0D1' },
+    cahier: { bg:'#FFFFFF', cardBg:'#FFFFFF', titleColor:'#1E3A8A', textColor:'#1E293B', accentColor:'#1E3A8A', keyBg:'#FEF08A', keyBorder:'#1E3A8A', sectionBorder:'none', isCahier:true }
+};
+  const THEME_COLORS = { moderne:'#F97316', minimaliste:'#378ADD', neon:'#534AB7', pastel:'#EF9F27', rose:'#D4537E', cahier:'#1E3A8A' };
 
   function selectFicheTheme(name, el) {
     document.querySelectorAll('.fiche-theme-card').forEach(c => c.style.borderColor = 'transparent');
@@ -1924,6 +1948,12 @@ async function subscribePlan(plan) {
 
   function renderFicheWithTheme(content) {
     const t = getFicheTheme();
+    const themeName = localStorage.getItem('ficheTheme') || 'moderne';
+
+    if (themeName === 'cahier') {
+      return renderCahierFiche(content);
+    }
+
     const lines = (content || '').split('\n');
     let html = `<div style="background:${t.bg};border-radius:12px;padding:20px">`;
     lines.forEach(line => {
@@ -1936,6 +1966,45 @@ async function subscribePlan(plan) {
     });
     html += '</div>';
     return html;
+  }
+
+  // Rendu façon "cahier annoté" avec surlignages colorés
+  function renderCahierFiche(content) {
+    const lines = (content || '').split('\n');
+    let html = '<div class="cahier-page">';
+    let titleDone = false;
+    lines.forEach(line => {
+      const t = line.trim();
+      if (!t) return;
+      if (t.startsWith('# ') && !titleDone) {
+        html += `<div class="cahier-title">${escapeHtml(t.slice(2))}</div>`;
+        titleDone = true;
+      } else if (t.startsWith('# ')) {
+        html += `<div class="cahier-h2">${escapeHtml(t.slice(2))}</div>`;
+      } else if (t.startsWith('## ')) {
+        html += `<div class="cahier-h2">${cahierInline(escapeHtml(t.slice(3)))}</div>`;
+      } else if (/^(attention|⚠️)/i.test(t)) {
+        html += `<div class="cahier-attention"><b>ATTENTION</b> : ${cahierInline(escapeHtml(t.replace(/^(attention\s*:?\s*|⚠️\s*)/i,'')))}</div>`;
+      } else if (t.startsWith('- ') || t.startsWith('• ')) {
+        html += `<div class="cahier-bullet">${cahierInline(escapeHtml(t.slice(2)))}</div>`;
+      } else if (t.startsWith('  ') || t.startsWith('    ')) {
+        html += `<div class="cahier-sub">${cahierInline(escapeHtml(t))}</div>`;
+      } else if (t === '---') {
+        // ignore les separateurs en mode cahier
+      } else {
+        html += `<div class="cahier-bullet">${cahierInline(escapeHtml(t))}</div>`;
+      }
+    });
+    html += '</div>';
+    return html;
+  }
+
+  // Transforme **mot** en surlignage jaune, et garde l'italique/gras simple
+  function cahierInline(t) {
+    return t
+      .replace(/\*\*(.+?)\*\*/g, '<span class="cahier-mark-yellow">$1</span>')
+      .replace(/\*([^*\n]+)\*/g, '<span class="cahier-mark-green">$1</span>')
+      .replace(/`([^`]+)`/g, '<span class="cahier-mark-pink">$1</span>');
   }
 
   function switchAppTab(tab) {
@@ -2349,9 +2418,14 @@ async function subscribePlan(plan) {
     const explication = q.explication || q.explanation || '';
     if (exp) {
       const isGood = chosen === correct;
+      let ficheLinkHtml = '';
+      if (!isGood && activeQuiz.ficheId) {
+        ficheLinkHtml = `<button class="result-btn" style="margin-top:0.6rem;border-color:var(--orange);color:var(--orange)" onclick="viewFiche(${activeQuiz.ficheId})">📋 Revoir la fiche</button>`;
+      }
       exp.innerHTML =
         `<div class="quiz-verdict ${isGood ? 'good' : 'bad'}">${isGood ? '✓ Bonne réponse !' : '✗ Pas tout à fait'}</div>` +
-        (explication ? `<div class="quiz-exp-text">${escapeHtml(explication)}</div>` : '');
+        (explication ? `<div class="quiz-exp-text">${escapeHtml(explication)}</div>` : '') +
+        ficheLinkHtml;
       exp.style.display = 'block';
     }
 
@@ -2551,6 +2625,14 @@ async function subscribePlan(plan) {
       }
       document.getElementById('modal-text').innerHTML = renderQuizHTML(quizData, id);
       renderQuestion(); // ✅ affiche la 1re question dans la modale
+
+      // Cherche la fiche du même chapitre (même titre + matiere) pour le lien "Revoir la fiche"
+      try {
+        const fiches = await api('GET', '/api/study/fiches');
+        const match = fiches.find(f => f.titre === q.titre && f.matiere === q.matiere);
+        activeQuiz.ficheId = match ? match.id : null;
+      } catch { activeQuiz.ficheId = null; }
+
       document.getElementById('modal').classList.add('visible');
     } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
   }
