@@ -2,7 +2,10 @@ import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } fr
 import { soraFont, interFont } from "./fonts";
 import { theme } from "./theme";
 
-export const CallToAction: React.FC = () => {
+export const CallToAction: React.FC<{ headline: string; subtext: string }> = ({
+  headline,
+  subtext,
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -43,7 +46,7 @@ export const CallToAction: React.FC = () => {
             lineHeight: 1.2,
           }}
         >
-          Essaie-la gratuitement
+          {headline}
         </div>
         <div
           style={{
@@ -67,7 +70,7 @@ export const CallToAction: React.FC = () => {
             color: theme.muted,
           }}
         >
-          Aucune carte bancaire requise
+          {subtext}
         </div>
       </div>
     </AbsoluteFill>

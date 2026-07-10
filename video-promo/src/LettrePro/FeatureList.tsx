@@ -2,12 +2,7 @@ import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } fr
 import { soraFont, interFont } from "./fonts";
 import { theme } from "./theme";
 
-const features = [
-  { emoji: "⚡", text: "Générée en 30 secondes" },
-  { emoji: "🤖", text: "Boostée par l'IA" },
-  { emoji: "🎯", text: "Adaptée à chaque offre" },
-  { emoji: "🆓", text: "Gratuite pour commencer" },
-];
+export type Feature = { emoji: string; text: string };
 
 const FeatureRow: React.FC<{ emoji: string; text: string; delay: number }> = ({
   emoji,
@@ -55,7 +50,10 @@ const FeatureRow: React.FC<{ emoji: string; text: string; delay: number }> = ({
   );
 };
 
-export const FeatureList: React.FC = () => {
+export const FeatureList: React.FC<{ heading: string; features: Feature[] }> = ({
+  heading,
+  features,
+}) => {
   return (
     <AbsoluteFill
       style={{
@@ -75,9 +73,11 @@ export const FeatureList: React.FC = () => {
           color: theme.muted,
           textTransform: "uppercase",
           letterSpacing: 4,
+          textAlign: "center",
+          padding: "0 60px",
         }}
       >
-        Pourquoi LettrePro ?
+        {heading}
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
         {features.map((feature, i) => (

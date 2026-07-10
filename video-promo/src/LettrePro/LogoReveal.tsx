@@ -2,7 +2,7 @@ import { AbsoluteFill, Img, interpolate, spring, staticFile, useCurrentFrame, us
 import { soraFont } from "./fonts";
 import { theme } from "./theme";
 
-export const LogoReveal: React.FC = () => {
+export const LogoReveal: React.FC<{ tagline: string }> = ({ tagline }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -65,7 +65,7 @@ export const LogoReveal: React.FC = () => {
           padding: "0 80px",
         }}
       >
-        Ta lettre de motivation, générée par l'IA
+        {tagline}
       </div>
     </AbsoluteFill>
   );

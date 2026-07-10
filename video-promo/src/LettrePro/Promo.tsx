@@ -1,36 +1,18 @@
-import { AbsoluteFill, interpolate, Sequence, useCurrentFrame } from "remotion";
-import { LogoReveal } from "./LogoReveal";
-import { FeatureList } from "./FeatureList";
-import { CallToAction } from "./CallToAction";
-import { theme } from "./theme";
-
-const FADE = 15;
-
-const FadeIn: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const frame = useCurrentFrame();
-  const opacity = interpolate(frame, [0, FADE], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-  return <AbsoluteFill style={{ opacity }}>{children}</AbsoluteFill>;
-};
+import { PromoTemplate } from "./PromoTemplate";
 
 export const Promo: React.FC = () => {
   return (
-    <AbsoluteFill style={{ backgroundColor: theme.bg }}>
-      <Sequence from={0} durationInFrames={70}>
-        <LogoReveal />
-      </Sequence>
-      <Sequence from={60} durationInFrames={110}>
-        <FadeIn>
-          <FeatureList />
-        </FadeIn>
-      </Sequence>
-      <Sequence from={160} durationInFrames={80}>
-        <FadeIn>
-          <CallToAction />
-        </FadeIn>
-      </Sequence>
-    </AbsoluteFill>
+    <PromoTemplate
+      tagline="Ta lettre de motivation, générée par l'IA"
+      featuresHeading="Pourquoi LettrePro ?"
+      features={[
+        { emoji: "⚡", text: "Générée en 30 secondes" },
+        { emoji: "🤖", text: "Boostée par l'IA" },
+        { emoji: "🎯", text: "Adaptée à chaque offre" },
+        { emoji: "🆓", text: "Gratuite pour commencer" },
+      ]}
+      ctaHeadline="Essaie-la gratuitement"
+      ctaSubtext="Aucune carte bancaire requise"
+    />
   );
 };
