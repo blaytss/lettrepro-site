@@ -1,4 +1,4 @@
-import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Audio, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { soraFont, interFont } from "./fonts";
 import { theme } from "./theme";
 
@@ -19,6 +19,7 @@ export const CtaGlowOutro: React.FC<{ headline: string; subtext: string }> = ({ 
 
   return (
     <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
+      <Audio src={staticFile("audio/logo-swell.mp3")} volume={0.7} />
       <div
         style={{
           position: "absolute",

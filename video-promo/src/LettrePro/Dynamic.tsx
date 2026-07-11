@@ -1,4 +1,4 @@
-import { AbsoluteFill, Sequence } from "remotion";
+import { AbsoluteFill, Audio, Sequence, staticFile } from "remotion";
 import { GlowBackground } from "./GlowBackground";
 import { LogoGlowIntro } from "./LogoGlowIntro";
 import { MultiStepLaptopScene, LaptopStep, totalStepsDuration } from "./MultiStepLaptopScene";
@@ -97,6 +97,7 @@ const QUIZ_STEPS: LaptopStep[] = [
     caption: "Bonne réponse ✅",
     duration: 28,
     cursor: { from: { x: 30, y: 30 }, to: { x: 75, y: 90 } },
+    sfx: { src: "audio/ding-correct.mp3", volume: 1 },
   },
   {
     src: "screenshots/quiz-q2-question.png",
@@ -109,11 +110,13 @@ const QUIZ_STEPS: LaptopStep[] = [
     caption: "Encore bon ✅",
     duration: 28,
     cursor: { from: { x: 72, y: 30 }, to: { x: 75, y: 90 } },
+    sfx: { src: "audio/ding-correct.mp3", volume: 1 },
   },
   {
     src: "screenshots/quiz-final-reward.png",
     caption: "🎁 Crédits gagnés !",
     duration: 50,
+    sfx: { src: "audio/reward-chime.mp3", volume: 1.1 },
   },
 ];
 
@@ -128,6 +131,7 @@ export const dynamicDuration = TOTAL_FRAMES;
 export const Dynamic: React.FC = () => {
   return (
     <AbsoluteFill>
+      <Audio src={staticFile("audio/bg-music.mp3")} volume={0.55} />
       <GlowBackground />
 
       <Sequence from={0} durationInFrames={LOGO_FRAMES}>

@@ -1,4 +1,4 @@
-import { AbsoluteFill, Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Audio, Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { soraFont } from "./fonts";
 import { theme } from "./theme";
 
@@ -28,6 +28,7 @@ export const LogoGlowIntro: React.FC<{ tagline: string }> = ({ tagline }) => {
 
   return (
     <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
+      <Audio src={staticFile("audio/logo-swell.mp3")} volume={0.9} />
       <div
         style={{
           position: "absolute",

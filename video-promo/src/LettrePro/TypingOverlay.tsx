@@ -1,4 +1,4 @@
-import { useCurrentFrame } from "remotion";
+import { Audio, Loop, Sequence, staticFile, useCurrentFrame } from "remotion";
 import { interFont } from "./fonts";
 
 export type TypingField = {
@@ -12,6 +12,8 @@ export type TypingField = {
   fontSize?: number;
 };
 
+const TICK_INTERVAL = 3;
+
 const Field: React.FC<TypingField> = ({
   text,
   left,
@@ -23,6 +25,8 @@ const Field: React.FC<TypingField> = ({
   fontSize = 17,
 }) => {
   const frame = useCurrentFrame();
+  const typingDuration = Math.max(1, Math.ceil(text.length / charsPerFrame));
+
   if (frame < startFrame) return null;
 
   const elapsed = frame - startFrame;
@@ -31,34 +35,41 @@ const Field: React.FC<TypingField> = ({
   const blink = Math.floor(frame / 15) % 2 === 0;
 
   return (
-    <div
-      style={{
-        position: "absolute",
-        left: `${left}%`,
-        top: `${top}%`,
-        width: `${width}%`,
-        height: `${height}%`,
-        boxSizing: "border-box",
-        backgroundColor: "#FFF4EE",
-        border: "1px solid #FDDCC8",
-        borderRadius: 8,
-        padding: "12px 15px",
-        overflow: "hidden",
-      }}
-    >
-      <span
+    <>
+      <Sequence from={startFrame} durationInFrames={typingDuration}>
+        <Loop durationInFrames={TICK_INTERVAL} times={Math.ceil(typingDuration / TICK_INTERVAL)}>
+          <Audio src={staticFile("audio/type-tick.mp3")} volume={0.5} />
+        </Loop>
+      </Sequence>
+      <div
         style={{
-          fontFamily: interFont,
-          fontSize,
-          color: "#1C1107",
-          lineHeight: 1.35,
-          whiteSpace: "pre-wrap",
+          position: "absolute",
+          left: `${left}%`,
+          top: `${top}%`,
+          width: `${width}%`,
+          height: `${height}%`,
+          boxSizing: "border-box",
+          backgroundColor: "#FFF4EE",
+          border: "1px solid #FDDCC8",
+          borderRadius: 8,
+          padding: "12px 15px",
+          overflow: "hidden",
         }}
       >
-        {text.slice(0, count)}
-        {!done && <span style={{ opacity: blink ? 1 : 0 }}>▌</span>}
-      </span>
-    </div>
+        <span
+          style={{
+            fontFamily: interFont,
+            fontSize,
+            color: "#1C1107",
+            lineHeight: 1.35,
+            whiteSpace: "pre-wrap",
+          }}
+        >
+          {text.slice(0, count)}
+          {!done && <span style={{ opacity: blink ? 1 : 0 }}>▌</span>}
+        </span>
+      </div>
+    </>
   );
 };
 
