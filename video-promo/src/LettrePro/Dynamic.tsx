@@ -12,18 +12,18 @@ const LETTER_STEPS: LaptopStep[] = [
     src: "screenshots/generator-blank.png",
     caption: "Décris ton poste...",
     duration: 36,
-    typing: [{ text: "Stage développeur web", left: 4.5, top: 34, width: 43, startFrame: 4, charsPerFrame: 2.2 }],
+    typing: [{ text: "Stage développeur web", left: 4.5, top: 32, width: 43, startFrame: 4, charsPerFrame: 2.2 }],
   },
   {
     src: "screenshots/generator-poste.png",
     caption: "...et ton profil ✍️",
     duration: 55,
     typing: [
-      { text: "Capgemini", left: 51.5, top: 34, width: 43, startFrame: 4, charsPerFrame: 3 },
+      { text: "Capgemini", left: 51.5, top: 32, width: 43, startFrame: 4, charsPerFrame: 3 },
       {
         text: "Étudiant en BUT Informatique 2e année, passionné de développement web, React et Python...",
         left: 4.5,
-        top: 47,
+        top: 44,
         width: 90,
         startFrame: 12,
         charsPerFrame: 4,
@@ -52,7 +52,7 @@ const STUDY_STEPS: LaptopStep[] = [
       {
         text: "Chapitre 3 — Fonctions et dérivées (Python + Maths)\n\ndef derivee(f, x, h=1e-6):\n    return (f(x + h) - f(x - h)) / (2 * h)\n\nUne fonction f est dérivable en x si sa dérivée f'(x) existe.\nRègle : la dérivée de x^n est n * x^(n-1).\nExemple : f(x) = x^2 → f'(x) = 2x",
         left: 4.5,
-        top: 35,
+        top: 32,
         width: 90,
         startFrame: 4,
         charsPerFrame: 6,
