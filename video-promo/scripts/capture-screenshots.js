@@ -29,6 +29,15 @@ Je me tiens à votre disposition pour un entretien et vous prie d'agréer, Madam
 
 Léa`;
 
+const SAMPLE_COURSE = `Chapitre 3 — Fonctions et dérivées (Python + Maths)
+
+def derivee(f, x, h=1e-6):
+    return (f(x + h) - f(x - h)) / (2 * h)
+
+Une fonction f est dérivable en x si sa dérivée f'(x) existe.
+Règle : la dérivée de x^n est n * x^(n-1).
+Exemple : f(x) = x^2 → f'(x) = 2x`;
+
 const QUIZ = {
   questions: [
     {
@@ -58,11 +67,9 @@ async function run() {
   // Some sandboxes only allow a pre-installed Playwright browser; use it when
   // present, otherwise fall back to Playwright's own (downloaded) browser.
   const sandboxChrome = "/opt/pw-browsers/chromium-1194/chrome-linux/chrome";
-  const browser = await chromium.launch(
-    existsSync(sandboxChrome) ? { executablePath: sandboxChrome } : {},
-  );
+  const browser = await chromium.launch(existsSync(sandboxChrome) ? { executablePath: sandboxChrome } : {});
 
-  // ---------- Generator: empty form + generated letter ----------
+  // ---------- Letter generator: fill in steps, loading, result ----------
   {
     const page = await browser.newPage({ viewport: { width: 1180, height: 1000 }, deviceScaleFactor: 2 });
     await mockBackend(page);
@@ -75,23 +82,36 @@ async function run() {
     );
     await page.goto(SITE + "/dashboard.html", { waitUntil: "networkidle" });
     await page.waitForSelector("#g-poste", { state: "visible", timeout: 15000 });
+    const genCard = page.locator("#page-generate .gen-card");
 
     await page.fill("#g-poste", "Stage développeur web");
+    await genCard.screenshot({ path: OUT_DIR + "/generator-poste.png" });
+
     await page.fill("#g-entreprise", "Capgemini");
     await page.fill(
       "#g-profil",
       "Étudiant en BUT Informatique 2e année, passionné de développement web, React et Python...",
     );
-    await page.locator(".gen-card").first().screenshot({ path: OUT_DIR + "/generator-empty.png" });
+    await genCard.screenshot({ path: OUT_DIR + "/generator-full.png" });
+
+    await page.evaluate(() => {
+      document.getElementById("gen-btn").disabled = true;
+      document.getElementById("loading").classList.add("visible");
+    });
+    await genCard.screenshot({ path: OUT_DIR + "/generator-loading.png" });
+    await page.evaluate(() => {
+      document.getElementById("gen-btn").disabled = false;
+      document.getElementById("loading").classList.remove("visible");
+    });
 
     await page.click("#gen-btn");
     await page.waitForSelector("#result-card.visible", { timeout: 15000 });
     await page.waitForTimeout(300);
-    await page.locator("#result-card").screenshot({ path: OUT_DIR + "/generator-filled.png" });
+    await page.locator("#result-card").screenshot({ path: OUT_DIR + "/generator-result.png" });
     await page.close();
   }
 
-  // ---------- Quiz: question + correct answer revealed ----------
+  // ---------- Study: paste course, loading, then quiz question states ----------
   {
     const page = await browser.newPage({ viewport: { width: 1180, height: 1000 }, deviceScaleFactor: 2 });
     await mockBackend(page);
@@ -99,22 +119,42 @@ async function run() {
     await page.waitForSelector("#g-poste", { state: "visible", timeout: 15000 });
 
     await page.click('[data-page="study"]');
-    await page.waitForSelector("#study-result-card", { state: "attached", timeout: 15000 });
+    await page.waitForSelector("#study-cours", { state: "visible", timeout: 15000 });
+    const studyCard = page.locator("#study-generate .gen-card");
 
+    await studyCard.screenshot({ path: OUT_DIR + "/study-blank.png" });
+
+    await page.fill("#study-cours", SAMPLE_COURSE);
+    await studyCard.screenshot({ path: OUT_DIR + "/study-typed.png" });
+
+    await page.evaluate(() => {
+      document.getElementById("study-btn").disabled = true;
+      document.getElementById("study-loading").classList.add("visible");
+    });
+    await studyCard.screenshot({ path: OUT_DIR + "/study-loading.png" });
+
+    // ---- quiz question: unanswered, option A selected, option B selected, validated ----
+    await page.waitForSelector("#study-result-card", { state: "attached", timeout: 15000 });
     await page.evaluate((quiz) => {
       document.getElementById("study-result-card").classList.add("visible");
       document.getElementById("study-result-panels").innerHTML = renderQuizHTML(quiz, null);
       renderQuestion();
     }, QUIZ);
-    await page.waitForTimeout(200);
+    await page.waitForTimeout(150);
     await page.locator("#study-result-card").screenshot({ path: OUT_DIR + "/quiz-question.png" });
 
-    await page.evaluate(() => {
-      selectOption(1);
-      validateAnswer();
-    });
-    await page.waitForTimeout(200);
+    await page.evaluate(() => selectOption(0));
+    await page.waitForTimeout(150);
+    await page.locator("#study-result-card").screenshot({ path: OUT_DIR + "/quiz-select-a.png" });
+
+    await page.evaluate(() => selectOption(1));
+    await page.waitForTimeout(150);
+    await page.locator("#study-result-card").screenshot({ path: OUT_DIR + "/quiz-select-b.png" });
+
+    await page.evaluate(() => validateAnswer());
+    await page.waitForTimeout(150);
     await page.locator("#study-result-card").screenshot({ path: OUT_DIR + "/quiz-correct.png" });
+
     await page.close();
   }
 

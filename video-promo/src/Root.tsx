@@ -3,7 +3,7 @@ import { Composition } from "remotion";
 import { Promo } from "./LettrePro/Promo";
 import { CoursPromo } from "./LettrePro/CoursPromo";
 import { Showcase } from "./LettrePro/Showcase";
-import { Dynamic } from "./LettrePro/Dynamic";
+import { Dynamic, dynamicDuration } from "./LettrePro/Dynamic";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -12,7 +12,7 @@ export const RemotionRoot: React.FC = () => {
         // npx remotion render LettreProDynamic
         id="LettreProDynamic"
         component={Dynamic}
-        durationInFrames={300}
+        durationInFrames={dynamicDuration}
         fps={30}
         width={1080}
         height={1920}

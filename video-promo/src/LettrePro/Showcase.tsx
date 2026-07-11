@@ -24,8 +24,8 @@ export const Showcase: React.FC = () => {
         <FadeIn>
           <ShowcaseScene
             caption="Ta lettre de motivation, générée par l'IA"
-            beforeSrc="screenshots/generator-empty.png"
-            afterSrc="screenshots/generator-filled.png"
+            beforeSrc="screenshots/generator-full.png"
+            afterSrc="screenshots/generator-result.png"
             cursorFrom={{ x: 60, y: 70 }}
             cursorTo={{ x: 16, y: 88 }}
           />
