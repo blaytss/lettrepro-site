@@ -2,17 +2,20 @@ import { AbsoluteFill, interpolate, Sequence, useCurrentFrame } from "remotion";
 import { LaptopMockup } from "./LaptopMockup";
 import { KineticCaption } from "./KineticCaption";
 import { Cursor } from "./Cursor";
+import { TypingOverlay, TypingField } from "./TypingOverlay";
 
 export type LaptopStep = {
   src: string;
   caption: string;
+  duration?: number;
   cursor?: { from: { x: number; y: number }; to: { x: number; y: number } };
+  typing?: TypingField[];
 };
 
-const StepFrame: React.FC<{ step: LaptopStep; isFirst: boolean; stepFrames: number }> = ({
+const StepFrame: React.FC<{ step: LaptopStep; isFirst: boolean; duration: number }> = ({
   step,
   isFirst,
-  stepFrames,
+  duration,
 }) => {
   const frame = useCurrentFrame();
 
@@ -29,7 +32,7 @@ const StepFrame: React.FC<{ step: LaptopStep; isFirst: boolean; stepFrames: numb
 
   return (
     <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
-      <KineticCaption text={step.caption} from={2} to={stepFrames - 6} />
+      <KineticCaption text={step.caption} from={2} to={duration - 6} />
 
       <div
         style={{
@@ -40,6 +43,7 @@ const StepFrame: React.FC<{ step: LaptopStep; isFirst: boolean; stepFrames: numb
         }}
       >
         <LaptopMockup src={step.src} />
+        {step.typing && <TypingOverlay fields={step.typing} />}
         {step.cursor && (
           <Cursor
             fromX={step.cursor.from.x}
@@ -47,7 +51,7 @@ const StepFrame: React.FC<{ step: LaptopStep; isFirst: boolean; stepFrames: numb
             toX={step.cursor.to.x}
             toY={step.cursor.to.y}
             travelStart={8}
-            clickAt={stepFrames - 16}
+            clickAt={duration - 16}
           />
         )}
       </div>
@@ -61,13 +65,22 @@ export const MultiStepLaptopScene: React.FC<{ steps: LaptopStep[]; stepFrames: n
   steps,
   stepFrames,
 }) => {
+  let cursorFrame = 0;
   return (
     <>
-      {steps.map((step, i) => (
-        <Sequence key={i} from={i * stepFrames} durationInFrames={stepFrames}>
-          <StepFrame step={step} isFirst={i === 0} stepFrames={stepFrames} />
-        </Sequence>
-      ))}
+      {steps.map((step, i) => {
+        const duration = step.duration ?? stepFrames;
+        const from = cursorFrame;
+        cursorFrame += duration;
+        return (
+          <Sequence key={i} from={from} durationInFrames={duration}>
+            <StepFrame step={step} isFirst={i === 0} duration={duration} />
+          </Sequence>
+        );
+      })}
     </>
   );
 };
+
+export const totalStepsDuration = (steps: LaptopStep[], stepFrames: number) =>
+  steps.reduce((sum, step) => sum + (step.duration ?? stepFrames), 0);

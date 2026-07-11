@@ -46,6 +46,17 @@ const QUIZ = {
       correct: 1,
       explication: "La dérivée de xⁿ est n·x^(n-1). Pour x², on obtient donc 2x.",
     },
+    {
+      q: "Que calcule derivee(f, x, h) dans le code ci-dessus ?",
+      options: [
+        "Une approximation de f'(x)",
+        "La primitive de f",
+        "La valeur de f(x)",
+        "Le tri d'une liste",
+      ],
+      correct: 0,
+      explication: "(f(x+h) - f(x-h)) / (2h) est le taux d'accroissement, qui approxime f'(x).",
+    },
   ],
 };
 
@@ -55,6 +66,13 @@ async function mockBackend(page) {
   );
   await page.route("**/api/me", (route) =>
     route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(ME_RESPONSE) }),
+  );
+  await page.route("**/api/study/quiz/*/score", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ reward: 2, creditsLeft: 26 }),
+    }),
   );
   await page.addInitScript(() => {
     window.localStorage.setItem("lp_token", "demo-token");
@@ -69,7 +87,7 @@ async function run() {
   const sandboxChrome = "/opt/pw-browsers/chromium-1194/chrome-linux/chrome";
   const browser = await chromium.launch(existsSync(sandboxChrome) ? { executablePath: sandboxChrome } : {});
 
-  // ---------- Letter generator: fill in steps, loading, result ----------
+  // ---------- Letter generator: blank, filled in steps, loading, result ----------
   {
     const page = await browser.newPage({ viewport: { width: 1180, height: 1000 }, deviceScaleFactor: 2 });
     await mockBackend(page);
@@ -83,6 +101,8 @@ async function run() {
     await page.goto(SITE + "/dashboard.html", { waitUntil: "networkidle" });
     await page.waitForSelector("#g-poste", { state: "visible", timeout: 15000 });
     const genCard = page.locator("#page-generate .gen-card");
+
+    await genCard.screenshot({ path: OUT_DIR + "/generator-blank.png" });
 
     await page.fill("#g-poste", "Stage développeur web");
     await genCard.screenshot({ path: OUT_DIR + "/generator-poste.png" });
@@ -111,7 +131,7 @@ async function run() {
     await page.close();
   }
 
-  // ---------- Study: paste course, loading, then quiz question states ----------
+  // ---------- Study: paste course, loading, then a 2-question quiz ending in a credit reward ----------
   {
     const page = await browser.newPage({ viewport: { width: 1180, height: 1000 }, deviceScaleFactor: 2 });
     await mockBackend(page);
@@ -133,27 +153,45 @@ async function run() {
     });
     await studyCard.screenshot({ path: OUT_DIR + "/study-loading.png" });
 
-    // ---- quiz question: unanswered, option A selected, option B selected, validated ----
+    // ---- quiz: question 1 -> correct -> question 2 -> correct -> final score + credit reward ----
     await page.waitForSelector("#study-result-card", { state: "attached", timeout: 15000 });
+    const resultCard = page.locator("#study-result-card");
+
     await page.evaluate((quiz) => {
+      // Keep question order deterministic for reproducible screenshots.
+      window.shuffleArray = (a) => a;
       document.getElementById("study-result-card").classList.add("visible");
-      document.getElementById("study-result-panels").innerHTML = renderQuizHTML(quiz, null);
+      document.getElementById("study-result-panels").innerHTML = renderQuizHTML(quiz, 123);
       renderQuestion();
     }, QUIZ);
     await page.waitForTimeout(150);
-    await page.locator("#study-result-card").screenshot({ path: OUT_DIR + "/quiz-question.png" });
+    await resultCard.screenshot({ path: OUT_DIR + "/quiz-q1-question.png" });
 
-    await page.evaluate(() => selectOption(0));
-    await page.waitForTimeout(150);
-    await page.locator("#study-result-card").screenshot({ path: OUT_DIR + "/quiz-select-a.png" });
+    // Always select the actually-correct option for the current (shuffled) question.
+    const selectCorrectOption = () =>
+      page.evaluate(() => {
+        const q = activeQuiz.questions[activeQuiz.current];
+        selectOption(getCorrectIndex(q));
+      });
 
-    await page.evaluate(() => selectOption(1));
-    await page.waitForTimeout(150);
-    await page.locator("#study-result-card").screenshot({ path: OUT_DIR + "/quiz-select-b.png" });
-
+    await selectCorrectOption();
     await page.evaluate(() => validateAnswer());
     await page.waitForTimeout(150);
-    await page.locator("#study-result-card").screenshot({ path: OUT_DIR + "/quiz-correct.png" });
+    await resultCard.screenshot({ path: OUT_DIR + "/quiz-q1-correct.png" });
+
+    await page.evaluate(() => nextQuestion());
+    await page.waitForTimeout(150);
+    await resultCard.screenshot({ path: OUT_DIR + "/quiz-q2-question.png" });
+
+    await selectCorrectOption();
+    await page.evaluate(() => validateAnswer());
+    await page.waitForTimeout(150);
+    await resultCard.screenshot({ path: OUT_DIR + "/quiz-q2-correct.png" });
+
+    await page.evaluate(() => nextQuestion());
+    await page.waitForSelector(".quiz-reward", { timeout: 15000 });
+    await page.waitForTimeout(300);
+    await resultCard.screenshot({ path: OUT_DIR + "/quiz-final-reward.png" });
 
     await page.close();
   }

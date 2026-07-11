@@ -36,8 +36,8 @@ export const Showcase: React.FC = () => {
         <FadeIn>
           <ShowcaseScene
             caption="Des quiz générés à partir de ton cours"
-            beforeSrc="screenshots/quiz-question.png"
-            afterSrc="screenshots/quiz-correct.png"
+            beforeSrc="screenshots/quiz-q1-question.png"
+            afterSrc="screenshots/quiz-q1-correct.png"
             cursorFrom={{ x: 30, y: 20 }}
             cursorTo={{ x: 69, y: 54 }}
           />
