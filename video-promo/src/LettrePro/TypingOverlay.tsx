@@ -6,6 +6,7 @@ export type TypingField = {
   left: number;
   top: number;
   width: number;
+  height: number;
   startFrame?: number;
   charsPerFrame?: number;
   fontSize?: number;
@@ -16,6 +17,7 @@ const Field: React.FC<TypingField> = ({
   left,
   top,
   width,
+  height,
   startFrame = 0,
   charsPerFrame = 2.2,
   fontSize = 17,
@@ -35,16 +37,27 @@ const Field: React.FC<TypingField> = ({
         left: `${left}%`,
         top: `${top}%`,
         width: `${width}%`,
-        fontFamily: interFont,
-        fontSize,
-        color: "#2b2620",
-        lineHeight: 1.35,
-        whiteSpace: "pre-wrap",
+        height: `${height}%`,
+        boxSizing: "border-box",
+        backgroundColor: "#FFF4EE",
+        border: "1px solid #FDDCC8",
+        borderRadius: 8,
+        padding: "12px 15px",
         overflow: "hidden",
       }}
     >
-      {text.slice(0, count)}
-      {!done && <span style={{ opacity: blink ? 1 : 0 }}>▌</span>}
+      <span
+        style={{
+          fontFamily: interFont,
+          fontSize,
+          color: "#1C1107",
+          lineHeight: 1.35,
+          whiteSpace: "pre-wrap",
+        }}
+      >
+        {text.slice(0, count)}
+        {!done && <span style={{ opacity: blink ? 1 : 0 }}>▌</span>}
+      </span>
     </div>
   );
 };
