@@ -38,7 +38,7 @@ const Field: React.FC<TypingField> = ({
     <>
       <Sequence from={startFrame} durationInFrames={typingDuration}>
         <Loop durationInFrames={TICK_INTERVAL} times={Math.ceil(typingDuration / TICK_INTERVAL)}>
-          <Audio src={staticFile("audio/type-tick.mp3")} volume={0.5} />
+          <Audio src={staticFile("audio/type-tick.mp3")} volume={1.3} />
         </Loop>
       </Sequence>
       <div

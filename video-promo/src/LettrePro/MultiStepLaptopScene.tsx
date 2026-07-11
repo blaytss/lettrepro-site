@@ -35,10 +35,10 @@ const StepFrame: React.FC<{ step: LaptopStep; isFirst: boolean; duration: number
     <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
       {step.cursor && (
         <Sequence from={duration - 16} durationInFrames={16}>
-          <Audio src={staticFile("audio/click.mp3")} volume={0.8} />
+          <Audio src={staticFile("audio/click.mp3")} volume={1.6} />
         </Sequence>
       )}
-      {step.sfx && <Audio src={staticFile(step.sfx.src)} volume={step.sfx.volume ?? 1} />}
+      {step.sfx && <Audio src={staticFile(step.sfx.src)} volume={step.sfx.volume ?? 1.8} />}
 
       <KineticCaption text={step.caption} from={2} to={duration - 6} />
 

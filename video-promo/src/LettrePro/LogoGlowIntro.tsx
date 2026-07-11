@@ -28,7 +28,7 @@ export const LogoGlowIntro: React.FC<{ tagline: string }> = ({ tagline }) => {
 
   return (
     <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
-      <Audio src={staticFile("audio/logo-swell.mp3")} volume={0.9} />
+      <Audio src={staticFile("audio/logo-swell.mp3")} volume={1.6} />
       <div
         style={{
           position: "absolute",

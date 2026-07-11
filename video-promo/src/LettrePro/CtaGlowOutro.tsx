@@ -19,7 +19,7 @@ export const CtaGlowOutro: React.FC<{ headline: string; subtext: string }> = ({ 
 
   return (
     <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
-      <Audio src={staticFile("audio/logo-swell.mp3")} volume={0.7} />
+      <Audio src={staticFile("audio/logo-swell.mp3")} volume={1.2} />
       <div
         style={{
           position: "absolute",
