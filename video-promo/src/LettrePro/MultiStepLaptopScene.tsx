@@ -33,7 +33,6 @@ const StepFrame: React.FC<{ step: LaptopStep; isFirst: boolean; duration: number
 
   return (
     <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
-      {!isFirst && <Audio src={staticFile("audio/whoosh.mp3")} volume={0.7} />}
       {step.cursor && (
         <Sequence from={duration - 16} durationInFrames={16}>
           <Audio src={staticFile("audio/click.mp3")} volume={0.8} />

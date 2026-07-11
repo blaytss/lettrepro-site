@@ -13,11 +13,6 @@ ffmpeg -y -f lavfi -i "anoisesrc=color=white:duration=0.045:amplitude=0.9" \
   -af "highpass=f=2500,afade=t=out:st=0:d=0.045,volume=2.0" \
   -ar 44100 click.mp3 -loglevel error
 
-# ---------- whoosh.mp3: punch-cut transition swoosh ----------
-ffmpeg -y -f lavfi -i "anoisesrc=color=pink:duration=0.22:amplitude=0.9" \
-  -af "bandpass=f=1400:width_type=h:w=1400,afade=t=in:st=0:d=0.03,afade=t=out:st=0.1:d=0.12,volume=1.6" \
-  -ar 44100 whoosh.mp3 -loglevel error
-
 # ---------- type-tick.mp3: single key tick, meant to be looped fast ----------
 ffmpeg -y -f lavfi -i "anoisesrc=color=white:duration=0.02:amplitude=0.8" \
   -af "highpass=f=3200,afade=t=out:st=0:d=0.02,volume=1.4" \
