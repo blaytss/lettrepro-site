@@ -334,6 +334,7 @@
     .cahier-mark-pink   { background:#FBCFE8; padding:0 4px; border-radius:3px; }
     .cahier-attention { border:2px solid #7C2D12; border-radius:8px; padding:.6rem 1rem; margin:.6rem 0; color:#7C2D12; font-size:.9rem; background:#FEF3EE; }
     .cahier-attention b { text-decoration:underline; }
+    .capture-highlight { background:#FEF08A; outline:3px solid #F59E0B; border-radius:3px; }
 
     @media (max-width: 900px) { .mode-selector { grid-template-columns: 1fr 1fr; } }
 
@@ -1151,9 +1152,19 @@
   </div>
 </div>
 
+<!-- MODAL RÉCAP DE FAUTES (fin de quiz) -->
+<div class="modal-overlay" id="quiz-recap-modal">
+  <div class="modal" style="max-width:720px">
+    <button class="modal-close" onclick="closeQuizRecap()">✕</button>
+    <h3>📸 Tes fautes sur ce quiz</h3>
+    <div class="modal-text" id="quiz-recap-text"></div>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
   // ══════════════════════════════════════════
   //  CONFIG & STATE
@@ -2251,7 +2262,7 @@ async function subscribePlan(plan) {
 
       if (p.id === 'quiz') {
         hasQuiz = true;
-        panel.innerHTML = renderQuizHTML(p.content, data.quizId);
+        panel.innerHTML = renderQuizHTML(p.content, data.quizId, data.ficheId);
         // renderQuestion() est appelé APRÈS l'ajout au DOM (voir plus bas)
       } else if (p.id === 'fiche') {
         panel.innerHTML = `
@@ -2286,11 +2297,12 @@ async function subscribePlan(plan) {
      }
   ========================================================= */
 
-  function renderQuizHTML(quizData, quizId) {
+  function renderQuizHTML(quizData, quizId, ficheId) {
     const questions = shuffleArray(quizData.questions || []);   // ordre aléatoire à chaque partie
     activeQuiz = {
       questions,
       quizId,
+      ficheId: ficheId || null,
       current: 0,
       answers: {},
       validated: {},
@@ -2494,6 +2506,21 @@ async function subscribePlan(plan) {
 
     const rewardHtml = reward > 0 ? `<div class="quiz-reward">🎁 +${reward} crédits gagnés !</div>` : '';
 
+    // Récap des questions ratées (pour le bouton "Voir mes fautes")
+    activeQuiz.recap = activeQuiz.questions
+      .map((q, i) => ({
+        q: q.q,
+        options: q.options || [],
+        chosen: activeQuiz.answers[i],
+        correct: getCorrectIndex(q),
+        explication: q.explication || q.explanation || '',
+        excerpt: q.excerpt || ''
+      }))
+      .filter(r => r.chosen !== r.correct);
+    const recapBtnHtml = activeQuiz.recap.length > 0
+      ? `<button class="quiz-restart" onclick="showQuizRecap()">📸 Voir mes fautes</button>`
+      : '';
+
     const final = document.getElementById('quiz-final');
     final.style.display = 'block';
     final.innerHTML = `
@@ -2503,6 +2530,7 @@ async function subscribePlan(plan) {
       <div class="quiz-score-phrase">${phrase}</div>
       ${rewardHtml}
       <div class="quiz-final-bar"><div class="quiz-final-fill" style="width:0%"></div></div>
+      ${recapBtnHtml}
       <button class="quiz-restart" onclick="restartQuiz()">↻ Recommencer</button>`;
     final.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
@@ -2515,12 +2543,78 @@ async function subscribePlan(plan) {
     showToast(reward > 0 ? `🎉 +${reward} crédits gagnés !` : `Score : ${score}/${total} (${pct}%)`, 'success');
   }
 
+  function closeQuizRecap() {
+    document.getElementById('quiz-recap-modal').classList.remove('visible');
+  }
+
+  // Récap de fin de quiz : pour chaque faute, capture le passage de la fiche qui contient la bonne réponse
+  async function showQuizRecap() {
+    const recap = activeQuiz.recap || [];
+    if (!recap.length) return;
+
+    const modal = document.getElementById('quiz-recap-modal');
+    const box = document.getElementById('quiz-recap-text');
+    box.innerHTML = `<p style="color:var(--muted);font-size:0.88rem">Préparation des captures…</p>`;
+    modal.classList.add('visible');
+
+    // Rendu caché de la fiche, une seule fois, pour y chercher/capturer les passages
+    let ficheContainer = null;
+    if (activeQuiz.ficheId) {
+      try {
+        const f = await api('GET', `/api/study/fiches/${activeQuiz.ficheId}`);
+        const content = [f.resume, f.fiche].filter(Boolean).join('\n\n---\n\n');
+        ficheContainer = document.createElement('div');
+        ficheContainer.style.cssText = 'position:absolute;left:-9999px;top:0;width:600px;background:#fff;';
+        ficheContainer.innerHTML = renderFicheWithTheme(content);
+        document.body.appendChild(ficheContainer);
+      } catch { ficheContainer = null; }
+    }
+
+    // Enlève la ponctuation markdown (**gras**, `code`, | tableau) absente du texte affiché après rendu
+    const norm = s => (s || '').replace(/[*`|]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
+
+    for (const r of recap) {
+      if (!ficheContainer || !r.excerpt || !window.html2canvas) continue;
+      const target = norm(r.excerpt);
+      if (!target) continue;
+      // Choisit le bloc le PLUS PETIT contenant l'extrait (pas le conteneur englobant,
+      // qui matche toujours en premier puisque son texte contient toute la fiche)
+      let matchEl = null;
+      let bestLen = Infinity;
+      for (const el of ficheContainer.querySelectorAll('div, p, li')) {
+        const t = norm(el.textContent);
+        if (t.includes(target) && t.length < bestLen) { matchEl = el; bestLen = t.length; }
+      }
+      if (!matchEl) continue;
+      matchEl.classList.add('capture-highlight');
+      try {
+        const canvas = await html2canvas(matchEl, { backgroundColor: '#fff', scale: 2 });
+        r.captureImg = canvas.toDataURL('image/png');
+      } catch { /* pas grave, on retombe sur le texte d'explication */ }
+      matchEl.classList.remove('capture-highlight');
+    }
+
+    if (ficheContainer) ficheContainer.remove();
+
+    box.innerHTML = recap.map((r, i) => `
+      <div class="chapter-card" style="display:block;margin-bottom:1rem">
+        <div class="chapter-title">${i + 1}. ${escapeHtml(r.q)}</div>
+        <div style="font-size:0.85rem;margin-top:0.4rem;color:#EF4444">✗ Ta réponse : ${escapeHtml(r.options[r.chosen] ?? '—')}</div>
+        <div style="font-size:0.85rem;margin-top:0.2rem;color:#10B981">Bonne réponse : ${escapeHtml(r.options[r.correct] ?? '—')}</div>
+        ${r.captureImg
+          ? `<img src="${r.captureImg}" style="max-width:100%;border-radius:8px;margin-top:0.6rem;border:1px solid var(--border)" alt="Passage de la fiche">`
+          : (r.explication ? `<div style="font-size:0.82rem;color:var(--muted);margin-top:0.4rem">${escapeHtml(r.explication)}</div>` : '')}
+      </div>`).join('') +
+      (!activeQuiz.ficheId ? `<p style="color:var(--muted);font-size:0.82rem;margin-top:0.5rem">Pas de fiche associée à ce quiz.</p>` : '');
+  }
+
   // ✅ FIX : on sauvegarde les questions AVANT que renderQuizHTML réécrive activeQuiz
   function restartQuiz() {
     const savedQuestions = activeQuiz.questions;
     const savedQuizId = activeQuiz.quizId;
+    const savedFicheId = activeQuiz.ficheId;
     const container = document.getElementById('quiz-container').parentElement;
-    container.innerHTML = renderQuizHTML({ questions: savedQuestions }, savedQuizId);
+    container.innerHTML = renderQuizHTML({ questions: savedQuestions }, savedQuizId, savedFicheId);
     renderQuestion();
   }
 
