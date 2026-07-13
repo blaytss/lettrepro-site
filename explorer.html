@@ -5,6 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>LettrePro — Explorer les cours</title>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <script>
+    (function(){
+      const t=JSON.parse(localStorage.getItem('lp_theme')||'{}');
+      if(t.primary) document.documentElement.style.setProperty('--orange',t.primary);
+      if(t.bg) document.documentElement.style.setProperty('--bg',t.bg);
+      if(t.surface) document.documentElement.style.setProperty('--surface',t.surface);
+      if(t.card) document.documentElement.style.setProperty('--card',t.card);
+      if(t.border) document.documentElement.style.setProperty('--border',t.border);
+      if(t.text) document.documentElement.style.setProperty('--text',t.text);
+      if(t.muted) document.documentElement.style.setProperty('--muted',t.muted);
+    })();
+  </script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -21,6 +33,7 @@
     .nav-links a { color:var(--muted); text-decoration:none; font-size:0.9rem; transition:color 0.2s; }
     .nav-links a:hover, .nav-links a.active { color:var(--orange); }
     .nav-cta { background:var(--orange); color:white; border:none; border-radius:8px; padding:0.5rem 1.2rem; font-size:0.9rem; font-weight:600; cursor:pointer; text-decoration:none; }
+    .nav-hamburger { display:none; background:none; border:none; color:var(--text); font-size:1.5rem; cursor:pointer; padding:.25rem .5rem; line-height:1; }
 
     .hero { padding:4rem 2rem 3rem; text-align:center; position:relative; overflow:hidden; }
     .hero::before { content:''; position:absolute; top:50%; left:50%; transform:translate(-50%,-60%); width:600px; height:400px; background:radial-gradient(ellipse, rgba(232,105,42,0.1), transparent 70%); pointer-events:none; }
@@ -109,18 +122,60 @@
     .toast.success { border-color:rgba(50,200,100,0.3); }
     .toast.error { border-color:rgba(220,50,50,0.3); }
 
-    @media(max-width:768px) { .profs-grid,.courses-grid { grid-template-columns:1fr; } .nav-links { display:none; } }
+    /* ─────────── MOBILE / RESPONSIVE ─────────── */
+    @media(max-width:768px) {
+      nav { padding:0.85rem 1.25rem; }
+      .nav-hamburger { display:block; }
+      .nav-links {
+        display:flex; flex-direction:column; gap:0; position:fixed; top:60px; left:0; right:0;
+        background:var(--surface); border-bottom:1px solid var(--border); padding:0.5rem 1.25rem;
+        max-height:0; overflow:hidden; opacity:0; transition:all 0.25s ease; z-index:99;
+      }
+      .nav-links.open { max-height:220px; opacity:1; padding:0.75rem 1.25rem; }
+      .nav-links a { padding:0.75rem 0; border-bottom:1px solid var(--border); font-size:0.95rem; }
+      .nav-links a:last-child { border-bottom:none; }
+      .nav-cta { padding:0.45rem 0.9rem; font-size:0.82rem; }
+
+      .hero { padding:2.5rem 1.25rem 2rem; }
+      .search-bar { flex-direction:column; }
+      .search-bar button { padding:0.85rem; }
+
+      .container { padding:0 1.25rem 3rem; }
+      .profs-grid, .courses-grid { grid-template-columns:1fr; }
+      .prof-card { padding:1.35rem; }
+
+      .tabs { max-width:100%; }
+
+      .modal { padding:1.25rem; max-height:94vh; border-radius:16px; }
+      .modal-prof-header { gap:0.9rem; }
+      .modal-prof-header .avatar { width:52px; height:52px; font-size:1.3rem; }
+      .modal-prof-header h2 { font-size:1.1rem; }
+      .session-slot { flex-direction:column; align-items:flex-start; gap:0.65rem; }
+      .session-slot .book-btn { align-self:stretch; text-align:center; }
+
+      .toast { left:1rem; right:1rem; bottom:1rem; text-align:center; }
+    }
+
+    @media(max-width:420px) {
+      .hero h1 { font-size:1.5rem; }
+      .hero p { font-size:0.9rem; }
+      .filters { gap:0.4rem; }
+      .filter-chip { font-size:0.78rem; padding:0.3rem 0.8rem; }
+      .prof-footer { flex-direction:column; align-items:flex-start; gap:0.6rem; }
+      .prof-footer .sub-btn { align-self:stretch; text-align:center; }
+    }
   </style>
 </head>
 <body>
 <nav>
   <a href="index.html" class="nav-logo">Lettre<span>Pro</span></a>
-  <div class="nav-links">
+  <div class="nav-links" id="nav-links">
     <a href="index.html">Lettres</a>
     <a href="explorer.html" class="active">Explorer</a>
     <a href="dashboard.html">Mon espace</a>
   </div>
   <a href="dashboard.html" class="nav-cta">Mon espace</a>
+  <button class="nav-hamburger" id="nav-hamburger" onclick="toggleMobileNav()" aria-label="Menu">☰</button>
 </nav>
 
 <div class="hero">
@@ -165,6 +220,17 @@
 
 <script>
   const API_BASE = 'https://lettrepro-production.up.railway.app';
+
+  function toggleMobileNav() {
+    document.getElementById('nav-links').classList.toggle('open');
+  }
+  document.addEventListener('click', (e) => {
+    const links = document.getElementById('nav-links');
+    const burger = document.getElementById('nav-hamburger');
+    if (links.classList.contains('open') && !links.contains(e.target) && !burger.contains(e.target)) {
+      links.classList.remove('open');
+    }
+  });
   const MATIERES = ['Mathématiques','Physique-Chimie','SVT','Histoire-Géo','Français',
                     'Philosophie','NSI','Anglais','Espagnol','Économie','SES','Arts','EPS'];
   let currentTab    = 'profs';
@@ -305,7 +371,7 @@
     document.getElementById('prof-modal-content').innerHTML = '<div class="loading-state"><div class="spinner"></div><p>Chargement...</p></div>';
     try {
       const data = await api('GET', `/api/explore/profs/${profId}`);
-      const {prof, courses, sessions} = data;
+      const {prof, courses, sessions, classes} = data;
       const mySubProfIds = mySubscriptions.map(s=>s.prof_id);
       const isSubbed = mySubProfIds.includes(profId);
 
@@ -340,6 +406,27 @@
         </div>
 
         <div class="modal-section">
+          <h3>🎓 Classes (${classes.length})</h3>
+          ${!isSubbed ? `<p style="color:var(--muted);font-size:0.85rem">Abonne-toi à ce prof pour rejoindre une classe ou en suggérer une.</p>` : `
+            ${classes.length ? classes.map(c => `
+              <div class="modal-course-item" id="class-row-${c.id}">
+                <h4>${escapeHtmlExp(c.nom)}</h4>
+                <p>${escapeHtmlExp(c.matiere||'')} · ${c.member_count} élève${c.member_count>1?'s':''}</p>
+                <button class="access-btn" onclick="requestJoinClass(${c.id}, this)">Demander à rejoindre</button>
+              </div>`).join('') : '<p style="color:var(--muted);font-size:0.85rem">Aucune classe pour l\'instant.</p>'}
+            <div style="margin-top:1rem">
+              <button class="access-btn" onclick="toggleSuggestClassForm(${profId})">✨ Suggérer une classe</button>
+              <div id="suggest-class-form" style="display:none;margin-top:0.75rem;background:var(--card);border-radius:10px;padding:1rem">
+                <input type="text" id="scf-nom" placeholder="Nom de la classe souhaitée" style="width:100%;margin-bottom:0.5rem;padding:0.6rem;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text)"/>
+                <input type="text" id="scf-matiere" placeholder="Matière (optionnel)" style="width:100%;margin-bottom:0.5rem;padding:0.6rem;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text)"/>
+                <textarea id="scf-message" placeholder="Message pour le prof (optionnel)" style="width:100%;margin-bottom:0.5rem;padding:0.6rem;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);resize:vertical"></textarea>
+                <button class="sub-btn" onclick="submitClassSuggestion(${profId})">Envoyer la suggestion</button>
+              </div>
+            </div>
+          `}
+        </div>
+
+        <div class="modal-section">
           <h3>📚 Cours (${courses.length})</h3>
           ${courses.length ? courses.map(c => `
             <div class="modal-course-item">
@@ -365,6 +452,39 @@
   }
 
   function closeProfModal() { document.getElementById('prof-modal').classList.remove('visible'); }
+
+  function escapeHtmlExp(s) { return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  async function requestJoinClass(classId, btnEl) {
+    btnEl.disabled = true;
+    btnEl.textContent = 'Envoi...';
+    try {
+      await api('POST', `/api/classes/${classId}/join-request`, {});
+      btnEl.textContent = '✓ Demande envoyée';
+    } catch(e) {
+      btnEl.disabled = false;
+      btnEl.textContent = 'Demander à rejoindre';
+      alert(e.message);
+    }
+  }
+
+  function toggleSuggestClassForm() {
+    const form = document.getElementById('suggest-class-form');
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+  }
+
+  async function submitClassSuggestion(profId) {
+    const nom = document.getElementById('scf-nom').value.trim();
+    const matiere = document.getElementById('scf-matiere').value.trim();
+    const message = document.getElementById('scf-message').value.trim();
+    if (!nom) { alert('Indique le nom de la classe souhaitée.'); return; }
+    try {
+      await api('POST', '/api/classes/creation-request', { profId, nom, matiere, message });
+      document.getElementById('suggest-class-form').innerHTML = '<p style="color:#10B981">✓ Suggestion envoyée au prof !</p>';
+    } catch(e) {
+      alert(e.message);
+    }
+  }
 
   async function subscribeTo(profId, price) {
     if (!localStorage.getItem('lp_token')) { window.location.href = 'login.html'; return; }
