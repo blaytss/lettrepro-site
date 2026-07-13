@@ -313,6 +313,7 @@
             <td style="color:var(--muted)">${date}</td>
             <td style="text-align:right">
               <button class="refresh-btn" onclick="editEmail(${u.id}, '${esc(u.email || '')}')">✏️ Email</button>
+              <button class="refresh-btn" style="border-color:rgba(239,68,68,0.4);color:#EF4444;margin-left:0.4rem" onclick="deleteUser(${u.id}, '${esc(u.email || '')}')">🗑️ Suppr.</button>
             </td>
           </tr>`;
         }).join('');
@@ -386,6 +387,32 @@ async function editEmail(id, currentEmail) {
       alert('Erreur de connexion : ' + e.message);
     }
   }
+
+async function deleteUser(id, email) {
+    const confirmation = prompt(`⚠️ SUPPRESSION DÉFINITIVE\n\nTu es sur le point de supprimer le compte de :\n${email}\n\nToutes ses données (lettres, fiches, quiz, abonnements) seront effacées et son abonnement Stripe annulé.\n\nPour confirmer, tape : SUPPRIMER`);
+    if (confirmation === null) return;
+    if (confirmation.trim().toUpperCase() !== 'SUPPRIMER') {
+      alert('Suppression annulée.');
+      return;
+    }
+    try {
+      const token = localStorage.getItem('lp_token');
+      const res = await fetch(API_BASE + '/api/admin/user/' + id, {
+        method: 'DELETE',
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        alert('❌ ' + (data.error || ('Erreur ' + res.status)));
+        return;
+      }
+      alert('✓ Compte supprimé : ' + email);
+      loadStats();
+    } catch (e) {
+      alert('Erreur de connexion : ' + e.message);
+    }
+  }
+
 
 async function loadFlagged() {
     const el = document.getElementById('mod-list');
