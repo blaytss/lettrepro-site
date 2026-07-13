@@ -538,7 +538,7 @@
     <button class="sidebar-item" data-page="improve" onclick="showPage('improve', this)"><span class="icon">✏️</span> Améliorer</button>
     <button class="sidebar-item" data-page="study" onclick="showPage('study', this)"><span class="icon">📚</span> Cours & Révisions</button>
     <a class="sidebar-item" href="explorer.html"><span class="icon">🔍</span> Explorer les profs</a>
-    <button class="sidebar-item" data-page="messages" onclick="showPage('messages', this)"><span class="icon">💬</span> Messages</button>
+    <button class="sidebar-item" data-page="classes" onclick="showPage('classes', this)"><span class="icon">🎓</span> Mes classes</button>
     <button class="sidebar-item" data-page="myprofs" onclick="showPage('myprofs', this)"><span class="icon">👨‍🏫</span> Mes profs</button>
     <button class="sidebar-item" data-page="planning" onclick="showPage('planning', this)"><span class="icon">📅</span> Mon planning</button>
     <button class="sidebar-item" data-page="quete" onclick="showPage('quete', this)"><span class="icon">🎯</span> Quête du jour</button>
@@ -850,23 +850,23 @@
       </div>
     </div>
 
-    <!-- PAGE MESSAGES -->
-    <div class="page" id="page-messages">
-      <div class="page-header"><h1>Messages</h1><p>Discute avec les profs auxquels tu es abonné.</p></div>
+    <!-- PAGE MES CLASSES -->
+    <div class="page" id="page-classes">
+      <div class="page-header"><h1>Mes classes</h1><p>Discute avec ton prof et les autres élèves des classes que tu as rejointes.</p></div>
       <div class="chat-layout">
         <div class="chat-list" id="chat-list">
           <div class="chat-empty" style="padding:1.5rem">Chargement…</div>
         </div>
         <div class="chat-main">
           <div class="chat-main-empty" id="chat-empty-state">
-            <div style="font-size:2.5rem;margin-bottom:0.5rem">💬</div>
-            <p>Choisis une conversation à gauche pour commencer à discuter.</p>
+            <div style="font-size:2.5rem;margin-bottom:0.5rem">🎓</div>
+            <p>Choisis une classe à gauche pour commencer à discuter.<br>Tu peux rejoindre une classe depuis le profil d'un prof (page Explorer).</p>
           </div>
           <div class="chat-conv" id="chat-conv" style="display:none">
             <div class="chat-conv-header" id="chat-conv-header"></div>
             <div class="chat-messages" id="chat-messages"></div>
             <div class="chat-input-row">
-              <input type="text" id="chat-input" placeholder="Écris ton message..." onkeydown="if(event.key==='Enter')sendChatMessage()" />
+              <input type="text" id="chat-input" placeholder="Écris ton message à la classe..." onkeydown="if(event.key==='Enter')sendChatMessage()" />
               <button class="chat-send-btn" onclick="sendChatMessage()">Envoyer</button>
             </div>
           </div>
@@ -2050,7 +2050,7 @@ async function subscribePlan(plan) {
     if (name === 'abonnement') { renderAbonnement(); }
     if (name === 'study')      { updateCostPreview(); }
     if (name === 'apparence')  { initThemePage(); }
-    if (name === 'messages')   { loadConversations(); startChatPolling(); }
+    if (name === 'classes')    { loadMyClasses(); startChatPolling(); }
     if (name === 'myprofs')    { loadMyProfs(); }
     if (name === 'planning')   { loadPlanning(); }
     if (name === 'quete')      { loadQuete(); }
@@ -3516,6 +3516,7 @@ async function subscribePlan(plan) {
   .chat-bubble { max-width:72%; padding:0.6rem 0.9rem; border-radius:14px; font-size:0.9rem; line-height:1.4; word-wrap:break-word; }
   .chat-bubble.mine { align-self:flex-end; background:linear-gradient(135deg,var(--orange),#C0501A); color:#fff; border-bottom-right-radius:4px; }
   .chat-bubble.theirs { align-self:flex-start; background:var(--card); border:1px solid var(--border); color:var(--text); border-bottom-left-radius:4px; }
+  .chat-bubble .cb-sender { font-size:0.7rem; opacity:0.75; display:block; margin-bottom:0.15rem; font-weight:600; }
   .chat-bubble .cb-time { font-size:0.68rem; opacity:0.7; margin-top:0.2rem; display:block; }
   .chat-input-row { display:flex; gap:0.5rem; padding:0.9rem; border-top:1px solid var(--border); flex-shrink:0; }
   .chat-input-row input { flex:1; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:0.7rem 1rem; color:var(--text); font-size:0.9rem; font-family:'Inter',sans-serif; outline:none; }
@@ -3528,48 +3529,48 @@ async function subscribePlan(plan) {
   }
 </style>
 <script>
-  let chatCurrentPartner = null;
+  let chatCurrentClass = null;
   let chatPollTimer = null;
 
-  async function loadConversations() {
+  async function loadMyClasses() {
     const listEl = document.getElementById('chat-list');
     try {
-      const convs = await api('GET', '/api/messages/conversations');
-      if (!convs.length) {
-        listEl.innerHTML = '<div class="chat-empty" style="padding:1.5rem">Aucun contact pour l\'instant.<br>Abonne-toi à un prof pour lui écrire.</div>';
+      const classes = await api('GET', '/api/classes/mine');
+      if (!classes.length) {
+        listEl.innerHTML = '<div class="chat-empty" style="padding:1.5rem">Tu n\'as encore rejoint aucune classe.<br>Rends-toi sur le profil d\'un prof (Explorer) pour en rejoindre une.</div>';
         return;
       }
-      listEl.innerHTML = convs.map(c => `
-        <div class="chat-list-item ${chatCurrentPartner===c.userId?'active':''}" onclick="openConversation(${c.userId}, '${(c.name||'').replace(/'/g,"\\'")}')">
-          <div class="cli-name">${escapeHtml(c.name)} ${c.unread>0?`<span class="cli-badge">${c.unread}</span>`:''}</div>
-          <div class="cli-last">${escapeHtml(c.lastMessage||'Nouvelle conversation')}</div>
+      listEl.innerHTML = classes.map(c => `
+        <div class="chat-list-item ${chatCurrentClass===c.id?'active':''}" onclick="openClassChat(${c.id}, '${escapeHtml(c.nom).replace(/'/g,"\\'")}')">
+          <div class="cli-name">${escapeHtml(c.nom)}</div>
+          <div class="cli-last">${escapeHtml(c.matiere||'')} · ${escapeHtml(c.prof_prenom||'')} ${escapeHtml(c.prof_nom||'')}</div>
         </div>`).join('');
     } catch(e) {
       listEl.innerHTML = `<div class="chat-empty" style="padding:1.5rem">Erreur : ${escapeHtml(e.message)}</div>`;
     }
   }
 
-  async function openConversation(partnerId, partnerName) {
-    chatCurrentPartner = partnerId;
+  async function openClassChat(classId, className) {
+    chatCurrentClass = classId;
     document.getElementById('chat-empty-state').style.display = 'none';
     document.getElementById('chat-conv').style.display = 'flex';
-    document.getElementById('chat-conv-header').textContent = partnerName;
+    document.getElementById('chat-conv-header').textContent = className;
     document.querySelectorAll('.chat-list-item').forEach(el => el.classList.remove('active'));
     await refreshMessages();
-    loadConversations();
+    loadMyClasses();
     document.getElementById('chat-input').focus();
   }
 
   async function refreshMessages() {
-    if (!chatCurrentPartner) return;
+    if (!chatCurrentClass) return;
     try {
-      const data = await api('GET', '/api/messages/' + chatCurrentPartner);
+      const data = await api('GET', '/api/classes/' + chatCurrentClass + '/messages');
       const box = document.getElementById('chat-messages');
       const wasBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 60;
       box.innerHTML = data.messages.map(m => {
-        const mine = m.sender_id === data.me;
+        const mine = m.sender_id === currentUser.id;
         const t = m.created_at ? new Date(m.created_at + 'Z').toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '';
-        return `<div class="chat-bubble ${mine?'mine':'theirs'}">${escapeHtml(m.content)}<span class="cb-time">${t}</span></div>`;
+        return `<div class="chat-bubble ${mine?'mine':'theirs'}">${mine?'':`<span class="cb-sender">${escapeHtml(m.prenom)} ${escapeHtml(m.nom)}</span>`}${escapeHtml(m.content)}<span class="cb-time">${t}</span></div>`;
       }).join('');
       if (wasBottom) box.scrollTop = box.scrollHeight;
     } catch(e) { /* silencieux */ }
@@ -3578,10 +3579,10 @@ async function subscribePlan(plan) {
   async function sendChatMessage() {
     const input = document.getElementById('chat-input');
     const content = input.value.trim();
-    if (!content || !chatCurrentPartner) return;
+    if (!content || !chatCurrentClass) return;
     input.value = '';
     try {
-      await api('POST', '/api/messages', { to: chatCurrentPartner, content });
+      await api('POST', '/api/classes/' + chatCurrentClass + '/messages', { content });
       await refreshMessages();
       document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
     } catch(e) {
@@ -3590,19 +3591,19 @@ async function subscribePlan(plan) {
     }
   }
 
-  // Rafraîchissement auto toutes les 3 s quand on est sur la page Messages
+  // Rafraîchissement auto toutes les 3 s quand on est sur la page Mes classes
   function startChatPolling() {
     stopChatPolling();
     chatPollTimer = setInterval(() => {
-      if (document.getElementById('page-messages').classList.contains('active')) {
-        if (chatCurrentPartner) refreshMessages();
-        loadConversations();
+      if (document.getElementById('page-classes').classList.contains('active')) {
+        if (chatCurrentClass) refreshMessages();
+        loadMyClasses();
       }
     }, 3000);
   }
   function stopChatPolling() { if (chatPollTimer) clearInterval(chatPollTimer); }
 </script>
-<!-- ===== FIN MESSAGERIE ===== -->
+<!-- ===== FIN CHAT DE CLASSE ===== -->
 
 <!-- ===== CHOIX COURS DE PROF (révision) ===== -->
 <script>

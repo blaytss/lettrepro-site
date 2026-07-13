@@ -41,6 +41,7 @@
     .sidebar-item:hover{background:var(--card);color:var(--text)}
     .sidebar-item.active{background:var(--orange-glow);color:var(--orange)}
     .sidebar-item .icon{width:20px;text-align:center}
+    .nav-notif-badge{background:#EF4444;color:#fff;font-size:.7rem;font-weight:700;border-radius:999px;padding:.05rem .45rem;margin-left:auto}
     .sidebar-sep{height:1px;background:var(--border);margin:.75rem 0}
     .sidebar-stats{background:var(--orange-glow);border:1px solid rgba(232,105,42,0.25);border-radius:10px;padding:1rem;margin-top:auto}
     .sidebar-stats .ss-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;font-size:.82rem}
@@ -153,6 +154,7 @@
 <div class="layout">
   <aside class="sidebar">
     <button class="sidebar-item active" onclick="showPage('overview',this)"><span class="icon">📊</span> Vue d'ensemble</button>
+    <button class="sidebar-item" onclick="showPage('notifications',this)"><span class="icon">🔔</span> Notifications <span class="nav-notif-badge" id="notif-badge" style="display:none">0</span></button>
     <button class="sidebar-item" onclick="showPage('courses',this)"><span class="icon">📚</span> Mes cours</button>
     <button class="sidebar-item" onclick="showPage('sessions',this)"><span class="icon">📹</span> Visios</button>
     <button class="sidebar-item" onclick="showPage('subscribers',this)"><span class="icon">👥</span> Mes abonnés</button>
@@ -161,7 +163,7 @@
     <button class="sidebar-item" onclick="showPage('verification',this)"><span class="icon">🔐</span> Vérification</button>
     <button class="sidebar-item" onclick="showPage('profile',this)"><span class="icon">👤</span> Mon profil</button>
     <a class="sidebar-item" href="explorer.html"><span class="icon">🔍</span> Explorer</a>
-    <button class="sidebar-item" onclick="showPage('messages',this)"><span class="icon">💬</span> Messages</button>
+    <button class="sidebar-item" onclick="showPage('classes',this)"><span class="icon">🎓</span> Mes classes</button>
     <div class="sidebar-sep"></div>
     <div class="sidebar-stats">
       <div class="ss-row"><span>Abonnés</span><span class="ss-val" id="ss-subs">—</span></div>
@@ -362,30 +364,65 @@
       <button class="btn-primary" onclick="saveProfile()">Sauvegarder</button>
     </div>
 
-    <!-- MESSAGES -->
-    <div class="page" id="page-messages">
-      <div class="page-header"><h1>Messages</h1><p>Discute avec tes élèves abonnés.</p></div>
+    <!-- NOTIFICATIONS -->
+    <div class="page" id="page-notifications">
+      <div class="page-header"><h1>Notifications</h1><p>Toutes tes demandes en attente, regroupées par type.</p></div>
+      <div id="notif-content"><div class="empty"><div class="icon">🔔</div><p>Chargement…</p></div></div>
+    </div>
+
+    <!-- MES CLASSES -->
+    <div class="page" id="page-classes">
+      <div class="page-header"><h1>Mes classes</h1><p>Crée des classes et discute avec les élèves qui en font partie.</p></div>
+      <button class="btn-primary" style="margin-bottom:1rem" onclick="openClassCreateModal()">+ Créer une classe</button>
       <div class="chat-layout">
         <div class="chat-list" id="chat-list">
           <div class="chat-empty" style="padding:1.5rem">Chargement…</div>
         </div>
         <div class="chat-main">
           <div class="chat-main-empty" id="chat-empty-state">
-            <div style="font-size:2.5rem;margin-bottom:0.5rem">💬</div>
-            <p>Choisis une conversation à gauche pour commencer à discuter.</p>
+            <div style="font-size:2.5rem;margin-bottom:0.5rem">🎓</div>
+            <p>Choisis une classe à gauche pour discuter avec ses membres.</p>
           </div>
           <div class="chat-conv" id="chat-conv" style="display:none">
             <div class="chat-conv-header" id="chat-conv-header"></div>
             <div class="chat-messages" id="chat-messages"></div>
             <div class="chat-input-row">
-              <input type="text" id="chat-input" placeholder="Écris ton message..." onkeydown="if(event.key==='Enter')sendChatMessage()" />
-              <button class="chat-send-btn" onclick="sendChatMessage()">Envoyer</button>
+              <input type="text" id="chat-input" placeholder="Écris ton message à la classe..." onkeydown="if(event.key==='Enter')sendClassMessage()" />
+              <button class="chat-send-btn" onclick="sendClassMessage()">Envoyer</button>
             </div>
           </div>
         </div>
       </div>
     </div>
   </main>
+</div>
+
+<!-- CRÉER UNE CLASSE -->
+<div class="modal-overlay" id="class-create-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeClassCreateModal()">✕</button>
+    <h3>Nouvelle classe</h3>
+    <div id="class-create-msg" class="msg"></div>
+    <div class="field"><label>Nom de la classe *</label><input type="text" id="cc-nom" placeholder="Terminale S - Groupe 1"/></div>
+    <div class="field"><label>Matière</label><input type="text" id="cc-matiere" placeholder="Mathématiques"/></div>
+    <div style="display:flex;gap:.75rem;margin-top:.5rem">
+      <button class="btn-primary" onclick="saveNewClass()">Créer</button>
+      <button class="btn-outline" onclick="closeClassCreateModal()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- GÉRER LES MEMBRES D'UNE CLASSE -->
+<div class="modal-overlay" id="class-members-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeClassMembersModal()">✕</button>
+    <h3 id="cm-title">Membres de la classe</h3>
+    <div id="cm-add-row" style="display:flex;gap:.5rem;margin-bottom:1rem">
+      <select id="cm-add-select" style="flex:1;background:var(--card);border:1px solid var(--border);border-radius:9px;padding:.6rem .75rem;color:var(--text);font-size:.85rem;font-family:'Inter',sans-serif"></select>
+      <button class="btn-primary" style="padding:.5rem 1rem;font-size:.82rem" onclick="addSelectedMember()">+ Ajouter</button>
+    </div>
+    <div id="cm-members-list"></div>
+  </div>
 </div>
 
 <!-- MODAL COURS -->
@@ -497,6 +534,7 @@
     try{
       profData=await api('GET','/api/prof/me');
       renderNav();renderOverview();renderSubjectsChips();fillProfile();
+      pollNotifBadge();
     }catch(e){
       if(e.message.includes('introuvable')){window.location.href='register-prof.html';}
       else showToast('Erreur : '+e.message,'error');
@@ -901,7 +939,8 @@ function renderRequests(requests){
     if(name==='sessions') loadSessions();
     if(name==='subscribers') loadSubscribers();
     if(name==='earnings') { loadEarnings(); loadWithdrawals(); }
-    if(name==='messages') { loadConversations(); startChatPolling(); }
+    if(name==='notifications') loadNotifications();
+    if(name==='classes') { loadMyClasses(); startClassPolling(); }
   }
 
   function logout(silent=false){
@@ -926,7 +965,7 @@ function renderRequests(requests){
   }
 </script>
 
-<!-- ===== STYLE + LOGIQUE MESSAGERIE (PROF) ===== -->
+<!-- ===== STYLE + LOGIQUE CLASSES & NOTIFICATIONS (PROF) ===== -->
 <style>
   .chat-layout{display:flex;gap:1rem;height:calc(100vh - 220px);min-height:420px}
   .chat-list{width:280px;flex-shrink:0;background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow-y:auto}
@@ -940,74 +979,88 @@ function renderRequests(requests){
   .chat-main{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:14px;display:flex;flex-direction:column;overflow:hidden}
   .chat-main-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);font-size:0.9rem;text-align:center;padding:2rem}
   .chat-conv{flex:1;display:flex;flex-direction:column;min-height:0}
-  .chat-conv-header{padding:1rem 1.25rem;border-bottom:1px solid var(--border);font-family:'Sora',sans-serif;font-weight:700;color:var(--text);flex-shrink:0}
+  .chat-conv-header{padding:1rem 1.25rem;border-bottom:1px solid var(--border);font-family:'Sora',sans-serif;font-weight:700;color:var(--text);flex-shrink:0;display:flex;justify-content:space-between;align-items:center;gap:.75rem}
   .chat-messages{flex:1;overflow-y:auto;padding:1.25rem;display:flex;flex-direction:column;gap:0.6rem}
   .chat-bubble{max-width:72%;padding:0.6rem 0.9rem;border-radius:14px;font-size:0.9rem;line-height:1.4;word-wrap:break-word}
   .chat-bubble.mine{align-self:flex-end;background:linear-gradient(135deg,var(--orange),#C0501A);color:#fff;border-bottom-right-radius:4px}
   .chat-bubble.theirs{align-self:flex-start;background:var(--card);border:1px solid var(--border);color:var(--text);border-bottom-left-radius:4px}
+  .chat-bubble .cb-sender{font-size:0.7rem;opacity:0.75;display:block;margin-bottom:0.15rem;font-weight:600}
   .chat-bubble .cb-time{font-size:0.68rem;opacity:0.7;margin-top:0.2rem;display:block}
   .chat-input-row{display:flex;gap:0.5rem;padding:0.9rem;border-top:1px solid var(--border);flex-shrink:0}
   .chat-input-row input{flex:1;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:0.7rem 1rem;color:var(--text);font-size:0.9rem;font-family:'Inter',sans-serif;outline:none}
   .chat-input-row input:focus{border-color:var(--orange)}
   .chat-send-btn{background:linear-gradient(135deg,var(--orange),#C0501A);color:#fff;border:none;border-radius:10px;padding:0 1.3rem;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer}
+  .cm-manage-btn{background:var(--card);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:.4rem .8rem;font-size:.8rem;cursor:pointer;flex-shrink:0}
+  .cm-manage-btn:hover{border-color:var(--orange);color:var(--orange)}
   @media(max-width:768px){.chat-layout{flex-direction:column;height:auto}.chat-list{width:100%;max-height:180px}.chat-main{min-height:420px}}
+
+  /* Centre de notifications : sections colorées par type */
+  .notif-section{margin-bottom:1.75rem}
+  .notif-section-title{font-family:'Sora',sans-serif;font-weight:700;font-size:.95rem;margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem}
+  .notif-card{display:flex;justify-content:space-between;align-items:center;gap:1rem;background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--notif-color,var(--orange));border-radius:10px;padding:.9rem 1.1rem;margin-bottom:.6rem}
+  .notif-card .nc-title{font-weight:600;font-size:.88rem;color:var(--text)}
+  .notif-card .nc-detail{font-size:.8rem;color:var(--muted);margin-top:.2rem}
+  .notif-card .nc-time{font-size:.72rem;color:var(--muted);margin-top:.3rem}
+  .notif-card .nc-actions{display:flex;gap:.5rem;flex-shrink:0}
 </style>
 <script>
-  let chatCurrentPartner=null, chatPollTimer=null;
+  let chatCurrentClass=null, classPollTimer=null, notifPollTimer=null, myClassesCache=[];
   function chatEsc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 
-  async function loadConversations(){
+  // ── MES CLASSES (chat de groupe) ──
+  async function loadMyClasses(){
     const listEl=document.getElementById('chat-list');
     try{
-      const convs=await api('GET','/api/messages/conversations');
-      if(!convs.length){
-        listEl.innerHTML='<div class="chat-empty" style="padding:1.5rem">Aucun contact pour l\'instant.<br>Tes élèves abonnés apparaîtront ici.</div>';
+      myClassesCache=await api('GET','/api/classes/prof');
+      if(!myClassesCache.length){
+        listEl.innerHTML='<div class="chat-empty" style="padding:1.5rem">Aucune classe pour l\'instant.<br>Crée ta première classe ci-dessus.</div>';
         return;
       }
-      listEl.innerHTML=convs.map(c=>`
-        <div class="chat-list-item ${chatCurrentPartner===c.userId?'active':''}" onclick="openConversation(${c.userId}, '${(c.name||'').replace(/'/g,"\\'")}')">
-          <div class="cli-name">${chatEsc(c.name)} ${c.unread>0?`<span class="cli-badge">${c.unread}</span>`:''}</div>
-          <div class="cli-last">${chatEsc(c.lastMessage||'Nouvelle conversation')}</div>
+      listEl.innerHTML=myClassesCache.map(c=>`
+        <div class="chat-list-item ${chatCurrentClass===c.id?'active':''}" onclick="openClassChat(${c.id}, '${chatEsc(c.nom).replace(/'/g,"\\'")}')">
+          <div class="cli-name">${chatEsc(c.nom)}</div>
+          <div class="cli-last">${chatEsc(c.matiere||'')} · ${c.member_count} élève${c.member_count>1?'s':''}</div>
         </div>`).join('');
     }catch(e){
       listEl.innerHTML=`<div class="chat-empty" style="padding:1.5rem">Erreur : ${chatEsc(e.message)}</div>`;
     }
   }
 
-  async function openConversation(partnerId, partnerName){
-    chatCurrentPartner=partnerId;
+  async function openClassChat(classId, className){
+    chatCurrentClass=classId;
     document.getElementById('chat-empty-state').style.display='none';
     document.getElementById('chat-conv').style.display='flex';
-    document.getElementById('chat-conv-header').textContent=partnerName;
+    document.getElementById('chat-conv-header').innerHTML=
+      `<span>${chatEsc(className)}</span><button class="cm-manage-btn" onclick="openClassMembersModal(${classId})">👥 Gérer les membres</button>`;
     document.querySelectorAll('.chat-list-item').forEach(el=>el.classList.remove('active'));
-    await refreshMessages();
-    loadConversations();
+    await refreshClassMessages();
+    loadMyClasses();
     document.getElementById('chat-input').focus();
   }
 
-  async function refreshMessages(){
-    if(!chatCurrentPartner) return;
+  async function refreshClassMessages(){
+    if(!chatCurrentClass) return;
     try{
-      const data=await api('GET','/api/messages/'+chatCurrentPartner);
+      const data=await api('GET','/api/classes/'+chatCurrentClass+'/messages');
       const box=document.getElementById('chat-messages');
       const wasBottom=box.scrollHeight-box.scrollTop-box.clientHeight<60;
       box.innerHTML=data.messages.map(m=>{
-        const mine=m.sender_id===data.me;
+        const mine=m.sender_id===profData.user_id;
         const t=m.created_at?new Date(m.created_at+'Z').toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'';
-        return `<div class="chat-bubble ${mine?'mine':'theirs'}">${chatEsc(m.content)}<span class="cb-time">${t}</span></div>`;
+        return `<div class="chat-bubble ${mine?'mine':'theirs'}">${mine?'':`<span class="cb-sender">${chatEsc(m.prenom)} ${chatEsc(m.nom)}</span>`}${chatEsc(m.content)}<span class="cb-time">${t}</span></div>`;
       }).join('');
       if(wasBottom) box.scrollTop=box.scrollHeight;
     }catch(e){}
   }
 
-  async function sendChatMessage(){
+  async function sendClassMessage(){
     const input=document.getElementById('chat-input');
     const content=input.value.trim();
-    if(!content||!chatCurrentPartner) return;
+    if(!content||!chatCurrentClass) return;
     input.value='';
     try{
-      await api('POST','/api/messages',{to:chatCurrentPartner,content});
-      await refreshMessages();
+      await api('POST','/api/classes/'+chatCurrentClass+'/messages',{content});
+      await refreshClassMessages();
       const box=document.getElementById('chat-messages');
       box.scrollTop=box.scrollHeight;
     }catch(e){
@@ -1016,18 +1069,171 @@ function renderRequests(requests){
     }
   }
 
-  function startChatPolling(){
-    stopChatPolling();
-    chatPollTimer=setInterval(()=>{
-      if(document.getElementById('page-messages').classList.contains('active')){
-        if(chatCurrentPartner) refreshMessages();
-        loadConversations();
+  function startClassPolling(){
+    stopClassPolling();
+    classPollTimer=setInterval(()=>{
+      if(document.getElementById('page-classes').classList.contains('active')){
+        if(chatCurrentClass) refreshClassMessages();
+        loadMyClasses();
       }
     },3000);
   }
-  function stopChatPolling(){if(chatPollTimer) clearInterval(chatPollTimer);}
+  function stopClassPolling(){if(classPollTimer) clearInterval(classPollTimer);}
+
+  // ── CRÉER UNE CLASSE ──
+  function openClassCreateModal(){
+    document.getElementById('cc-nom').value='';
+    document.getElementById('cc-matiere').value='';
+    document.getElementById('class-create-msg').textContent='';
+    document.getElementById('class-create-modal').classList.add('visible');
+  }
+  function closeClassCreateModal(){document.getElementById('class-create-modal').classList.remove('visible');}
+  async function saveNewClass(){
+    const nom=document.getElementById('cc-nom').value.trim();
+    const matiere=document.getElementById('cc-matiere').value.trim();
+    if(!nom){document.getElementById('class-create-msg').textContent='Le nom est obligatoire.';return;}
+    try{
+      await api('POST','/api/classes',{nom,matiere});
+      closeClassCreateModal();
+      showToast('Classe créée','success');
+      loadMyClasses();
+    }catch(e){document.getElementById('class-create-msg').textContent=e.message;}
+  }
+
+  // ── GÉRER LES MEMBRES ──
+  let cmCurrentClass=null;
+  async function openClassMembersModal(classId){
+    cmCurrentClass=classId;
+    const cls=myClassesCache.find(c=>c.id===classId);
+    document.getElementById('cm-title').textContent='Membres de '+(cls?cls.nom:'la classe');
+    document.getElementById('class-members-modal').classList.add('visible');
+    await refreshMembersModal();
+  }
+  function closeClassMembersModal(){document.getElementById('class-members-modal').classList.remove('visible');}
+
+  async function refreshMembersModal(){
+    if(!cmCurrentClass) return;
+    try{
+      const [members, subscribers]=await Promise.all([
+        api('GET','/api/classes/'+cmCurrentClass+'/members'),
+        api('GET','/api/prof/subscribers')
+      ]);
+      const memberIds=new Set(members.map(m=>m.id));
+      const notYetIn=subscribers.filter(s=>!memberIds.has(s.student_id));
+
+      const listEl=document.getElementById('cm-members-list');
+      listEl.innerHTML=members.length
+        ? members.map(m=>`
+            <div class="notif-card" style="border-left-color:var(--orange)">
+              <div class="nc-title">${chatEsc(m.prenom)} ${chatEsc(m.nom)}</div>
+              <button class="btn-danger" style="padding:.4rem .8rem;font-size:.8rem" onclick="removeMember(${m.id})">Retirer</button>
+            </div>`).join('')
+        : '<p style="color:var(--muted);font-size:.85rem">Aucun élève pour l\'instant.</p>';
+
+      const selectEl=document.getElementById('cm-add-select');
+      if(!notYetIn.length){
+        selectEl.innerHTML='<option value="">Aucun abonné disponible</option>';
+        selectEl.disabled=true;
+      }else{
+        selectEl.disabled=false;
+        selectEl.innerHTML=notYetIn.map(s=>`<option value="${s.student_id}">${chatEsc(s.prenom)} ${chatEsc(s.nom)}</option>`).join('');
+      }
+    }catch(e){showToast('Erreur : '+e.message,'error');}
+  }
+
+  async function addSelectedMember(){
+    const studentId=document.getElementById('cm-add-select').value;
+    if(!studentId||!cmCurrentClass) return;
+    try{
+      await api('POST','/api/classes/'+cmCurrentClass+'/members',{studentId:Number(studentId)});
+      showToast('Élève ajouté','success');
+      await refreshMembersModal();
+      loadMyClasses();
+    }catch(e){showToast('Erreur : '+e.message,'error');}
+  }
+
+  async function removeMember(studentId){
+    if(!confirm('Retirer cet élève de la classe ?')) return;
+    try{
+      await api('DELETE','/api/classes/'+cmCurrentClass+'/members/'+studentId);
+      showToast('Élève retiré','success');
+      await refreshMembersModal();
+      loadMyClasses();
+    }catch(e){showToast('Erreur : '+e.message,'error');}
+  }
+
+  // ── CENTRE DE NOTIFICATIONS ──
+  const NOTIF_META={
+    visio:           {icon:'📹', color:'var(--orange)', label:'Demandes de visio'},
+    rejoindre_classe:{icon:'🎓', color:'#60A5FA',        label:'Demandes pour rejoindre une classe'},
+    creer_classe:    {icon:'✨', color:'#C084FC',        label:'Suggestions de classe'}
+  };
+
+  async function loadNotifications(){
+    const el=document.getElementById('notif-content');
+    try{
+      const data=await api('GET','/api/notifications/prof');
+      updateNotifBadge(data.count);
+      if(!data.notifications.length){
+        el.innerHTML='<div class="empty"><div class="icon">🔔</div><p>Aucune notification en attente. Tout est à jour !</p></div>';
+        return;
+      }
+      const groups={};
+      data.notifications.forEach(n=>{(groups[n.type]=groups[n.type]||[]).push(n);});
+      el.innerHTML=Object.keys(NOTIF_META).filter(t=>groups[t]&&groups[t].length).map(type=>{
+        const meta=NOTIF_META[type], items=groups[type];
+        return `<div class="notif-section">
+          <div class="notif-section-title" style="color:${meta.color}">${meta.icon} ${meta.label} (${items.length})</div>
+          ${items.map(n=>`
+            <div class="notif-card" style="--notif-color:${meta.color}">
+              <div>
+                <div class="nc-title">${chatEsc(n.title)}</div>
+                ${n.detail?`<div class="nc-detail">${chatEsc(n.detail)}</div>`:''}
+                <div class="nc-time">${n.createdAt?new Date(n.createdAt+'Z').toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):''}</div>
+              </div>
+              <div class="nc-actions">
+                <button class="btn-primary" style="padding:.5rem 1rem;font-size:.82rem" onclick="respondNotif('${type}',${n.id},'accept')">✓ Accepter</button>
+                <button class="btn-danger" onclick="respondNotif('${type}',${n.id},'decline')">✗ Refuser</button>
+              </div>
+            </div>`).join('')}
+        </div>`;
+      }).join('');
+    }catch(e){el.innerHTML=`<p style="color:var(--muted)">Erreur : ${chatEsc(e.message)}</p>`;}
+  }
+
+  async function respondNotif(type, id, action){
+    if(action==='decline' && !confirm('Refuser cette demande ?')) return;
+    try{
+      if(type==='visio'){
+        await api('POST',`/api/video-sessions/${id}/respond`,{action});
+      }else if(type==='rejoindre_classe'){
+        await api('POST',`/api/classes/join-requests/${id}/respond`,{action});
+      }else if(type==='creer_classe'){
+        await api('POST',`/api/classes/creation-requests/${id}/respond`,{action});
+      }
+      showToast(action==='accept'?'✓ Accepté':'Refusé','success');
+      loadNotifications();
+    }catch(e){showToast('Erreur : '+e.message,'error');}
+  }
+
+  function updateNotifBadge(count){
+    const b=document.getElementById('notif-badge');
+    if(count>0){b.textContent=count;b.style.display='inline-block';}
+    else{b.style.display='none';}
+  }
+
+  function pollNotifBadge(){
+    api('GET','/api/notifications/prof').then(d=>updateNotifBadge(d.count)).catch(()=>{});
+    if(notifPollTimer) clearInterval(notifPollTimer);
+    notifPollTimer=setInterval(()=>{
+      api('GET','/api/notifications/prof').then(d=>{
+        updateNotifBadge(d.count);
+        if(document.getElementById('page-notifications').classList.contains('active')) loadNotifications();
+      }).catch(()=>{});
+    },15000);
+  }
 </script>
-<!-- ===== FIN MESSAGERIE (PROF) ===== -->
+<!-- ===== FIN CLASSES & NOTIFICATIONS (PROF) ===== -->
 
 </body>
 </html>
