@@ -2409,6 +2409,27 @@ async function subscribePlan(plan) {
   }
 
   // Affiche le corrigé d'une question validée
+  // Petit son de succès (généré, pas de fichier audio à charger)
+  function playCorrectSound() {
+    try {
+      const ctx = window._quizAudioCtx || (window._quizAudioCtx = new (window.AudioContext || window.webkitAudioContext)());
+      const now = ctx.currentTime;
+      [523.25, 783.99].forEach((freq, i) => {   // petit arpège Do5 → Sol5
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        const start = now + i * 0.09;
+        gain.gain.setValueAtTime(0, start);
+        gain.gain.linearRampToValueAtTime(0.25, start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + 0.25);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(start);
+        osc.stop(start + 0.25);
+      });
+    } catch (e) { /* audio indisponible, tant pis */ }
+  }
+
   function showCorrection(i) {
     const q = activeQuiz.questions[i];
     const correct = getCorrectIndex(q);
@@ -2430,6 +2451,7 @@ async function subscribePlan(plan) {
     const explication = q.explication || q.explanation || '';
     if (exp) {
       const isGood = chosen === correct;
+      if (isGood) playCorrectSound();
       let ficheLinkHtml = '';
       if (!isGood && activeQuiz.ficheId) {
         ficheLinkHtml = `<button class="result-btn" style="margin-top:0.6rem;border-color:var(--orange);color:var(--orange)" onclick="viewFiche(${activeQuiz.ficheId})">📋 Revoir la fiche</button>`;
