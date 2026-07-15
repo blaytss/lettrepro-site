@@ -45,6 +45,16 @@
     r.setProperty('--border', colors.border);
     r.setProperty('--text', colors.text);
     r.setProperty('--muted', colors.muted);
+    // Ombres adaptées au mode (douces en clair, marquées en sombre)
+    if (mode === 'light') {
+      r.setProperty('--shadow-card', '0 1px 3px rgba(28,17,7,0.06), 0 8px 24px rgba(28,17,7,0.07)');
+      r.setProperty('--shadow-lift', '0 4px 10px rgba(28,17,7,0.08), 0 14px 34px rgba(28,17,7,0.12)');
+      r.setProperty('--shadow-pop', '0 12px 40px rgba(28,17,7,0.16)');
+    } else {
+      r.setProperty('--shadow-card', '0 1px 3px rgba(0,0,0,0.25), 0 8px 24px rgba(0,0,0,0.28)');
+      r.setProperty('--shadow-lift', '0 4px 10px rgba(0,0,0,0.3), 0 14px 34px rgba(0,0,0,0.4)');
+      r.setProperty('--shadow-pop', '0 12px 40px rgba(0,0,0,0.45)');
+    }
   })();
 </script>
   <style>
@@ -53,11 +63,21 @@
       --bg: #FEF9F6; --surface: #FFFFFF; --card: #FFF4EE; --border: #FDDCC8;
       --orange: #E8692A; --orange-light: #F5A462; --orange-glow: rgba(232,105,42,0.15);
       --text: #1C1107; --muted: #8B6E5A; --white: #ffffff;
+      --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px;
+      --shadow-card: 0 1px 3px rgba(28,17,7,0.06), 0 8px 24px rgba(28,17,7,0.07);
+      --shadow-lift: 0 4px 10px rgba(28,17,7,0.08), 0 14px 34px rgba(28,17,7,0.12);
+      --shadow-pop: 0 12px 40px rgba(28,17,7,0.16);
     }
     body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
 
+    /* Scrollbar fine et thémée */
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; border: 2px solid var(--bg); }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
     /* NAV */
-    nav { display: flex; align-items: center; justify-content: space-between; padding: 1rem 2rem; border-bottom: 1px solid var(--border); background: var(--surface); position: sticky; top: 0; z-index: 100; }
+    nav { display: flex; align-items: center; justify-content: space-between; padding: 1rem 2rem; border-bottom: 1px solid var(--border); background: var(--surface); position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 0 var(--border), var(--shadow-card); }
     .nav-logo { font-family: 'Sora', sans-serif; font-weight: 800; font-size: 1.2rem; color: var(--text); text-decoration: none; }
     .nav-logo span { color: var(--orange); }
     .nav-right { display: flex; align-items: center; gap: 1rem; }
@@ -75,9 +95,9 @@
     /* LAYOUT */
     .layout { display: flex; flex: 1; }
     .sidebar { width: 220px; border-right: 1px solid var(--border); padding: 1.5rem 1rem; display: flex; flex-direction: column; gap: 0.25rem; background: var(--surface); flex-shrink: 0; }
-    .sidebar-item { display: flex; align-items: center; gap: 0.65rem; padding: 0.65rem 0.85rem; border-radius: 9px; font-size: 0.88rem; font-weight: 500; color: var(--muted); cursor: pointer; transition: all 0.2s; text-decoration: none; border: none; background: none; width: 100%; text-align: left; }
-    .sidebar-item:hover { background: var(--card); color: var(--text); }
-    .sidebar-item.active { background: var(--orange-glow); color: var(--orange); }
+    .sidebar-item { display: flex; align-items: center; gap: 0.65rem; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); font-size: 0.88rem; font-weight: 500; color: var(--muted); cursor: pointer; transition: all 0.2s ease; text-decoration: none; border: none; background: none; width: 100%; text-align: left; }
+    .sidebar-item:hover { background: var(--card); color: var(--text); transform: translateX(2px); }
+    .sidebar-item.active { background: var(--orange-glow); color: var(--orange); font-weight: 700; box-shadow: inset 3px 0 0 var(--orange); }
     .sidebar-item .icon { font-size: 1rem; width: 20px; text-align: center; }
     .sidebar-sep { height: 1px; background: var(--border); margin: 0.75rem 0; }
     .sidebar-credits { background: linear-gradient(135deg, rgba(232,105,42,0.12), rgba(192,80,26,0.06)); border: 1px solid rgba(232,105,42,0.25); border-radius: 10px; padding: 1rem; margin-top: auto; }
@@ -96,7 +116,8 @@
 
     /* STATS */
     .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
-    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.5rem; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; box-shadow: var(--shadow-card); transition: all 0.2s ease; }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); }
     .stat-card .label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 0.5rem; }
     .stat-card .value { font-family: 'Sora', sans-serif; font-size: 1.8rem; font-weight: 800; color: var(--text); }
     .stat-card .sub { font-size: 0.78rem; color: var(--muted); margin-top: 0.2rem; }
@@ -104,13 +125,13 @@
     .credit-bar { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--orange), var(--orange-light)); transition: width 0.5s ease; }
 
     /* FORM */
-    .gen-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; }
+    .gen-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2rem; box-shadow: var(--shadow-card); }
     .gen-card h2 { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 1.2rem; color: var(--text); margin-bottom: 0.3rem; }
     .gen-card > p { color: var(--muted); font-size: 0.88rem; margin-bottom: 1.5rem; }
     .gen-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
     .field label { display: block; font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 0.4rem; }
-    .field input, .field textarea, .field select { width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: 9px; padding: 0.75rem 1rem; color: var(--text); font-size: 0.9rem; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; resize: vertical; }
-    .field input:focus, .field textarea:focus, .field select:focus { border-color: var(--orange); }
+    .field input, .field textarea, .field select { width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem 1rem; color: var(--text); font-size: 0.9rem; font-family: 'Inter', sans-serif; outline: none; transition: all 0.2s ease; resize: vertical; }
+    .field input:focus, .field textarea:focus, .field select:focus { border-color: var(--orange); box-shadow: 0 0 0 3px var(--orange-glow); }
     .field input::placeholder, .field textarea::placeholder { color: var(--muted); }
     .field select option { background: var(--surface); color: var(--text); }
     .field.full { grid-column: 1 / -1; }
@@ -128,8 +149,8 @@
     .result-card.visible { display: block; animation: fadeIn 0.3s ease; }
     @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
     .result-actions { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
-    .result-btn { background: var(--surface); border: 1px solid var(--border); color: var(--muted); font-size: 0.8rem; padding: 0.4rem 0.85rem; border-radius: 7px; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; }
-    .result-btn:hover { border-color: var(--orange); color: var(--orange); }
+    .result-btn { background: var(--surface); border: 1px solid var(--border); color: var(--muted); font-size: 0.8rem; padding: 0.4rem 0.85rem; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s ease; font-family: 'Inter', sans-serif; }
+    .result-btn:hover { border-color: var(--orange); color: var(--orange); background: var(--orange-glow); transform: translateY(-1px); }
     .result-text { font-size: 0.92rem; line-height: 1.9; color: var(--text); white-space: pre-wrap; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; max-height: 500px; overflow-y: auto; }
     .char-counter { font-size: 0.75rem; color: var(--muted); margin-top: 0.6rem; text-align: right; }
 
@@ -169,7 +190,7 @@
     .credit-history { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; }
     .credit-history h3 { font-family: 'Sora', sans-serif; font-weight: 700; color: var(--text); margin-bottom: 1.25rem; font-size: 1rem; }
     .credit-log { display: flex; flex-direction: column; gap: 0; }
-    .credit-log-item { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid rgba(58,47,34,0.4); font-size: 0.85rem; }
+    .credit-log-item { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
     .credit-log-item:last-child { border-bottom: none; }
     .log-desc { color: var(--text); }
     .log-date { color: var(--muted); font-size: 0.75rem; margin-top: 0.1rem; }
@@ -181,20 +202,20 @@
     .history-empty { text-align: center; padding: 3rem; color: var(--muted); }
     .history-empty .icon { font-size: 2.5rem; margin-bottom: 1rem; }
     .history-grid { display: flex; flex-direction: column; gap: 0.75rem; }
-    .history-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.5rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; transition: border-color 0.2s; }
-    .history-item:hover { border-color: var(--orange); }
+    .history-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; transition: all 0.2s ease; box-shadow: var(--shadow-card); }
+    .history-item:hover { border-color: var(--orange); transform: translateY(-2px); box-shadow: var(--shadow-lift); }
     .history-meta h3 { font-weight: 600; font-size: 0.95rem; color: var(--text); margin-bottom: 0.2rem; }
     .history-meta p { color: var(--muted); font-size: 0.8rem; }
     .history-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
-    .hist-btn { background: none; border: 1px solid var(--border); color: var(--muted); font-size: 0.78rem; padding: 0.3rem 0.7rem; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
-    .hist-btn:hover { border-color: var(--orange); color: var(--orange); }
+    .hist-btn { background: none; border: 1px solid var(--border); color: var(--muted); font-size: 0.78rem; padding: 0.3rem 0.7rem; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s ease; }
+    .hist-btn:hover { border-color: var(--orange); color: var(--orange); background: var(--orange-glow); }
     .lang-badge { font-size: 0.7rem; background: var(--card); border: 1px solid var(--border); padding: 0.15rem 0.5rem; border-radius: 999px; color: var(--muted); margin-left: 0.5rem; }
 
     /* ACCOUNT */
     .account-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-    .account-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.75rem; }
+    .account-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.75rem; box-shadow: var(--shadow-card); }
     .account-card h3 { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 1rem; color: var(--text); margin-bottom: 1.25rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border); }
-    .info-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(58,47,34,0.4); font-size: 0.88rem; }
+    .info-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid var(--border); font-size: 0.88rem; }
     .info-row:last-child { border-bottom: none; }
     .info-row .key { color: var(--muted); }
     .info-row .val { color: var(--text); font-weight: 500; }
@@ -206,22 +227,23 @@
     /* MODAL */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 200; display: none; align-items: center; justify-content: center; padding: 1rem; }
     .modal-overlay.visible { display: flex; }
-    .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; max-width: 640px; width: 100%; position: relative; max-height: 92vh; }
+    .modal { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2rem; max-width: 640px; width: 100%; position: relative; max-height: 92vh; box-shadow: var(--shadow-pop); }
     .modal h3 { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 1.1rem; color: var(--text); margin-bottom: 1rem; }
     .modal-text { font-size: 0.88rem; line-height: 1.8; color: var(--text); white-space: pre-wrap; max-height: 80vh; overflow-y: auto; }
-    .modal-close { position: absolute; top: 1rem; right: 1rem; background: var(--card); border: none; color: var(--muted); width: 28px; height: 28px; border-radius: 6px; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; }
+    .modal-close { position: absolute; top: 1rem; right: 1rem; background: var(--card); border: none; color: var(--muted); width: 28px; height: 28px; border-radius: var(--radius-sm); cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; }
+    .modal-close:hover { background: var(--orange-glow); color: var(--orange); }
     .modal-actions { display: flex; gap: 0.5rem; margin-top: 1rem; }
 
     /* NOTIFICATION */
-    .toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0.85rem 1.25rem; font-size: 0.88rem; color: var(--text); z-index: 300; display: flex; align-items: center; gap: 0.5rem; box-shadow: 0 8px 32px rgba(0,0,0,0.4); transform: translateY(20px); opacity: 0; transition: all 0.3s; pointer-events: none; }
+    .toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0.85rem 1.25rem; font-size: 0.88rem; color: var(--text); z-index: 300; display: flex; align-items: center; gap: 0.5rem; box-shadow: var(--shadow-pop); transform: translateY(20px); opacity: 0; transition: all 0.3s ease; pointer-events: none; }
     .toast.visible { transform: translateY(0); opacity: 1; }
     .toast.success { border-color: rgba(50,200,100,0.3); }
     .toast.error { border-color: rgba(220,50,50,0.3); }
 
     /* ABONNEMENT PAGE */
     .plans-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-bottom: 2rem; }
-    .plan-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.75rem; position: relative; transition: transform 0.2s; }
-    .plan-card:hover { transform: translateY(-4px); }
+    .plan-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.75rem; position: relative; transition: all 0.2s ease; box-shadow: var(--shadow-card); }
+    .plan-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lift); }
     .plan-card.current { border-color: var(--orange); background: linear-gradient(160deg, rgba(232,105,42,0.07), var(--surface)); }
     .plan-card-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.9rem; border-radius: 999px; white-space: nowrap; }
     .plan-card-badge.cur { background: var(--orange); color: white; }
@@ -246,7 +268,7 @@
     .compare-wrap table { width: 100%; border-collapse: collapse; }
     .compare-wrap th { padding: 0.9rem 1rem; text-align: left; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); border-bottom: 1px solid var(--border); background: var(--card); }
     .compare-wrap th:not(:first-child) { text-align: center; }
-    .compare-wrap td { padding: 0.85rem 1rem; font-size: 0.85rem; border-bottom: 1px solid rgba(58,47,34,0.4); color: var(--text); }
+    .compare-wrap td { padding: 0.85rem 1rem; font-size: 0.85rem; border-bottom: 1px solid var(--border); color: var(--text); }
     .compare-wrap td:not(:first-child) { text-align: center; }
     .compare-wrap tr:last-child td { border-bottom: none; }
     .compare-wrap .ck { color: var(--orange); }
@@ -295,16 +317,16 @@
     .matiere-group { margin-bottom: 2rem; }
     /* MES COURS — dossiers par matière */
     .folder-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; }
-    .folder-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem 1rem; text-align: center; cursor: pointer; transition: all 0.2s; }
-    .folder-card:hover { border-color: var(--orange); transform: translateY(-3px); }
+    .folder-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.5rem 1rem; text-align: center; cursor: pointer; transition: all 0.2s ease; box-shadow: var(--shadow-card); }
+    .folder-card:hover { border-color: var(--orange); transform: translateY(-3px); box-shadow: var(--shadow-lift); }
     .folder-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
     .folder-name { font-family: 'Sora', sans-serif; font-weight: 700; color: var(--text); font-size: 0.95rem; margin-bottom: 0.25rem; }
     .folder-count { font-size: 0.78rem; color: var(--muted); }
     .cours-back { background: none; border: 1px solid var(--border); color: var(--muted); font-size: 0.85rem; padding: 0.4rem 0.9rem; border-radius: 8px; cursor: pointer; margin-bottom: 1rem; transition: all 0.2s; font-family: 'Inter', sans-serif; }
     .cours-back:hover { border-color: var(--orange); color: var(--orange); }
     .cours-folder-title { font-family: 'Sora', sans-serif; font-weight: 700; color: var(--text); font-size: 1.1rem; margin-bottom: 1rem; }
-    .chapter-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 0.6rem; transition: border-color 0.2s; }
-    .chapter-card:hover { border-color: var(--orange); }
+    .chapter-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 0.6rem; transition: all 0.2s ease; box-shadow: var(--shadow-card); }
+    .chapter-card:hover { border-color: var(--orange); transform: translateY(-1px); box-shadow: var(--shadow-lift); }
     .chapter-title { font-weight: 600; font-size: 0.92rem; color: var(--text); margin-bottom: 0.3rem; }
     .chapter-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }
     .chapter-tag { font-size: 0.72rem; background: var(--card); border: 1px solid var(--border); border-radius: 999px; padding: 0.15rem 0.6rem; color: var(--muted); }
@@ -317,8 +339,8 @@
     .matiere-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
     .matiere-title { font-family: 'Sora', sans-serif; font-weight: 700; color: var(--text); font-size: 1rem; }
     .matiere-count { background: var(--card); border: 1px solid var(--border); border-radius: 999px; padding: 0.15rem 0.6rem; font-size: 0.72rem; color: var(--muted); }
-    .fiche-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem 1.4rem; display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; transition: border-color 0.2s; cursor: pointer; }
-    .fiche-card:hover { border-color: var(--orange); }
+    .fiche-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.1rem 1.4rem; display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; transition: all 0.2s ease; cursor: pointer; box-shadow: var(--shadow-card); }
+    .fiche-card:hover { border-color: var(--orange); transform: translateY(-1px); box-shadow: var(--shadow-lift); }
     .fiche-card .fc-title { font-weight: 600; font-size: 0.9rem; color: var(--text); margin-bottom: 0.15rem; }
     .fiche-card .fc-date { font-size: 0.75rem; color: var(--muted); }
     .fiche-card .fc-actions { display: flex; gap: 0.4rem; flex-shrink: 0; }
@@ -378,24 +400,27 @@
     .quiz-wrap { max-width: 640px; margin: 0 auto; white-space: normal; }
     .quiz-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; }
     .quiz-counter { font-size: 0.85rem; color: var(--muted); font-weight: 600; }
-    .quiz-points { font-size: 0.85rem; color: var(--orange); font-weight: 700; background: rgba(232,105,42,0.12); padding: 0.25rem 0.7rem; border-radius: 999px; }
-    .quiz-bar { height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; margin-bottom: 1.5rem; }
-    .quiz-bar-fill { height: 100%; background: linear-gradient(90deg, var(--orange), #F5A462); border-radius: 99px; width: 0%; transition: width 0.5s cubic-bezier(.4,0,.2,1); }
-    .quiz-question { background: transparent; border: none; border-radius: 0; padding: 0; margin: 0; }
-    .quiz-q-text { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 1.15rem; color: var(--text); line-height: 1.4; margin-bottom: 1.25rem; }
+    .quiz-points { position: relative; font-size: 0.85rem; color: var(--orange); font-weight: 700; background: var(--orange-glow); padding: 0.25rem 0.7rem; border-radius: 999px; box-shadow: 0 0 12px var(--orange-glow); }
+    .quiz-plus-one { position: absolute; top: -4px; right: 0; color: #10B981; font-weight: 800; font-size: 0.95rem; pointer-events: none; animation: quizFloatUp 0.9s ease forwards; }
+    .quiz-bar { height: 10px; background: var(--border); border-radius: 99px; overflow: hidden; margin-bottom: 1.5rem; }
+    .quiz-bar-fill { height: 100%; background: linear-gradient(90deg, var(--orange), var(--orange-light)); border-radius: 99px; width: 0%; transition: width 0.5s cubic-bezier(.4,0,.2,1); box-shadow: 0 0 10px var(--orange-glow), 0 0 4px var(--orange); }
+    .quiz-question { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; margin: 0; box-shadow: var(--shadow-card); }
+    .quiz-q-text { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 1.3rem; color: var(--text); line-height: 1.4; margin-bottom: 1.4rem; }
     .quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
-    .quiz-opt { display: flex; align-items: center; gap: 0.75rem; width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--card); border: 2px solid var(--border); border-radius: 12px; color: var(--text); font-size: 0.95rem; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.18s ease; }
-    .quiz-opt:hover:not(:disabled) { border-color: var(--orange-light); transform: translateY(-2px); }
+    .quiz-opt { display: flex; align-items: center; gap: 0.75rem; width: 100%; text-align: left; padding: 1rem 1.1rem; background: var(--card); border: 2px solid var(--border); border-radius: var(--radius-md); color: var(--text); font-size: 0.95rem; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s ease; animation: quizSlideIn 0.35s ease backwards; box-shadow: var(--shadow-card); }
+    .quiz-opt:hover:not(:disabled) { border-color: var(--orange-light); transform: translateY(-2px); box-shadow: var(--shadow-lift); background: var(--orange-glow); }
     .quiz-opt:disabled { cursor: default; }
-    .quiz-opt-letter { flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 0.85rem; background: var(--border); color: var(--text); transition: all 0.18s ease; }
+    .quiz-opt-letter { flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 0.85rem; background: var(--border); color: var(--text); transition: all 0.2s ease; }
     .quiz-opt-text { flex: 1; }
-    .quiz-opt.selected { border-color: var(--orange); background: rgba(232,105,42,0.08); }
-    .quiz-opt.selected .quiz-opt-letter { background: var(--orange); color: #fff; }
-    .quiz-opt.correct { border-color: #10B981; background: rgba(16,185,129,0.12); color: #10B981; font-weight: 600; animation: quizPop 0.4s ease; }
-    .quiz-opt.correct .quiz-opt-letter { background: #10B981; color: #fff; }
+    .quiz-opt.selected { border-color: var(--orange); background: var(--orange-glow); box-shadow: 0 0 0 3px var(--orange-glow), var(--shadow-card); }
+    .quiz-opt.selected .quiz-opt-letter { background: linear-gradient(135deg, var(--orange), var(--orange-light)); color: #fff; box-shadow: 0 2px 8px var(--orange-glow); }
+    .quiz-opt.correct { border-color: #10B981; background: rgba(16,185,129,0.12); color: #10B981; font-weight: 600; animation: quizPop 0.4s ease; box-shadow: 0 0 0 3px rgba(16,185,129,0.15), 0 4px 16px rgba(16,185,129,0.2); }
+    .quiz-opt.correct .quiz-opt-letter { background: linear-gradient(135deg, #10B981, #34D399); color: #fff; }
     .quiz-opt.wrong { border-color: #EF4444; background: rgba(239,68,68,0.1); color: #EF4444; animation: quizShake 0.4s ease; }
-    .quiz-opt.wrong .quiz-opt-letter { background: #EF4444; color: #fff; }
-    .quiz-explication { margin-top: 1rem; padding: 0.9rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; animation: quizFade 0.3s ease; }
+    .quiz-opt.wrong .quiz-opt-letter { background: linear-gradient(135deg, #EF4444, #F87171); color: #fff; }
+    .quiz-explication { margin-top: 1rem; padding: 0.9rem 1.1rem; background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--orange); border-radius: var(--radius-sm); animation: quizFade 0.3s ease; }
+    .quiz-explication.good { border-left-color: #10B981; }
+    .quiz-explication.bad { border-left-color: #EF4444; }
     .quiz-verdict { font-weight: 700; font-size: 0.92rem; margin-bottom: 0.35rem; }
     .quiz-verdict.good { color: #10B981; }
     .quiz-verdict.bad { color: #EF4444; }
@@ -407,17 +432,18 @@
     .quiz-validate:disabled { opacity: 0.4; cursor: not-allowed; }
     .quiz-next { background: var(--card); color: var(--text); border: 1px solid var(--orange); }
     .quiz-next:hover { background: var(--orange); color: #fff; }
-    .quiz-final { text-align: center; padding: 2rem 1rem; animation: quizFade 0.4s ease; }
-    .quiz-medal { font-size: 3.5rem; margin-bottom: 0.5rem; animation: quizPop 0.5s ease; }
-    .quiz-score-big { font-family: 'Sora', sans-serif; font-weight: 800; font-size: 2.5rem; color: var(--orange); line-height: 1; }
+    .quiz-final { position: relative; text-align: center; padding: 2.5rem 1.5rem; animation: quizFade 0.4s ease; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); overflow: hidden; }
+    .quiz-final::before { content: ''; position: absolute; top: -60px; left: 50%; transform: translateX(-50%); width: 320px; height: 220px; background: radial-gradient(ellipse, var(--orange-glow), transparent 70%); pointer-events: none; }
+    .quiz-medal { position: relative; font-size: 4rem; margin-bottom: 0.5rem; animation: quizBounceIn 0.6s cubic-bezier(.34,1.56,.64,1); filter: drop-shadow(0 6px 18px var(--orange-glow)); }
+    .quiz-score-big { font-family: 'Sora', sans-serif; font-weight: 800; font-size: 3rem; line-height: 1; background: linear-gradient(135deg, var(--orange), var(--orange-light)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
     .quiz-score-pct { font-size: 1rem; color: var(--muted); margin-top: 0.25rem; }
-    .quiz-score-phrase { color: var(--text); font-size: 0.95rem; margin-top: 0.6rem; }
-    .quiz-final-bar { height: 10px; background: var(--border); border-radius: 99px; overflow: hidden; margin: 1.25rem auto; max-width: 280px; }
-    .quiz-final-fill { height: 100%; background: linear-gradient(90deg, var(--orange), #F5A462); width: 0%; transition: width 0.8s cubic-bezier(.4,0,.2,1); }
+    .quiz-score-phrase { color: var(--text); font-size: 1rem; font-weight: 600; margin-top: 0.6rem; }
+    .quiz-final-bar { height: 12px; background: var(--border); border-radius: 99px; overflow: hidden; margin: 1.25rem auto; max-width: 300px; }
+    .quiz-final-fill { height: 100%; background: linear-gradient(90deg, var(--orange), var(--orange-light)); width: 0%; transition: width 0.8s cubic-bezier(.4,0,.2,1); box-shadow: 0 0 10px var(--orange-glow); }
     .quiz-restart { margin-top: 0.5rem; background: linear-gradient(135deg, var(--orange), #C0501A); color: #fff; box-shadow: 0 4px 16px rgba(232,105,42,0.3); }
-    .quiz-restart:hover { transform: translateY(-2px); }
+    .quiz-restart:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(232,105,42,0.45); }
     .quiz-empty { text-align: center; color: var(--muted); padding: 2rem; }
-    .quiz-reward { display: inline-block; margin: 0.5rem auto 0; background: rgba(16,185,129,0.12); border: 1px solid #10B981; color: #10B981; font-weight: 700; padding: 0.5rem 1.25rem; border-radius: 999px; font-size: 0.95rem; animation: quizPop 0.5s ease; }
+    .quiz-reward { display: inline-block; margin: 0.5rem auto 0; background: rgba(16,185,129,0.12); border: 1px solid #10B981; color: #10B981; font-weight: 700; padding: 0.5rem 1.25rem; border-radius: 999px; font-size: 0.95rem; animation: quizPop 0.5s ease; box-shadow: 0 4px 16px rgba(16,185,129,0.25); }
     /* Sélecteur de niveau de difficulté */
     .difficulty-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
     .diff-btn { display: flex; flex-direction: column; align-items: center; gap: 0.15rem; padding: 0.6rem; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--text); cursor: pointer; font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 700; transition: all 0.2s; }
@@ -428,10 +454,92 @@
     @keyframes quizPop { 0% { transform: scale(0.9); } 50% { transform: scale(1.04); } 100% { transform: scale(1); } }
     @keyframes quizShake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
     @keyframes quizFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes quizSlideIn { from { opacity: 0; transform: translateY(14px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    @keyframes quizBounceIn { 0% { transform: scale(0); } 55% { transform: scale(1.25); } 75% { transform: scale(0.92); } 100% { transform: scale(1); } }
+    @keyframes quizFloatUp { 0% { opacity: 0; transform: translateY(4px) scale(0.8); } 20% { opacity: 1; transform: translateY(-4px) scale(1.15); } 100% { opacity: 0; transform: translateY(-28px) scale(1); } }
+    @keyframes confettiFall { to { transform: translateY(105vh) rotate(720deg); } }
+    .confetti-piece { position: fixed; top: -14px; width: 8px; height: 14px; border-radius: 2px; z-index: 500; pointer-events: none; animation: confettiFall linear forwards; }
     .quiz-fade { animation: quizFade 0.3s ease; }
     @media (prefers-reduced-motion: reduce) {
       .quiz-opt, .quiz-bar-fill, .quiz-final-fill, .quiz-validate, .quiz-next, .quiz-restart,
-      .quiz-question, .quiz-explication, .quiz-medal, .quiz-final { animation: none !important; transition: none !important; }
+      .quiz-question, .quiz-explication, .quiz-medal, .quiz-final,
+      .quiz-plus-one, .confetti-piece { animation: none !important; transition: none !important; }
+    }
+
+    /* ─────────── CAHIER DE VACANCES ─────────── */
+    .cv-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; cursor: pointer; transition: all 0.2s ease; box-shadow: var(--shadow-card); }
+    .cv-card:hover { border-color: var(--orange); transform: translateY(-2px); box-shadow: var(--shadow-lift); }
+    .cv-card .cv-meta h3 { font-family: 'Sora', sans-serif; font-size: 0.98rem; color: var(--text); margin-bottom: 0.25rem; }
+    .cv-card .cv-meta p { font-size: 0.8rem; color: var(--muted); }
+    .cv-progress-pill { flex-shrink: 0; font-family: 'Sora', sans-serif; font-weight: 800; font-size: 0.9rem; color: var(--orange); background: var(--orange-glow); border-radius: 999px; padding: 0.4rem 0.9rem; }
+    .cv-banner { border-radius: var(--radius-md); padding: 0.85rem 1.2rem; margin-bottom: 1rem; font-size: 0.9rem; font-weight: 600; border: 1px solid; }
+    .cv-banner.on { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.35); color: #10B981; }
+    .cv-banner.off { background: var(--orange-glow); border-color: rgba(232,105,42,0.3); color: var(--orange); }
+
+    /* Overlay livre */
+    .cv-overlay { position: fixed; inset: 0; background: rgba(12,10,8,0.88); z-index: 400; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; }
+    .cv-overlay.visible { display: flex; }
+    .cv-topbar { width: 100%; max-width: 1020px; display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.8rem; color: #F5F0E8; }
+    .cv-topbar .cv-title { font-family: 'Sora', sans-serif; font-weight: 800; font-size: 1.05rem; }
+    .cv-topbar .cv-pageinfo { font-size: 0.82rem; opacity: 0.8; }
+    .cv-close { background: rgba(255,255,255,0.12); border: none; color: #fff; width: 34px; height: 34px; border-radius: 999px; font-size: 1.1rem; cursor: pointer; }
+    .cv-book-wrap { position: relative; width: 100%; max-width: 1020px; flex: 1; min-height: 0; display: flex; align-items: center; }
+    .cv-book { display: flex; width: 100%; height: 100%; max-height: 78vh; perspective: 1800px; border-radius: 14px; box-shadow: 0 30px 80px rgba(0,0,0,0.55); position: relative; }
+    .cv-book::before { content: ''; position: absolute; top: 0; bottom: 0; left: 50%; width: 26px; transform: translateX(-50%); background: linear-gradient(90deg, transparent, rgba(0,0,0,0.18), rgba(0,0,0,0.28), rgba(0,0,0,0.18), transparent); z-index: 3; pointer-events: none; border-radius: 4px; }
+    .cv-page-side { flex: 1; min-width: 0; background-color: #FDFBF3; background-image: linear-gradient(rgba(59,130,246,0.14) 1px, transparent 1px); background-size: 100% 26px; padding: 1.5rem 1.6rem 1.2rem; overflow-y: auto; font-family: 'Kalam', cursive; color: #1E293B; }
+    .cv-page-side.left { border-radius: 14px 2px 2px 14px; box-shadow: inset -14px 0 24px -18px rgba(0,0,0,0.35); }
+    .cv-page-side.right { border-radius: 2px 14px 14px 2px; box-shadow: inset 14px 0 24px -18px rgba(0,0,0,0.35); }
+    .cv-page-num { text-align: center; font-size: 0.75rem; color: #94A3B8; margin-top: 0.8rem; font-family: 'Inter', sans-serif; }
+    .cv-day-title { font-family: 'Kalam', cursive; font-weight: 700; font-size: 1.25rem; color: #1E3A8A; margin-bottom: 0.15rem; }
+    .cv-day-sub { font-size: 0.8rem; color: #64748B; font-family: 'Inter', sans-serif; margin-bottom: 0.9rem; }
+    .cv-exo { border: 2px solid #E2E8F0; border-left-width: 6px; border-radius: 10px; background: rgba(255,255,255,0.75); padding: 0.7rem 0.9rem; margin-bottom: 0.65rem; cursor: pointer; transition: all 0.2s ease; font-size: 0.95rem; line-height: 1.45; }
+    .cv-exo:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(30,58,138,0.12); border-color: #93C5FD; border-left-color: inherit; }
+    .cv-exo .cv-exo-type { display: inline-block; font-family: 'Inter', sans-serif; font-size: 0.66rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.1rem 0.5rem; border-radius: 999px; background: #EFF6FF; color: #3B82F6; margin-bottom: 0.3rem; }
+    .cv-exo.st-ok    { border-left-color: #10B981; background: rgba(16,185,129,0.08); }
+    .cv-exo.st-mid   { border-left-color: #F59E0B; background: rgba(245,158,11,0.08); }
+    .cv-exo.st-bad   { border-left-color: #EF4444; background: rgba(239,68,68,0.08); }
+    .cv-exo.st-none  { border-left-color: #CBD5E1; }
+    .cv-exo .cv-exo-score { float: right; font-family: 'Sora', sans-serif; font-weight: 800; font-size: 0.8rem; }
+    .cv-exo.st-ok .cv-exo-score { color: #10B981; } .cv-exo.st-mid .cv-exo-score { color: #F59E0B; } .cv-exo.st-bad .cv-exo-score { color: #EF4444; }
+    .cv-nav-btn { position: absolute; top: 50%; transform: translateY(-50%); z-index: 5; width: 44px; height: 44px; border-radius: 999px; border: none; background: var(--orange); color: #fff; font-size: 1.25rem; cursor: pointer; box-shadow: 0 8px 24px rgba(0,0,0,0.35); transition: all 0.2s ease; }
+    .cv-nav-btn:hover { transform: translateY(-50%) scale(1.08); }
+    .cv-nav-btn:disabled { opacity: 0.25; cursor: default; }
+    .cv-nav-btn.prev { left: -10px; } .cv-nav-btn.next { right: -10px; }
+    /* Sommaire */
+    .cv-sommaire-item { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 0.5rem 0.7rem; border-radius: 8px; cursor: pointer; font-size: 0.92rem; transition: background 0.2s ease; }
+    .cv-sommaire-item:hover { background: rgba(59,130,246,0.08); }
+    .cv-som-dots { display: flex; gap: 3px; }
+    .cv-som-dot { width: 9px; height: 9px; border-radius: 50%; background: #E2E8F0; }
+    .cv-som-dot.ok { background: #10B981; } .cv-som-dot.mid { background: #F59E0B; } .cv-som-dot.bad { background: #EF4444; }
+    /* Animations livre */
+    @keyframes cvBookNew { 0% { transform: scale(0.5) rotateX(30deg); opacity: 0; } 60% { transform: scale(1.04) rotateX(-4deg); opacity: 1; } 100% { transform: scale(1) rotateX(0); } }
+    @keyframes cvBookOpen { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    @keyframes cvPageFill { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .cv-book.anim-new { animation: cvBookNew 0.9s cubic-bezier(.34,1.56,.64,1); }
+    .cv-book.anim-new .cv-exo { animation: cvPageFill 0.5s ease backwards; }
+    .cv-book.anim-open { animation: cvBookOpen 0.35s ease; }
+    @keyframes cvTurnNext { 0% { transform: rotateY(0); opacity: 1; } 49% { transform: rotateY(-14deg); opacity: 0.35; } 51% { transform: rotateY(14deg); opacity: 0.35; } 100% { transform: rotateY(0); opacity: 1; } }
+    .cv-book.turning { animation: cvTurnNext 0.5s ease; }
+    /* Zoom exercice */
+    .cv-exo-full { font-family: 'Kalam', cursive; background-color: #FDFBF3; background-image: linear-gradient(rgba(59,130,246,0.14) 1px, transparent 1px); background-size: 100% 26px; border-radius: 12px; padding: 1.25rem; color: #1E293B; font-size: 1.05rem; line-height: 1.6; margin-bottom: 1rem; }
+    .cv-vf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; margin-bottom: 1rem; }
+    .cv-vf-btn { padding: 1rem; border-radius: var(--radius-md); border: 2px solid var(--border); background: var(--card); color: var(--text); font-family: 'Sora', sans-serif; font-weight: 800; font-size: 1.05rem; cursor: pointer; transition: all 0.2s ease; }
+    .cv-vf-btn:hover:not(:disabled) { border-color: var(--orange); transform: translateY(-2px); }
+    .cv-vf-btn:disabled { cursor: default; }
+    .cv-vf-btn.good { border-color: #10B981; background: rgba(16,185,129,0.14); color: #10B981; animation: quizPop 0.4s ease; }
+    .cv-vf-btn.bad { border-color: #EF4444; background: rgba(239,68,68,0.12); color: #EF4444; animation: quizShake 0.4s ease; }
+    .cv-hint-box { background: var(--card); border: 1px solid var(--border); border-left: 3px solid #F59E0B; border-radius: var(--radius-sm); padding: 0.75rem 1rem; font-size: 0.88rem; color: var(--text); margin-top: 0.6rem; animation: quizFade 0.3s ease; }
+    .cv-result-box { border-radius: var(--radius-md); padding: 1rem 1.2rem; margin-top: 0.8rem; border: 1px solid var(--border); background: var(--card); animation: quizFade 0.3s ease; }
+    .cv-result-box .score { font-family: 'Sora', sans-serif; font-weight: 800; font-size: 1.5rem; }
+    @media (max-width: 768px) {
+      .cv-page-side.right { display: none; }
+      .cv-book::before { display: none; }
+      .cv-page-side.left { border-radius: 14px; box-shadow: none; }
+      .cv-nav-btn.prev { left: 4px; } .cv-nav-btn.next { right: 4px; }
+      .cv-vf-row { grid-template-columns: 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .cv-book, .cv-book .cv-exo, .cv-vf-btn, .cv-hint-box, .cv-result-box { animation: none !important; }
     }
     @media (max-width: 560px) { .quiz-options { grid-template-columns: 1fr; } }
     /* UPLOAD PHOTOS (cours en image) */
@@ -542,6 +650,7 @@
     <button class="sidebar-item" data-page="myprofs" onclick="showPage('myprofs', this)"><span class="icon">👨‍🏫</span> Mes profs</button>
     <button class="sidebar-item" data-page="planning" onclick="showPage('planning', this)"><span class="icon">📅</span> Mon planning</button>
     <button class="sidebar-item" data-page="quete" onclick="showPage('quete', this)"><span class="icon">🎯</span> Quête du jour</button>
+    <button class="sidebar-item" data-page="cahiers" onclick="showPage('cahiers', this)"><span class="icon">🏖️</span> Cahier de vacances</button>
     <button class="sidebar-item" data-page="history" onclick="showPage('history', this)"><span class="icon">📄</span> Mes lettres</button>
     <div class="sidebar-sep"></div>
     <button class="sidebar-item" data-page="credits" onclick="showPage('credits', this)"><span class="icon">💳</span> Crédits</button>
@@ -831,6 +940,16 @@
       <div class="page-header"><h1>Quête du jour 🎯</h1><p>Réussis un quiz au hasard sans aucune faute pour gagner 1 crédit. Une fois par jour !</p></div>
       <div id="quete-content">
         <div class="empty"><div class="icon">🎯</div><p>Chargement…</p></div>
+      </div>
+    </div>
+
+<!-- PAGE CAHIER DE VACANCES -->
+    <div class="page" id="page-cahiers">
+      <div class="page-header"><h1>Cahier de vacances 🏖️</h1><p>Un vrai cahier interactif généré à partir de tes cours, à compléter pendant les vacances. Jusqu'à 20 crédits à gagner !</p></div>
+      <div id="cahiers-banner"></div>
+      <div id="cahiers-actions" style="display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:1.5rem"></div>
+      <div id="cahiers-list">
+        <div class="empty"><div class="icon">🏖️</div><p>Chargement…</p></div>
       </div>
     </div>
 
@@ -1158,6 +1277,41 @@
     <button class="modal-close" onclick="closeQuizRecap()">✕</button>
     <h3>📸 Tes fautes sur ce quiz</h3>
     <div class="modal-text" id="quiz-recap-text"></div>
+  </div>
+</div>
+
+<!-- CAHIER DE VACANCES : LIVRE -->
+<div class="cv-overlay" id="cv-overlay">
+  <div class="cv-topbar">
+    <span class="cv-title" id="cv-title">Cahier de vacances</span>
+    <span class="cv-pageinfo" id="cv-pageinfo"></span>
+    <button class="cv-close" onclick="closeCahier()">✕</button>
+  </div>
+  <div class="cv-book-wrap">
+    <button class="cv-nav-btn prev" id="cv-prev" onclick="turnCahierPage(-1)">‹</button>
+    <div class="cv-book" id="cv-book">
+      <div class="cv-page-side left" id="cv-page-left"></div>
+      <div class="cv-page-side right" id="cv-page-right"></div>
+    </div>
+    <button class="cv-nav-btn next" id="cv-next" onclick="turnCahierPage(1)">›</button>
+  </div>
+</div>
+
+<!-- CAHIER DE VACANCES : ZOOM EXERCICE -->
+<div class="modal-overlay" id="cv-exo-modal" style="z-index:450">
+  <div class="modal" style="max-width:680px">
+    <button class="modal-close" onclick="closeCahierExo()">✕</button>
+    <h3 id="cv-exo-title">Exercice</h3>
+    <div class="modal-text" id="cv-exo-body" style="white-space:normal"></div>
+  </div>
+</div>
+
+<!-- CAHIER DE VACANCES : CRÉATION -->
+<div class="modal-overlay" id="cv-create-modal">
+  <div class="modal" style="max-width:560px">
+    <button class="modal-close" onclick="document.getElementById('cv-create-modal').classList.remove('visible')">✕</button>
+    <h3>🏖️ Nouveau cahier de vacances</h3>
+    <div class="modal-text" id="cv-create-body" style="white-space:normal"></div>
   </div>
 </div>
 
@@ -1835,6 +1989,7 @@ async function subscribePlan(plan) {
     const b = parseInt(primary.slice(5,7),16);
     root.style.setProperty('--orange-light', lightenHex(primary, 40));
     root.style.setProperty('--orange-glow', `rgba(${r},${g},${b},0.15)`);
+    applyShadows(t.mode || pendingMode);
   }
 
   function toggleAutoSchedule() {
@@ -1878,12 +2033,27 @@ async function subscribePlan(plan) {
     if (t.border)  r.setProperty('--border', t.border);
     if (t.text)    r.setProperty('--text', t.text);
     if (t.muted)   r.setProperty('--muted', t.muted);
+    applyShadows(t.mode);
+  }
+
+  // Ombres adaptées au mode (mêmes valeurs que le script de boot)
+  function applyShadows(mode) {
+    const r = document.documentElement.style;
+    if (mode === 'light') {
+      r.setProperty('--shadow-card', '0 1px 3px rgba(28,17,7,0.06), 0 8px 24px rgba(28,17,7,0.07)');
+      r.setProperty('--shadow-lift', '0 4px 10px rgba(28,17,7,0.08), 0 14px 34px rgba(28,17,7,0.12)');
+      r.setProperty('--shadow-pop', '0 12px 40px rgba(28,17,7,0.16)');
+    } else {
+      r.setProperty('--shadow-card', '0 1px 3px rgba(0,0,0,0.25), 0 8px 24px rgba(0,0,0,0.28)');
+      r.setProperty('--shadow-lift', '0 4px 10px rgba(0,0,0,0.3), 0 14px 34px rgba(0,0,0,0.4)');
+      r.setProperty('--shadow-pop', '0 12px 40px rgba(0,0,0,0.45)');
+    }
   }
 
   function resetTheme() {
     localStorage.removeItem('lp_theme');
     const root = document.documentElement;
-    ['--orange','--bg','--surface','--card','--border','--text','--muted','--orange-light','--orange-glow'].forEach(v => root.style.removeProperty(v));
+    ['--orange','--bg','--surface','--card','--border','--text','--muted','--orange-light','--orange-glow','--shadow-card','--shadow-lift','--shadow-pop'].forEach(v => root.style.removeProperty(v));
     pendingTheme  = {};
     pendingMode   = 'dark';
     pendingPreset = 'orange';
@@ -2054,6 +2224,7 @@ async function subscribePlan(plan) {
     if (name === 'myprofs')    { loadMyProfs(); }
     if (name === 'planning')   { loadPlanning(); }
     if (name === 'quete')      { loadQuete(); }
+    if (name === 'cahiers')    { loadCahiers(); }
   }
 
   // ══════════════════════════════════════════
@@ -2348,7 +2519,7 @@ async function subscribePlan(plan) {
 
     const optionsHtml = (q.options || []).map((opt, j) => {
       return `
-        <button class="quiz-opt" id="qo-${j}" data-j="${j}" onclick="selectOption(${j})">
+        <button class="quiz-opt" id="qo-${j}" data-j="${j}" style="animation-delay:${j * 70}ms" onclick="selectOption(${j})">
           <span class="quiz-opt-letter">${String.fromCharCode(65 + j)}</span>
           <span class="quiz-opt-text">${escapeHtml(opt)}</span>
         </button>`;
@@ -2402,10 +2573,55 @@ async function subscribePlan(plan) {
 
     // calcul du score (une seule fois par question)
     const correct = getCorrectIndex(activeQuiz.questions[i]);
-    if (activeQuiz.selected === correct) activeQuiz.score++;
+    const isGood = activeQuiz.selected === correct;
+    if (isGood) activeQuiz.score++;
 
     showCorrection(i);
     updatePoints();
+    if (isGood) showPlusOne();   // après updatePoints, qui réécrit le contenu du badge
+  }
+
+  // "+1" flottant au-dessus du compteur de points
+  function showPlusOne() {
+    const badge = document.getElementById('quiz-points');
+    if (!badge) return;
+    const s = document.createElement('span');
+    s.className = 'quiz-plus-one';
+    s.textContent = '+1';
+    badge.appendChild(s);
+    setTimeout(() => s.remove(), 900);
+  }
+
+  // Pluie de confettis (sans-faute)
+  function launchConfetti() {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const colors = ['#E8692A', '#F5A462', '#10B981', '#60A5FA', '#C084FC', '#FEF08A'];
+    for (let i = 0; i < 80; i++) {
+      const p = document.createElement('div');
+      p.className = 'confetti-piece';
+      p.style.left = (Math.random() * 100) + 'vw';
+      p.style.background = colors[Math.floor(Math.random() * colors.length)];
+      p.style.animationDuration = (1.8 + Math.random() * 1.8) + 's';
+      p.style.animationDelay = (Math.random() * 0.5) + 's';
+      p.style.transform = 'rotate(' + Math.floor(Math.random() * 360) + 'deg)';
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 4500);
+    }
+  }
+
+  // Fait défiler le score de 0 jusqu'au score final
+  function countUpScore(el, target) {
+    if (!el) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { el.textContent = target; return; }
+    const duration = 700, start = performance.now();
+    function tick(now) {
+      const t = Math.min((now - start) / duration, 1);
+      el.textContent = Math.round(target * (1 - Math.pow(1 - t, 3)));   // ease-out
+      if (t < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+    // filet de sécurité si requestAnimationFrame est gelé (onglet en arrière-plan)
+    setTimeout(() => { el.textContent = target; }, duration + 200);
   }
 
   // Affiche le corrigé d'une question validée
@@ -2452,6 +2668,8 @@ async function subscribePlan(plan) {
         `<div class="quiz-verdict ${isGood ? 'good' : 'bad'}">${isGood ? '✓ Bonne réponse !' : '✗ Pas tout à fait'}</div>` +
         (explication ? `<div class="quiz-exp-text">${escapeHtml(explication)}</div>` : '') +
         ficheLinkHtml;
+      exp.classList.remove('good', 'bad');
+      exp.classList.add(isGood ? 'good' : 'bad');
       exp.style.display = 'block';
     }
 
@@ -2539,7 +2757,7 @@ async function subscribePlan(plan) {
     final.style.display = 'block';
     final.innerHTML = `
       <div class="quiz-medal">${medal}</div>
-      <div class="quiz-score-big">${score}/${total}</div>
+      <div class="quiz-score-big"><span id="quiz-score-count">0</span>/${total}</div>
       <div class="quiz-score-pct">${pct}%</div>
       <div class="quiz-score-phrase">${phrase}</div>
       ${rewardHtml}
@@ -2548,11 +2766,13 @@ async function subscribePlan(plan) {
       <button class="quiz-restart" onclick="restartQuiz()">↻ Recommencer</button>`;
     final.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
-    // animation de la barre finale
+    // animations : score qui défile + barre + confettis si sans-faute
+    countUpScore(document.getElementById('quiz-score-count'), score);
     setTimeout(() => {
       const ff = final.querySelector('.quiz-final-fill');
       if (ff) ff.style.width = pct + '%';
     }, 100);
+    if (pct === 100) launchConfetti();
 
     showToast(reward > 0 ? `🎉 +${reward} crédits gagnés !` : `Score : ${score}/${total} (${pct}%)`, 'success');
   }
@@ -3501,7 +3721,7 @@ async function subscribePlan(plan) {
 <style>
   .chat-layout { display:flex; gap:1rem; height:calc(100vh - 220px); min-height:420px; }
   .chat-list { width:280px; flex-shrink:0; background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow-y:auto; }
-  .chat-list-item { padding:0.9rem 1rem; border-bottom:1px solid rgba(58,47,34,0.4); cursor:pointer; transition:background 0.15s; }
+  .chat-list-item { padding:0.9rem 1rem; border-bottom:1px solid var(--border); cursor:pointer; transition:background 0.15s; }
   .chat-list-item:hover { background:var(--card); }
   .chat-list-item.active { background:var(--orange-glow); }
   .chat-list-item .cli-name { font-weight:600; font-size:0.9rem; color:var(--text); display:flex; justify-content:space-between; align-items:center; gap:0.5rem; }
@@ -3958,10 +4178,443 @@ async function subscribePlan(plan) {
 </script>
 <!-- ===== FIN ACHAT CRÉDITS VISIO ===== -->
 
+<!-- ===== CAHIER DE VACANCES : LOGIQUE ===== -->
+<script>
+  const CV_MATIERES = ['Mathématiques','Physique-Chimie','SVT','Histoire-Géographie','Français',
+                       'Philosophie','NSI','Anglais','Espagnol','Économie','SES'];
+  const CV_CLASSES = ['3ème','Seconde','Première','Terminale'];
+  const CV_PERIODE_LABELS = { toussaint:'Toussaint', noel:'Noël', hiver:"d'hiver", printemps:'de printemps', ete:"d'été", test:'(test)' };
+  let cvInfo = null;           // /api/cahiers/vacances-info
+  let cvCahier = null;         // cahier ouvert (détail)
+  let cvSpread = 0;            // index de double page (0 = sommaire)
+  let cvExoImages = [];        // photos de l'exercice zoomé
+  let cvCurrentExo = null;
 
+  function cvPeriodeLabel(code) {
+    if (!code) return '';
+    const base = code.split('_')[0];
+    return 'Vacances ' + (CV_PERIODE_LABELS[base] || base) + ' ' + (code.split('_')[1] || '');
+  }
 
-</body>
-</html>
+  async function loadCahiers() {
+    const banner = document.getElementById('cahiers-banner');
+    const actions = document.getElementById('cahiers-actions');
+    const list = document.getElementById('cahiers-list');
+    try {
+      cvInfo = await api('GET', '/api/cahiers/vacances-info');
+      const cahiers = await api('GET', '/api/cahiers');
+
+      banner.innerHTML = cvInfo.enVacances
+        ? `<div class="cv-banner on">🏖️ C'est les vacances (${cvPeriodeLabel(cvInfo.periode)}) — jusqu'au ${cvInfo.finPeriode}</div>`
+        : (cvInfo.zone
+            ? `<div class="cv-banner off">📚 Pas encore les vacances en zone ${cvInfo.zone}${cvInfo.prochainesVacances ? ` — prochaines : ${cvPeriodeLabel(cvInfo.prochainesVacances.libelle)} à partir du ${cvInfo.prochainesVacances.debut}` : ''}</div>`
+            : `<div class="cv-banner off">📍 Renseigne ta zone de vacances (A, B ou C) à la création de ton premier cahier</div>`);
+
+      const droits = [];
+      if (cvInfo.addonActif) droits.push(`option active${cvInfo.enVacances ? ` — ${cvInfo.addonRestants} cahier(s) restant(s) cette période` : ''}`);
+      if (cvInfo.cahierCredits > 0) droits.push(`${cvInfo.cahierCredits} cahier(s) en réserve`);
+      actions.innerHTML = `
+        <button class="gen-btn" onclick="openCahierCreate()">✦ Créer un cahier</button>
+        <button class="result-btn" style="padding:0.75rem 1.25rem" onclick="buyCahierUnit(this)" ${cvInfo.cahierCredits >= cvInfo.maxReserve ? 'disabled title="Réserve pleine"' : ''}>🛒 Acheter un cahier — 2€ (réserve : ${cvInfo.cahierCredits}/${cvInfo.maxReserve})</button>
+        ${cvInfo.addonActif
+          ? `<span class="cv-progress-pill" style="align-self:center">✓ Option cahiers active</span>`
+          : `<button class="result-btn" style="padding:0.75rem 1.25rem" onclick="buyCahierAddon(this)">⚡ Option 2 cahiers/vacances — +2€/mois</button>`}
+        ${droits.length ? `<span style="align-self:center;font-size:0.8rem;color:var(--muted)">${droits.join(' · ')}</span>` : ''}`;
+
+      if (!cahiers.length) {
+        list.innerHTML = `<div class="history-empty"><div class="icon">🏖️</div><p>Aucun cahier pour l'instant.<br>Crée ton premier cahier de vacances !</p></div>`;
+        return;
+      }
+      list.innerHTML = cahiers.map(c => {
+        const mats = JSON.parse(c.matieres || '[]').join(', ');
+        const done = c.statut === 'termine';
+        return `
+        <div class="cv-card" onclick="openCahier(${c.id}, false)">
+          <div class="cv-meta">
+            <h3>${done ? '✅' : '📖'} Cahier ${c.duree === '2_mois' ? '2 mois' + (c.classe_cible ? ' → ' + escapeHtml(c.classe_cible) : '') : '2 semaines'}</h3>
+            <p>${escapeHtml(mats)} · ${cvPeriodeLabel(c.periode)}${done ? ` · 🎁 ${c.credits_gagnes} crédits gagnés` : ''}</p>
+          </div>
+          <span class="cv-progress-pill">${c.progression.pct}%</span>
+        </div>`;
+      }).join('');
+    } catch (e) {
+      list.innerHTML = `<p style="color:var(--muted)">Erreur : ${e.message}</p>`;
+    }
+  }
+
+  async function buyCahierUnit(btn) {
+    btn.disabled = true;
+    try {
+      const data = await api('POST', '/api/stripe/create-cahier-checkout', {});
+      window.location.href = data.url;
+    } catch (e) { showToast('Erreur : ' + e.message, 'error'); btn.disabled = false; }
+  }
+
+  async function buyCahierAddon(btn) {
+    btn.disabled = true;
+    try {
+      const data = await api('POST', '/api/stripe/create-cahier-addon', {});
+      window.location.href = data.url;
+    } catch (e) { showToast('Erreur : ' + e.message, 'error'); btn.disabled = false; }
+  }
+
+  // ── Création ──
+  let cvSelMatieres = [];
+  function openCahierCreate() {
+    cvSelMatieres = [];
+    const needProfile = !cvInfo || !cvInfo.zone;
+    document.getElementById('cv-create-body').innerHTML = `
+      ${needProfile ? `
+      <div class="field" style="margin-bottom:0.8rem">
+        <label>Ta zone de vacances</label>
+        <select id="cv-zone">
+          <option value="">— Choisis ta zone —</option>
+          <option value="A">Zone A (Besançon, Bordeaux, Clermont, Dijon, Grenoble, Limoges, Lyon, Poitiers)</option>
+          <option value="B">Zone B (Aix-Marseille, Amiens, Lille, Nancy, Nantes, Nice, Normandie, Orléans, Reims, Rennes, Strasbourg)</option>
+          <option value="C">Zone C (Créteil, Montpellier, Paris, Toulouse, Versailles)</option>
+        </select>
+      </div>
+      <div class="field" style="margin-bottom:0.8rem">
+        <label>Ta classe actuelle</label>
+        <select id="cv-classe">${CV_CLASSES.map(c => `<option ${c === 'Seconde' ? 'selected' : ''}>${c}</option>`).join('')}</select>
+      </div>` : ''}
+      <div class="field" style="margin-bottom:0.8rem">
+        <label>Durée</label>
+        <div class="difficulty-selector" style="grid-template-columns:1fr 1fr">
+          <button type="button" class="diff-btn active" id="cv-d2s" onclick="cvSetDuree('2_semaines')">🌊 2 semaines<span>petites vacances</span></button>
+          <button type="button" class="diff-btn" id="cv-d2m" onclick="cvSetDuree('2_mois')">☀️ 2 mois<span>grandes vacances</span></button>
+        </div>
+      </div>
+      <div id="cv-mode-2s">
+        <div class="field" style="margin-bottom:0.8rem">
+          <label>Choisis jusqu'à 3 matières</label>
+          <div style="display:flex;flex-wrap:wrap;gap:0.4rem">
+            ${CV_MATIERES.map(m => `<button type="button" class="filter-chip-like result-btn" style="border-radius:999px" onclick="cvToggleMatiere(this,'${m}')">${m}</button>`).join('')}
+          </div>
+          <label style="display:flex;align-items:center;gap:0.5rem;margin-top:0.7rem;cursor:pointer;text-transform:none;letter-spacing:0">
+            <input type="checkbox" id="cv-toutes" style="width:15px;height:15px;accent-color:var(--orange)" onchange="document.querySelectorAll('#cv-mode-2s .result-btn').forEach(b=>b.disabled=this.checked)" />
+            Un peu de toutes mes matières (selon mes cours dans l'appli)
+          </label>
+        </div>
+      </div>
+      <div id="cv-mode-2m" style="display:none">
+        <div class="field" style="margin-bottom:0.8rem">
+          <label>Ta classe à la rentrée</label>
+          <select id="cv-classe-cible">${CV_CLASSES.map(c => `<option ${c === 'Première' ? 'selected' : ''}>${c}</option>`).join('')}</select>
+        </div>
+        <p style="font-size:0.82rem;color:var(--muted);margin-bottom:0.8rem">Le cahier couvrira les prérequis pour bien démarrer cette classe.</p>
+      </div>
+      <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.8rem">⏳ La génération prend 1 à 3 minutes — ton cahier est créé à partir de tes cours, complété par le programme officiel.</p>
+      <button class="gen-btn" id="cv-create-btn" onclick="createCahier()">✦ Générer mon cahier</button>`;
+    document.getElementById('cv-create-modal').classList.add('visible');
+  }
+
+  let cvDuree = '2_semaines';
+  function cvSetDuree(d) {
+    cvDuree = d;
+    document.getElementById('cv-d2s').classList.toggle('active', d === '2_semaines');
+    document.getElementById('cv-d2m').classList.toggle('active', d === '2_mois');
+    document.getElementById('cv-mode-2s').style.display = d === '2_semaines' ? 'block' : 'none';
+    document.getElementById('cv-mode-2m').style.display = d === '2_mois' ? 'block' : 'none';
+  }
+
+  function cvToggleMatiere(btn, m) {
+    const i = cvSelMatieres.indexOf(m);
+    if (i >= 0) { cvSelMatieres.splice(i, 1); btn.style.borderColor = ''; btn.style.color = ''; }
+    else {
+      if (cvSelMatieres.length >= 3) { showToast('3 matières maximum', 'error'); return; }
+      cvSelMatieres.push(m); btn.style.borderColor = 'var(--orange)'; btn.style.color = 'var(--orange)';
+    }
+  }
+
+  async function createCahier() {
+    const btn = document.getElementById('cv-create-btn');
+    const body = { duree: cvDuree };
+    const zoneEl = document.getElementById('cv-zone');
+    if (zoneEl) {
+      if (!zoneEl.value) { showToast('Choisis ta zone de vacances', 'error'); return; }
+      body.zone = zoneEl.value;
+      body.classe = document.getElementById('cv-classe').value;
+    }
+    if (cvDuree === '2_semaines') {
+      body.matieres = document.getElementById('cv-toutes').checked ? 'toutes' : cvSelMatieres;
+      if (body.matieres !== 'toutes' && !body.matieres.length) { showToast('Choisis au moins une matière', 'error'); return; }
+    } else {
+      body.classeCible = document.getElementById('cv-classe-cible').value;
+    }
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner" style="width:16px;height:16px;border-width:2px;margin:0 0.4rem 0 0;display:inline-block;vertical-align:middle"></span> Génération en cours (1-3 min)…';
+    try {
+      const cahier = await api('POST', '/api/cahiers', body);
+      document.getElementById('cv-create-modal').classList.remove('visible');
+      showToast('🏖️ Cahier créé !', 'success');
+      loadCahiers();
+      cvCahier = cahier;
+      openCahierView(true);   // animation "cahier neuf"
+    } catch (e) {
+      showToast('Erreur : ' + e.message, 'error');
+      btn.disabled = false;
+      btn.textContent = '✦ Générer mon cahier';
+    }
+  }
+
+  // ── Vue livre ──
+  async function openCahier(id, isNew) {
+    try {
+      cvCahier = await api('GET', '/api/cahiers/' + id);
+      openCahierView(isNew);
+    } catch (e) { showToast('Erreur : ' + e.message, 'error'); }
+  }
+
+  function openCahierView(isNew) {
+    cvSpread = 0;
+    const book = document.getElementById('cv-book');
+    book.classList.remove('anim-new', 'anim-open');
+    void book.offsetWidth;
+    book.classList.add(isNew ? 'anim-new' : 'anim-open');
+    document.getElementById('cv-title').textContent =
+      `Cahier ${cvCahier.duree === '2_mois' ? '2 mois' : '2 semaines'} — ${cvPeriodeLabel(cvCahier.periode)}`;
+    renderCahierSpread();
+    document.getElementById('cv-overlay').classList.add('visible');
+  }
+
+  function closeCahier() { document.getElementById('cv-overlay').classList.remove('visible'); }
+
+  function cvPagesPerView() { return window.innerWidth <= 768 ? 1 : 2; }
+  // pagesVirtuelles : [sommaire, page1, page2, ...]
+  function cvTotalSpreads() {
+    const n = 1 + cvCahier.pages.length;
+    return Math.ceil(n / cvPagesPerView());
+  }
+
+  function turnCahierPage(dir) {
+    const next = cvSpread + dir;
+    if (next < 0 || next >= cvTotalSpreads()) return;
+    cvSpread = next;
+    const book = document.getElementById('cv-book');
+    book.classList.remove('turning'); void book.offsetWidth; book.classList.add('turning');
+    setTimeout(renderCahierSpread, 240);   // change le contenu au milieu de l'animation
+  }
+
+  function cvExoStatusClass(ex) {
+    if (ex.statut !== 'fait') return 'st-none';
+    if (ex.score_pct >= 100) return 'st-ok';
+    if (ex.score_pct >= 50) return 'st-mid';
+    return 'st-bad';
+  }
+
+  function cvRenderVirtualPage(idx) {
+    if (idx === 0) {
+      // Sommaire
+      return `<div class="cv-day-title">📑 Sommaire</div>
+        <div class="cv-day-sub">${cvCahier.progression.faits}/${cvCahier.progression.total} exercices faits · ${cvCahier.progression.pct}%</div>
+        ${cvCahier.pages.map((p, i) => `
+          <div class="cv-sommaire-item" onclick="cvGotoPage(${i})">
+            <span>Jour ${p.jour} — ${escapeHtml(p.matiere)}</span>
+            <span class="cv-som-dots">${p.exercices.map(ex => `<span class="cv-som-dot ${cvExoStatusClass(ex).replace('st-','')}"></span>`).join('')}</span>
+          </div>`).join('')}
+        <div class="cv-page-num">☀️</div>`;
+    }
+    const p = cvCahier.pages[idx - 1];
+    if (!p) return '<div class="cv-page-num">Fin du cahier 🎉</div>';
+    return `<div class="cv-day-title">Jour ${p.jour} — ${escapeHtml(p.titre || p.matiere)}</div>
+      <div class="cv-day-sub">${escapeHtml(p.matiere)}</div>
+      ${p.exercices.map((ex, i) => `
+        <div class="cv-exo ${cvExoStatusClass(ex)}" style="animation-delay:${i * 80}ms" onclick="openCahierExo(${ex.id})">
+          ${ex.statut === 'fait' ? `<span class="cv-exo-score">${ex.score_pct}%</span>` : ''}
+          <span class="cv-exo-type">${ex.type === 'photo' ? '✍️ à rédiger' : '✓✗ vrai/faux'}</span><br/>
+          ${escapeHtml(ex.enonce.length > 130 ? ex.enonce.slice(0, 130) + '…' : ex.enonce)}
+        </div>`).join('')}
+      <div class="cv-page-num">— ${idx} —</div>`;
+  }
+
+  function renderCahierSpread() {
+    const ppv = cvPagesPerView();
+    const first = cvSpread * ppv;
+    document.getElementById('cv-page-left').innerHTML = cvRenderVirtualPage(first);
+    if (ppv === 2) document.getElementById('cv-page-right').innerHTML = cvRenderVirtualPage(first + 1);
+    document.getElementById('cv-prev').disabled = cvSpread === 0;
+    document.getElementById('cv-next').disabled = cvSpread >= cvTotalSpreads() - 1;
+    document.getElementById('cv-pageinfo').textContent = `${cvSpread + 1} / ${cvTotalSpreads()} · ${cvCahier.progression.pct}%`;
+  }
+
+  function cvGotoPage(pageIdx) {
+    cvSpread = Math.floor((pageIdx + 1) / cvPagesPerView());
+    renderCahierSpread();
+  }
+
+  // Swipe mobile
+  (function () {
+    let x0 = null;
+    const book = document.getElementById('cv-book');
+    book.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true });
+    book.addEventListener('touchend', e => {
+      if (x0 === null) return;
+      const dx = e.changedTouches[0].clientX - x0;
+      if (Math.abs(dx) > 60) turnCahierPage(dx < 0 ? 1 : -1);
+      x0 = null;
+    }, { passive: true });
+  })();
+
+  // ── Zoom exercice ──
+  function cvFindExo(exId) {
+    for (const p of cvCahier.pages) for (const ex of p.exercices) if (ex.id === exId) return ex;
+    return null;
+  }
+
+  function openCahierExo(exId) {
+    const ex = cvFindExo(exId);
+    if (!ex) return;
+    cvCurrentExo = ex;
+    cvExoImages = [];
+    document.getElementById('cv-exo-title').textContent = ex.type === 'photo' ? '✍️ Exercice à rédiger' : '✓✗ Vrai ou faux ?';
+    renderCahierExo();
+    document.getElementById('cv-exo-modal').classList.add('visible');
+  }
+  function closeCahierExo() {
+    document.getElementById('cv-exo-modal').classList.remove('visible');
+    renderCahierSpread();
+  }
+
+  function renderCahierExo(extra) {
+    const ex = cvCurrentExo;
+    const done = ex.statut === 'fait';
+    let interact = '';
+    if (ex.type === 'vrai_faux') {
+      interact = `
+        <div class="cv-vf-row">
+          <button class="cv-vf-btn" id="cv-vf-vrai" onclick="answerCahierVF('vrai')" ${done ? 'disabled' : ''}>VRAI</button>
+          <button class="cv-vf-btn" id="cv-vf-faux" onclick="answerCahierVF('faux')" ${done ? 'disabled' : ''}>FAUX</button>
+        </div>`;
+    } else {
+      interact = `
+        <div class="photo-upload" style="margin-bottom:0.8rem">
+          <input type="file" id="cv-photo-input" accept="image/*" multiple style="display:none" onchange="addCahierPhoto(this)" />
+          <button class="photo-add-btn" onclick="document.getElementById('cv-photo-input').click()" ${done ? 'disabled' : ''}>📸 Photographier ma réponse</button>
+          <div class="photo-preview" id="cv-photo-preview"></div>
+        </div>
+        ${!done ? `<button class="gen-btn" id="cv-correct-btn" onclick="correctCahierExo()" ${cvExoImages.length ? '' : 'disabled'}>🔍 Corriger ma réponse</button>` : ''}`;
+    }
+    document.getElementById('cv-exo-body').innerHTML = `
+      <div class="cv-exo-full">${escapeHtml(ex.enonce)}</div>
+      ${interact}
+      ${!done ? `<div style="margin-top:0.8rem"><button class="result-btn" onclick="askCahierHint(this)">💡 Un indice (${ex.aide_niveau || 0}/3)</button></div>` : ''}
+      <div id="cv-exo-extra">${extra || ''}</div>
+      ${done && !extra ? `<div class="cv-result-box"><span class="score" style="color:${ex.score_pct >= 100 ? '#10B981' : ex.score_pct >= 50 ? '#F59E0B' : '#EF4444'}">${ex.score_pct}%</span> — exercice déjà fait ✓</div>` : ''}`;
+    if (ex.type === 'photo') renderCahierPhotoPreview();
+  }
+
+  async function answerCahierVF(rep) {
+    document.getElementById('cv-vf-vrai').disabled = true;
+    document.getElementById('cv-vf-faux').disabled = true;
+    try {
+      const res = await api('POST', `/api/cahiers/${cvCahier.id}/exercises/${cvCurrentExo.id}/answer`, { reponse: rep });
+      const chosen = document.getElementById('cv-vf-' + rep);
+      const other = document.getElementById('cv-vf-' + (rep === 'vrai' ? 'faux' : 'vrai'));
+      chosen.classList.add(res.correct ? 'good' : 'bad');
+      if (!res.correct) other.classList.add('good');
+      if (res.correct) { playCorrectSound(); } else { playWrongSound(); }
+      cvCurrentExo.statut = 'fait'; cvCurrentExo.score_pct = res.scorePct;
+      cvUpdateProgress();
+      document.getElementById('cv-exo-extra').innerHTML =
+        `<div class="cv-result-box">${res.correct ? '✅ Bonne réponse !' : `❌ Raté — la bonne réponse était « ${escapeHtml(res.bonneReponse)} »`}</div>`;
+      cvHandleCompletion(res);
+    } catch (e) { showToast('Erreur : ' + e.message, 'error'); }
+  }
+
+  async function addCahierPhoto(input) {
+    const files = [...input.files].filter(f => f.type.startsWith('image/'));
+    for (const f of files.slice(0, 3 - cvExoImages.length)) {
+      cvExoImages.push(await compressImage(f));
+    }
+    input.value = '';
+    renderCahierPhotoPreview();
+    const btn = document.getElementById('cv-correct-btn');
+    if (btn) btn.disabled = cvExoImages.length === 0;
+  }
+
+  function renderCahierPhotoPreview() {
+    const el = document.getElementById('cv-photo-preview');
+    if (!el) return;
+    el.innerHTML = cvExoImages.map((im, i) => `
+      <div class="photo-thumb"><img src="${im.dataUrl}" alt="photo"/><button onclick="cvExoImages.splice(${i},1);renderCahierPhotoPreview()">✕</button></div>`).join('');
+  }
+
+  async function correctCahierExo() {
+    const btn = document.getElementById('cv-correct-btn');
+    btn.disabled = true; btn.textContent = 'Correction en cours…';
+    try {
+      const res = await api('POST', `/api/cahiers/${cvCahier.id}/exercises/${cvCurrentExo.id}/correct`, {
+        images: cvExoImages.map(im => ({ media_type: im.media_type, data: im.data }))
+      });
+      cvCurrentExo.statut = 'fait'; cvCurrentExo.score_pct = res.scorePct;
+      cvUpdateProgress();
+      if (res.scorePct >= 50) playCorrectSound(); else playWrongSound();
+      renderCahierExo(`
+        <div class="cv-result-box">
+          <span class="score" style="color:${res.scorePct >= 100 ? '#10B981' : res.scorePct >= 50 ? '#F59E0B' : '#EF4444'}">${res.scorePct}%</span>
+          <div style="margin-top:0.5rem;font-size:0.88rem;line-height:1.6">${escapeHtml(res.corrige)}</div>
+        </div>`);
+      cvHandleCompletion(res);
+    } catch (e) {
+      showToast('Erreur : ' + e.message, 'error');
+      btn.disabled = false; btn.textContent = '🔍 Corriger ma réponse';
+    }
+  }
+
+  async function askCahierHint(btn) {
+    btn.disabled = true;
+    try {
+      const res = await api('POST', `/api/cahiers/${cvCahier.id}/exercises/${cvCurrentExo.id}/hint`, {});
+      cvCurrentExo.aide_niveau = res.niveau;
+      btn.textContent = `💡 Un indice (${res.niveau}/3)`;
+      btn.disabled = res.niveau >= 3;
+      document.getElementById('cv-exo-extra').insertAdjacentHTML('beforeend',
+        `<div class="cv-hint-box">💡 Indice ${res.niveau} : ${escapeHtml(res.indice)}</div>`);
+      if (res.niveau < 3) btn.disabled = false;
+    } catch (e) { showToast('Erreur : ' + e.message, 'error'); btn.disabled = false; }
+  }
+
+  function cvUpdateProgress() {
+    const total = cvCahier.pages.reduce((n, p) => n + p.exercices.length, 0);
+    const faits = cvCahier.pages.reduce((n, p) => n + p.exercices.filter(e => e.statut === 'fait').length, 0);
+    cvCahier.progression = { faits, total, pct: total ? Math.round(faits / total * 100) : 0 };
+  }
+
+  function cvHandleCompletion(res) {
+    if (res.cahierTermine) {
+      cvCahier.statut = 'termine';
+      launchConfetti();
+      if (res.creditsGagnes > 0) {
+        currentUser.credits = (currentUser.credits || 0) + res.creditsGagnes;
+        refreshUI();
+        showToast(`🏆 Cahier terminé — +${res.creditsGagnes} crédits !`, 'success');
+      } else {
+        showToast('🏁 Cahier terminé !', 'success');
+      }
+    }
+  }
+
+  // ── Rappel : cahier en cours inactif depuis 24h (1 rappel/jour max) ──
+  (async function cvReminder() {
+    try {
+      if (!localStorage.getItem('lp_token')) return;
+      const last = parseInt(localStorage.getItem('lp_cahier_reminder') || '0', 10);
+      if (Date.now() - last < 24 * 3600 * 1000) return;
+      const cahiers = await api('GET', '/api/cahiers');
+      const enCours = cahiers.find(c => c.statut === 'en_cours' && c.progression.pct < 100);
+      if (!enCours) return;
+      localStorage.setItem('lp_cahier_reminder', String(Date.now()));
+      const main = document.querySelector('.main');
+      if (!main) return;
+      const div = document.createElement('div');
+      div.className = 'cv-banner off';
+      div.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:1rem;cursor:pointer';
+      div.innerHTML = `<span>🏖️ Ton cahier de vacances t'attend (${enCours.progression.pct}% fait) — un peu chaque jour !</span><button class="result-btn" style="flex-shrink:0">Continuer →</button>`;
+      div.onclick = () => { div.remove(); showPage('cahiers', document.querySelector('[data-page=cahiers]')); };
+      main.prepend(div);
+    } catch (e) { /* silencieux */ }
+  })();
 </script>
 
 </body>
