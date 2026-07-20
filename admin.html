@@ -192,15 +192,15 @@
     </div>
   </div>
 
-  <!-- DERNIERS INSCRITS -->
-  <div class="section-title">Derniers inscrits</div>
+  <!-- UTILISATEURS -->
+  <div class="section-title">Utilisateurs</div>
   <div class="table-wrap">
     <table>
       <thead>
-        <tr><th>Nom</th><th>Email</th><th>Plan</th><th>Inscrit le</th><th></th></tr>
+        <tr><th>Nom</th><th>Email</th><th>Plan</th><th>Inscrit le</th><th>Dernière connexion</th><th>Temps total</th><th></th></tr>
       </thead>
       <tbody id="recent-body">
-        <tr><td colspan="4" style="text-align:center;color:var(--muted);padding:2rem"><span class="loader"></span> Chargement…</td></tr>
+        <tr><td colspan="7" style="text-align:center;color:var(--muted);padding:2rem"><span class="loader"></span> Chargement…</td></tr>
       </tbody>
     </table>
   </div>
@@ -294,11 +294,11 @@
       document.getElementById('p-prof').textContent = num(prof);
       document.getElementById('p-prof-bar').style.width = Math.round(prof / maxPlan * 100) + '%';
 
-      // Derniers inscrits
+      // Utilisateurs
       const body = document.getElementById('recent-body');
       const recent = d.recent || [];
       if (!recent.length) {
-        body.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:2rem">Aucun inscrit pour l\'instant.</td></tr>';
+        body.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:2rem">Aucun inscrit pour l\'instant.</td></tr>';
       } else {
         body.innerHTML = recent.map(u => {
           const nom = ((u.prenom || '') + ' ' + (u.nom || '')).trim() || '—';
@@ -306,11 +306,15 @@
           const planLabel = { free:'Gratuit', starter:'Starter', premium:'Premium', prof:'Prof' }[planKey] || planKey;
           let date = '—';
           if (u.created_at) { try { date = new Date(u.created_at).toLocaleDateString('fr-FR', { day:'numeric', month:'short', year:'numeric' }); } catch(e){} }
+          let lastLogin = 'Jamais';
+          if (u.last_login) { try { lastLogin = new Date(u.last_login).toLocaleString('fr-FR', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }); } catch(e){} }
           return `<tr>
             <td>${esc(nom)}</td>
             <td style="color:var(--muted)">${esc(u.email || '')}</td>
             <td><span class="plan-chip ${planKey}">${planLabel}</span></td>
             <td style="color:var(--muted)">${date}</td>
+            <td style="color:var(--muted)">${lastLogin}</td>
+            <td style="color:var(--muted)">${formatDuration(u.total_time)}</td>
             <td style="text-align:right">
               <button class="refresh-btn" onclick="editEmail(${u.id}, '${esc(u.email || '')}')">✏️ Email</button>
               <button class="refresh-btn" style="border-color:rgba(239,68,68,0.4);color:#EF4444;margin-left:0.4rem" onclick="deleteUser(${u.id}, '${esc(u.email || '')}')">🗑️ Suppr.</button>
@@ -340,6 +344,16 @@
     return String(s ?? '')
       .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
       .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  // Formate un nombre de secondes en "3 h 12 min" / "45 min" / "< 1 min"
+  function formatDuration(sec) {
+    sec = parseInt(sec || 0, 10);
+    if (!sec || sec < 60) return sec > 0 ? '< 1 min' : '—';
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    if (h > 0) return m > 0 ? `${h} h ${m} min` : `${h} h`;
+    return `${m} min`;
   }
 
   function startAuto() {
