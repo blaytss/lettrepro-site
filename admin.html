@@ -193,14 +193,17 @@
   </div>
 
   <!-- UTILISATEURS -->
-  <div class="section-title">Utilisateurs</div>
+  <div class="section-title" style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;flex-wrap:wrap">
+    <span>Utilisateurs</span>
+    <span id="credits-summary" style="font-size:0.85rem;font-weight:500;color:var(--muted)"></span>
+  </div>
   <div class="table-wrap">
     <table>
       <thead>
-        <tr><th>Nom</th><th>Email</th><th>Plan</th><th>Inscrit le</th><th>Dernière connexion</th><th>Temps total</th><th></th></tr>
+        <tr><th>Nom</th><th>Email</th><th>Plan</th><th>Inscrit le</th><th>Dernière connexion</th><th>Temps total</th><th>Crédits dépensés</th><th>Coût €</th><th></th></tr>
       </thead>
       <tbody id="recent-body">
-        <tr><td colspan="7" style="text-align:center;color:var(--muted);padding:2rem"><span class="loader"></span> Chargement…</td></tr>
+        <tr><td colspan="9" style="text-align:center;color:var(--muted);padding:2rem"><span class="loader"></span> Chargement…</td></tr>
       </tbody>
     </table>
   </div>
@@ -297,8 +300,19 @@
       // Utilisateurs
       const body = document.getElementById('recent-body');
       const recent = d.recent || [];
+      const cpc = (typeof d.cost_per_credit_eur === 'number') ? d.cost_per_credit_eur : 0.04;
+
+      // Récap global crédits dépensés + coût
+      const totalCredits = d.total_credits_spent || 0;
+      const totalCost = (typeof d.total_cost_eur === 'number') ? d.total_cost_eur : totalCredits * cpc;
+      const sumEl = document.getElementById('credits-summary');
+      if (sumEl) {
+        sumEl.innerHTML = 'Total : <strong>' + num(totalCredits) + '</strong> crédits dépensés · '
+          + '<strong style="color:#F59E0B">' + totalCost.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €</strong> de coût '
+          + '<span style="opacity:.7">(' + cpc.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €/crédit)</span>';
+      }
       if (!recent.length) {
-        body.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:2rem">Aucun inscrit pour l\'instant.</td></tr>';
+        body.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:2rem">Aucun inscrit pour l\'instant.</td></tr>';
       } else {
         body.innerHTML = recent.map(u => {
           const nom = ((u.prenom || '') + ' ' + (u.nom || '')).trim() || '—';
@@ -308,6 +322,8 @@
           if (u.created_at) { try { date = new Date(u.created_at).toLocaleDateString('fr-FR', { day:'numeric', month:'short', year:'numeric' }); } catch(e){} }
           let lastLogin = 'Jamais';
           if (u.last_login) { try { lastLogin = new Date(u.last_login).toLocaleString('fr-FR', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }); } catch(e){} }
+          const used = u.credits_used || 0;
+          const cout = (used * cpc).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
           return `<tr>
             <td>${esc(nom)}</td>
             <td style="color:var(--muted)">${esc(u.email || '')}</td>
@@ -315,6 +331,8 @@
             <td style="color:var(--muted)">${date}</td>
             <td style="color:var(--muted)">${lastLogin}</td>
             <td style="color:var(--muted)">${formatDuration(u.total_time)}</td>
+            <td style="font-weight:600">${num(used)}</td>
+            <td style="color:#F59E0B;font-weight:600">${cout} €</td>
             <td style="text-align:right">
               <button class="refresh-btn" onclick="editEmail(${u.id}, '${esc(u.email || '')}')">✏️ Email</button>
               <button class="refresh-btn" style="border-color:rgba(239,68,68,0.4);color:#EF4444;margin-left:0.4rem" onclick="deleteUser(${u.id}, '${esc(u.email || '')}')">🗑️ Suppr.</button>
