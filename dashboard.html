@@ -4183,6 +4183,8 @@ async function subscribePlan(plan) {
   const CV_MATIERES = ['Mathématiques','Physique-Chimie','SVT','Histoire-Géographie','Français',
                        'Philosophie','NSI','Anglais','Espagnol','Économie','SES'];
   const CV_CLASSES = ['3ème','Seconde','Première','Terminale'];
+  const CV_CLASSES_CIBLE = ['Seconde','Première','Terminale'];
+  const CV_SPECIALITES = ['Mathématiques','Physique-Chimie','SVT','SES','HGGSP','HLP','LLCER Anglais','NSI','Sciences de l\'ingénieur','Arts'];
   const CV_PERIODE_LABELS = { toussaint:'Toussaint', noel:'Noël', hiver:"d'hiver", printemps:'de printemps', ete:"d'été", test:'(test)' };
   let cvInfo = null;           // /api/cahiers/vacances-info
   let cvCahier = null;         // cahier ouvert (détail)
@@ -4225,16 +4227,32 @@ async function subscribePlan(plan) {
         list.innerHTML = `<div class="history-empty"><div class="icon">🏖️</div><p>Aucun cahier pour l'instant.<br>Crée ton premier cahier de vacances !</p></div>`;
         return;
       }
+      // Relance le suivi des cahiers encore en génération (ex. après un rechargement de page)
+      cahiers.filter(c => c.statut === 'generation').forEach(c => cvPollGeneration(c.id, false));
       list.innerHTML = cahiers.map(c => {
         const mats = JSON.parse(c.matieres || '[]').join(', ');
         const done = c.statut === 'termine';
+        const gen = c.statut === 'generation';
+        const err = c.statut === 'erreur';
+        const titre = c.duree === '2_mois'
+          ? 'Cahier 2 mois' + (c.classe_cible ? ' → ' + escapeHtml(c.classe_cible) : '')
+          : 'Cahier 2 semaines';
+        const icon = gen ? '⏳' : (err ? '⚠️' : (done ? '✅' : '📖'));
+        const pill = gen
+          ? '<span class="cv-progress-pill" style="background:var(--card);color:var(--muted)">génération…</span>'
+          : (err
+              ? '<span class="cv-progress-pill" style="background:rgba(239,68,68,0.12);color:#EF4444">échec</span>'
+              : `<span class="cv-progress-pill">${c.progression.pct}%</span>`);
+        const sub = gen ? 'Génération en cours, reviens dans quelques minutes…'
+                        : (err ? 'La génération a échoué — crédit rendu'
+                               : `${escapeHtml(mats)} · ${cvPeriodeLabel(c.periode)}${done ? ` · 🎁 ${c.credits_gagnes} crédits gagnés` : ''}`);
         return `
-        <div class="cv-card" onclick="openCahier(${c.id}, false)">
+        <div class="cv-card" onclick="openCahier(${c.id}, false)"${gen ? ' style="opacity:0.75;cursor:default"' : ''}>
           <div class="cv-meta">
-            <h3>${done ? '✅' : '📖'} Cahier ${c.duree === '2_mois' ? '2 mois' + (c.classe_cible ? ' → ' + escapeHtml(c.classe_cible) : '') : '2 semaines'}</h3>
-            <p>${escapeHtml(mats)} · ${cvPeriodeLabel(c.periode)}${done ? ` · 🎁 ${c.credits_gagnes} crédits gagnés` : ''}</p>
+            <h3>${icon} ${titre}</h3>
+            <p>${sub}</p>
           </div>
-          <span class="cv-progress-pill">${c.progression.pct}%</span>
+          ${pill}
         </div>`;
       }).join('');
     } catch (e) {
@@ -4281,8 +4299,8 @@ async function subscribePlan(plan) {
       <div class="field" style="margin-bottom:0.8rem">
         <label>Durée</label>
         <div class="difficulty-selector" style="grid-template-columns:1fr 1fr">
-          <button type="button" class="diff-btn active" id="cv-d2s" onclick="cvSetDuree('2_semaines')">🌊 2 semaines<span>petites vacances</span></button>
-          <button type="button" class="diff-btn" id="cv-d2m" onclick="cvSetDuree('2_mois')">☀️ 2 mois<span>grandes vacances</span></button>
+          <button type="button" class="diff-btn active" id="cv-d2s" onclick="cvSetDuree('2_semaines')">🌊 Réviser<span>petites vacances (2 sem.)</span></button>
+          <button type="button" class="diff-btn" id="cv-d2m" onclick="cvSetDuree('2_mois')">🚀 Prendre de l'avance<span>sur l'année prochaine (2 mois)</span></button>
         </div>
       </div>
       <div id="cv-mode-2s">
@@ -4300,9 +4318,22 @@ async function subscribePlan(plan) {
       <div id="cv-mode-2m" style="display:none">
         <div class="field" style="margin-bottom:0.8rem">
           <label>Ta classe à la rentrée</label>
-          <select id="cv-classe-cible">${CV_CLASSES.map(c => `<option ${c === 'Première' ? 'selected' : ''}>${c}</option>`).join('')}</select>
+          <select id="cv-classe-cible" onchange="cvOnClasseCible()">${CV_CLASSES_CIBLE.map(c => `<option ${c === 'Première' ? 'selected' : ''}>${c}</option>`).join('')}</select>
         </div>
-        <p style="font-size:0.82rem;color:var(--muted);margin-bottom:0.8rem">Le cahier couvrira les prérequis pour bien démarrer cette classe.</p>
+        <div class="field" id="cv-spe-wrap" style="margin-bottom:0.8rem;display:none">
+          <label id="cv-spe-label">Choisis tes spécialités</label>
+          <div style="display:flex;flex-wrap:wrap;gap:0.4rem">
+            ${CV_SPECIALITES.map(s => `<button type="button" class="result-btn" style="border-radius:999px" onclick="cvToggleSpe(this,'${s.replace(/'/g,"\\'")}')">${s}</button>`).join('')}
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:0.8rem">
+          <label>Focus du cahier</label>
+          <div class="difficulty-selector" style="grid-template-columns:1fr 1fr">
+            <button type="button" class="diff-btn active" id="cv-nb4" onclick="cvSetNbMatieres(4)">4 matières<span>plus ciblé</span></button>
+            <button type="button" class="diff-btn" id="cv-nb6" onclick="cvSetNbMatieres(6)">6 matières<span>plus complet</span></button>
+          </div>
+        </div>
+        <p style="font-size:0.82rem;color:var(--muted);margin-bottom:0.8rem">Le cahier couvre les premières notions du programme officiel de l'année à venir (spécialités + tronc commun principal).</p>
       </div>
       <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.8rem">⏳ La génération prend 1 à 3 minutes — ton cahier est créé à partir de tes cours, complété par le programme officiel.</p>
       <button class="gen-btn" id="cv-create-btn" onclick="createCahier()">✦ Générer mon cahier</button>`;
@@ -4310,12 +4341,39 @@ async function subscribePlan(plan) {
   }
 
   let cvDuree = '2_semaines';
+  let cvSelSpecialites = [];
+  let cvNbMatieres = 4;
   function cvSetDuree(d) {
     cvDuree = d;
     document.getElementById('cv-d2s').classList.toggle('active', d === '2_semaines');
     document.getElementById('cv-d2m').classList.toggle('active', d === '2_mois');
     document.getElementById('cv-mode-2s').style.display = d === '2_semaines' ? 'block' : 'none';
     document.getElementById('cv-mode-2m').style.display = d === '2_mois' ? 'block' : 'none';
+    if (d === '2_mois') cvOnClasseCible();
+  }
+
+  // Nombre de spécialités requis selon la classe de rentrée (règle du lycée général)
+  function cvSpeRequis() {
+    const c = (document.getElementById('cv-classe-cible') || {}).value || '';
+    if (c === 'Première') return 3;
+    if (c === 'Terminale') return 2;
+    return 0;   // rentrée en Seconde : pas de spécialités
+  }
+
+  function cvOnClasseCible() {
+    cvSelSpecialites = [];
+    const req = cvSpeRequis();
+    const wrap = document.getElementById('cv-spe-wrap');
+    if (wrap) wrap.style.display = req ? 'block' : 'none';
+    const lbl = document.getElementById('cv-spe-label');
+    if (lbl) lbl.textContent = `Choisis tes ${req} spécialité${req > 1 ? 's' : ''}`;
+    document.querySelectorAll('#cv-spe-wrap .result-btn').forEach(b => { b.style.borderColor = ''; b.style.color = ''; });
+  }
+
+  function cvSetNbMatieres(n) {
+    cvNbMatieres = n;
+    document.getElementById('cv-nb4').classList.toggle('active', n === 4);
+    document.getElementById('cv-nb6').classList.toggle('active', n === 6);
   }
 
   function cvToggleMatiere(btn, m) {
@@ -4324,6 +4382,16 @@ async function subscribePlan(plan) {
     else {
       if (cvSelMatieres.length >= 3) { showToast('3 matières maximum', 'error'); return; }
       cvSelMatieres.push(m); btn.style.borderColor = 'var(--orange)'; btn.style.color = 'var(--orange)';
+    }
+  }
+
+  function cvToggleSpe(btn, s) {
+    const i = cvSelSpecialites.indexOf(s);
+    if (i >= 0) { cvSelSpecialites.splice(i, 1); btn.style.borderColor = ''; btn.style.color = ''; }
+    else {
+      const req = cvSpeRequis();
+      if (cvSelSpecialites.length >= req) { showToast(`${req} spécialités maximum`, 'error'); return; }
+      cvSelSpecialites.push(s); btn.style.borderColor = 'var(--orange)'; btn.style.color = 'var(--orange)';
     }
   }
 
@@ -4341,16 +4409,24 @@ async function subscribePlan(plan) {
       if (body.matieres !== 'toutes' && !body.matieres.length) { showToast('Choisis au moins une matière', 'error'); return; }
     } else {
       body.classeCible = document.getElementById('cv-classe-cible').value;
+      body.specialites = cvSelSpecialites;
+      body.nbMatieres = cvNbMatieres;
+      const req = cvSpeRequis();
+      if (req && cvSelSpecialites.length !== req) {
+        showToast(`Choisis exactement ${req} spécialité${req > 1 ? 's' : ''}`, 'error'); return;
+      }
     }
     btn.disabled = true;
-    btn.innerHTML = '<span class="spinner" style="width:16px;height:16px;border-width:2px;margin:0 0.4rem 0 0;display:inline-block;vertical-align:middle"></span> Génération en cours (1-3 min)…';
+    btn.innerHTML = '<span class="spinner" style="width:16px;height:16px;border-width:2px;margin:0 0.4rem 0 0;display:inline-block;vertical-align:middle"></span> Lancement…';
     try {
       const cahier = await api('POST', '/api/cahiers', body);
       document.getElementById('cv-create-modal').classList.remove('visible');
-      showToast('🏖️ Cahier créé !', 'success');
+      btn.disabled = false;
+      btn.textContent = '✦ Générer mon cahier';
       loadCahiers();
-      cvCahier = cahier;
-      openCahierView(true);   // animation "cahier neuf"
+      // La génération tourne en tâche de fond : on attend qu'elle soit prête
+      showToast('🏖️ Génération lancée ! Ton cahier arrive dans quelques minutes…', 'success');
+      cvPollGeneration(cahier.id, true);
     } catch (e) {
       showToast('Erreur : ' + e.message, 'error');
       btn.disabled = false;
@@ -4358,10 +4434,39 @@ async function subscribePlan(plan) {
     }
   }
 
+  // Interroge le serveur jusqu'à ce que le cahier soit prêt (ou en erreur)
+  function cvPollGeneration(id, openWhenReady) {
+    let tries = 0;
+    const iv = setInterval(async () => {
+      tries++;
+      if (tries > 120) { clearInterval(iv); return; }   // sécurité : ~10 min max
+      try {
+        const c = await api('GET', '/api/cahiers/' + id);
+        if (c.statut === 'generation') return;   // pas encore prêt
+        clearInterval(iv);
+        loadCahiers();
+        if (c.statut === 'erreur') {
+          showToast('La génération a échoué — ton crédit a été rendu, réessaie.', 'error');
+        } else if (openWhenReady) {
+          cvCahier = c;
+          showToast('✅ Ton cahier est prêt !', 'success');
+          openCahierView(true);
+        }
+      } catch (e) { /* on réessaiera au prochain tick */ }
+    }, 5000);
+  }
+
   // ── Vue livre ──
   async function openCahier(id, isNew) {
     try {
-      cvCahier = await api('GET', '/api/cahiers/' + id);
+      const c = await api('GET', '/api/cahiers/' + id);
+      if (c.statut === 'generation') {
+        showToast('⏳ Ce cahier est encore en cours de génération…', 'info');
+        cvPollGeneration(id, false);
+        return;
+      }
+      if (c.statut === 'erreur') { showToast('Ce cahier n\'a pas pu être généré.', 'error'); return; }
+      cvCahier = c;
       openCahierView(isNew);
     } catch (e) { showToast('Erreur : ' + e.message, 'error'); }
   }
