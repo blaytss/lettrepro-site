@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <!-- PWA -->
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#E8692A" />
@@ -574,8 +574,9 @@
 
     /* ─────────── MOBILE / RESPONSIVE ─────────── */
     @media (max-width: 768px) {
-      /* En-tête mobile épuré : une seule ligne = ☰ + logo + actions compactes. */
-      nav { padding: 0.6rem 1rem; }
+      /* En-tête mobile épuré : une seule ligne = ☰ + logo + actions compactes.
+         padding-top intègre la safe-area iOS pour passer sous l'heure/batterie. */
+      nav { padding: calc(0.6rem + env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) 0.6rem max(1rem, env(safe-area-inset-left)); }
       .menu-toggle { display: block; }
       .nav-logo { font-size: 1.05rem; margin-right: auto; }
       .nav-right { gap: 0.5rem; }
@@ -592,7 +593,7 @@
         position: fixed; top: 0; left: 0; height: 100dvh;
         width: 82%; max-width: 320px;
         flex-direction: column; flex-wrap: nowrap; justify-content: flex-start;
-        gap: 0.12rem; padding: 0.75rem 0.85rem 2rem;
+        gap: 0.12rem; padding: calc(0.75rem + env(safe-area-inset-top)) 0.85rem 2rem;
         border-right: 1px solid var(--border);
         box-shadow: 10px 0 30px rgba(0,0,0,0.28);
         overflow-y: auto; z-index: 200;
