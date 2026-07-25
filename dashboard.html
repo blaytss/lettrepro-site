@@ -565,28 +565,47 @@
     .md-content code { background: var(--card); padding: 0.1rem 0.35rem; border-radius: 5px; font-size: 0.88rem; }
     .md-content hr { border: none; border-top: 1px solid var(--border); margin: 0.85rem 0; }
 
+    /* Éléments du menu mobile : masqués sur desktop, activés dans la media query */
+    .menu-toggle { display: none; background: none; border: none; color: var(--text); font-size: 1.5rem; cursor: pointer; padding: 0.1rem 0.35rem; line-height: 1; border-radius: 8px; }
+    .menu-toggle:hover { background: var(--card); }
+    .drawer-overlay { display: none; }
+    .drawer-head { display: none; }
+    .nav-group-label { display: none; }
+
     /* ─────────── MOBILE / RESPONSIVE ─────────── */
     @media (max-width: 768px) {
-      nav { padding: 0.7rem 1rem; }
-      .nav-logo { font-size: 1.05rem; }
-      .nav-right { gap: 0.45rem; }
-      .credit-badge { padding: 0.3rem 0.6rem; font-size: 0.72rem; }
-      .logout-btn { padding: 0.35rem 0.7rem; font-size: 0.75rem; }
+      /* En-tête mobile épuré : une seule ligne = ☰ + logo + actions compactes. */
+      nav { padding: 0.6rem 1rem; }
+      .menu-toggle { display: block; }
+      .nav-logo { font-size: 1.05rem; margin-right: auto; }
+      .nav-right { gap: 0.5rem; }
+      .credit-badge { padding: 0.32rem 0.6rem; font-size: 0.74rem; }
+      /* Déconnexion → simple icône sur mobile pour libérer de la place */
+      .logout-btn { font-size: 0; padding: 0.4rem 0.55rem; line-height: 1; }
+      .logout-btn::before { content: "⏻"; font-size: 1rem; }
 
-      /* Sidebar -> pastilles qui passent à la ligne (tout visible, pas de swipe) */
+      /* Menu latéral -> tiroir (drawer) qui glisse depuis la gauche */
       .layout { flex-direction: column; }
+      .drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 150; }
+      body.drawer-open .drawer-overlay { display: block; }
       .sidebar {
-        width: 100%;
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 0.4rem;
-        padding: 0.6rem 0.75rem;
-        border-right: none;
-        border-bottom: 1px solid var(--border);
+        position: fixed; top: 0; left: 0; height: 100dvh;
+        width: 82%; max-width: 320px;
+        flex-direction: column; flex-wrap: nowrap; justify-content: flex-start;
+        gap: 0.12rem; padding: 0.75rem 0.85rem 2rem;
+        border-right: 1px solid var(--border);
+        box-shadow: 10px 0 30px rgba(0,0,0,0.28);
+        overflow-y: auto; z-index: 200;
+        transform: translateX(-100%); transition: transform 0.25s ease;
       }
-      .sidebar-item { width: auto; flex-shrink: 0; white-space: nowrap; padding: 0.45rem 0.7rem; font-size: 0.8rem; }
+      body.drawer-open .sidebar { transform: translateX(0); }
+      .sidebar-item { width: 100%; font-size: 0.92rem; padding: 0.7rem 0.85rem; }
+      .drawer-head { display: flex; align-items: center; justify-content: space-between; padding: 0.2rem 0.35rem 0.6rem; margin-bottom: 0.3rem; border-bottom: 1px solid var(--border); }
+      .drawer-title { font-family: 'Sora', sans-serif; font-weight: 800; font-size: 1.05rem; }
+      .drawer-close { background: none; border: none; color: var(--muted); font-size: 1.25rem; cursor: pointer; line-height: 1; padding: 0.2rem 0.4rem; }
+      .nav-group-label { display: block; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); padding: 0.55rem 0.85rem 0.3rem; }
       .sidebar-sep { display: none; }
+      .sidebar-credits { margin-top: 1rem; }
 
       .main { padding: 1rem; }
       .page-header h1 { font-size: 1.2rem; }
@@ -624,6 +643,7 @@
 <body>
 
 <nav>
+  <button class="menu-toggle" onclick="toggleDrawer()" aria-label="Ouvrir le menu">☰</button>
   <a href="index.html" class="nav-logo">Lettre<span>Pro</span></a>
   <div class="nav-right">
     <span class="plan-chip free" id="nav-plan">Gratuit</span>
@@ -640,19 +660,29 @@
   </div>
 </nav>
 
+<div class="drawer-overlay" onclick="closeDrawer()"></div>
 <div class="layout">
-  <aside class="sidebar">
-    <button class="sidebar-item active" data-page="generate" onclick="showPage('generate', this)"><span class="icon">✦</span> Générer</button>
+  <aside class="sidebar" id="sidebar">
+    <div class="drawer-head"><span class="drawer-title">Menu</span><button class="drawer-close" onclick="closeDrawer()" aria-label="Fermer le menu">✕</button></div>
+
+    <div class="nav-group-label">Travail</div>
+    <button class="sidebar-item active" data-page="generate" onclick="showPage('generate', this)"><span class="icon">✦</span> Générer une lettre</button>
     <button class="sidebar-item" data-page="improve" onclick="showPage('improve', this)"><span class="icon">✏️</span> Améliorer</button>
     <button class="sidebar-item" data-page="study" onclick="showPage('study', this)"><span class="icon">📚</span> Cours & Révisions</button>
+
+    <div class="nav-group-label">Profs & cours particuliers</div>
     <a class="sidebar-item" href="explorer.html"><span class="icon">🔍</span> Explorer les profs</a>
-    <button class="sidebar-item" data-page="classes" onclick="showPage('classes', this)"><span class="icon">🎓</span> Mes classes</button>
     <button class="sidebar-item" data-page="myprofs" onclick="showPage('myprofs', this)"><span class="icon">👨‍🏫</span> Mes profs</button>
+    <button class="sidebar-item" data-page="classes" onclick="showPage('classes', this)"><span class="icon">🎓</span> Mes classes</button>
+
+    <div class="nav-group-label">Organisation</div>
     <button class="sidebar-item" data-page="planning" onclick="showPage('planning', this)"><span class="icon">📅</span> Mon planning</button>
     <button class="sidebar-item" data-page="quete" onclick="showPage('quete', this)"><span class="icon">🎯</span> Quête du jour</button>
     <button class="sidebar-item" data-page="cahiers" onclick="showPage('cahiers', this)"><span class="icon">🏖️</span> Cahier de vacances</button>
     <button class="sidebar-item" data-page="history" onclick="showPage('history', this)"><span class="icon">📄</span> Mes lettres</button>
+
     <div class="sidebar-sep"></div>
+    <div class="nav-group-label">Mon compte</div>
     <button class="sidebar-item" data-page="credits" onclick="showPage('credits', this)"><span class="icon">💳</span> Crédits</button>
     <button class="sidebar-item" data-page="abonnement" onclick="showPage('abonnement', this)"><span class="icon">⚡</span> Abonnement</button>
     <button class="sidebar-item" data-page="apparence" onclick="showPage('apparence', this)"><span class="icon">🎨</span> Apparence</button>
@@ -4720,6 +4750,18 @@ async function subscribePlan(plan) {
       main.prepend(div);
     } catch (e) { /* silencieux */ }
   })();
+</script>
+
+<!-- Menu mobile (drawer ☰) : ouverture/fermeture + fermeture auto quand on choisit une entrée -->
+<script>
+(function () {
+  window.toggleDrawer = function () { document.body.classList.toggle('drawer-open'); };
+  window.closeDrawer  = function () { document.body.classList.remove('drawer-open'); };
+  document.querySelectorAll('#sidebar .sidebar-item').forEach(function (el) {
+    el.addEventListener('click', window.closeDrawer);
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') window.closeDrawer(); });
+})();
 </script>
 
 </body>
