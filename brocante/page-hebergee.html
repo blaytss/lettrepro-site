@@ -1,0 +1,3763 @@
+<title>La Malle d'Automne — brocante en ligne</title>
+<style>
+/* ==================================================================
+   La Malle d'Automne — feuille de style unique
+   Vanilla CSS, aucune dépendance, aucune police distante.
+   ================================================================== */
+
+:root {
+  --papier: #fbf8f2;
+  --papier-2: #f4eee3;
+  --papier-3: #ece3d3;
+  --encre: #2c2822;
+  --encre-2: #6b6157;
+  --encre-3: #928878;
+  --ligne: #e2d9c9;
+  --or: #8c6a45;
+  --or-clair: #b89a6f;
+  --sauge: #74806a;
+  --sauge-clair: #e6e9df;
+  --brique: #a1543f;
+  --blanc: #fffdf9;
+
+  --serif: Georgia, "Iowan Old Style", "Palatino Linotype", "Book Antiqua", "Times New Roman", serif;
+  --sans: "Avenir Next", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+
+  --ombre-douce: 0 1px 2px rgba(60, 48, 32, 0.04), 0 8px 24px rgba(60, 48, 32, 0.06);
+  --ombre-forte: 0 2px 6px rgba(60, 48, 32, 0.08), 0 18px 48px rgba(60, 48, 32, 0.12);
+  --rayon: 3px;
+  --large: 1240px;
+}
+
+* { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--papier);
+  color: var(--encre);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.65;
+  overflow-x: hidden;
+}
+
+/* height:auto neutralise l'attribut height des images (réservation de place) */
+img { max-width: 100%; height: auto; display: block; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; cursor: pointer; }
+
+h1, h2, h3, h4 {
+  font-family: var(--serif);
+  font-weight: 400;
+  line-height: 1.2;
+  margin: 0 0 0.5em;
+  letter-spacing: 0.01em;
+}
+h1 { font-size: clamp(2rem, 5vw, 3.1rem); }
+h2 { font-size: clamp(1.55rem, 3.4vw, 2.2rem); }
+h3 { font-size: 1.2rem; }
+p { margin: 0 0 1em; }
+
+.enveloppe { width: 100%; max-width: var(--large); margin: 0 auto; padding: 0 22px; }
+.centre { text-align: center; }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* Petites majuscules espacées : la signature typographique du site */
+.surtitre {
+  font-family: var(--sans);
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--or);
+  margin: 0 0 0.9em;
+  font-weight: 600;
+}
+
+.filet {
+  width: 54px; height: 1px; background: var(--or-clair);
+  margin: 1.1rem auto 1.4rem; border: 0;
+}
+.filet.gauche { margin-left: 0; }
+
+/* ---------------- Boutons ---------------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5em;
+  padding: 0.85em 1.8em;
+  border: 1px solid var(--encre);
+  background: var(--encre); color: var(--papier);
+  font-size: 0.76rem; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 600;
+  border-radius: var(--rayon);
+  transition: background 0.25s, color 0.25s, border-color 0.25s, transform 0.15s;
+}
+.btn:hover { background: var(--or); border-color: var(--or); }
+.btn:active { transform: translateY(1px); }
+.btn--fantome { background: transparent; color: var(--encre); }
+.btn--fantome:hover { background: var(--encre); color: var(--papier); border-color: var(--encre); }
+.btn--clair { background: var(--papier); color: var(--encre); border-color: var(--papier); }
+.btn--clair:hover { background: var(--or); border-color: var(--or); color: var(--papier); }
+.btn--bloc { width: 100%; }
+.btn--petit { padding: 0.6em 1.1em; font-size: 0.68rem; }
+.btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+
+.lien-souligne {
+  border-bottom: 1px solid var(--or-clair);
+  padding-bottom: 2px;
+  transition: border-color 0.2s, color 0.2s;
+}
+.lien-souligne:hover { color: var(--or); border-color: var(--or); }
+
+/* ================= Bandeau d'annonce ================= */
+.annonce {
+  background: var(--encre); color: #ece2d2;
+  font-size: 0.73rem; letter-spacing: 0.1em;
+}
+.annonce .enveloppe {
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  min-height: 38px;
+}
+.annonce__texte { flex: 1; text-align: center; opacity: 0.9; }
+
+/* Sélecteur de région : discret, une seule fois par page */
+.region { position: relative; }
+.region__btn {
+  background: none; border: 0; color: inherit;
+  font-size: 0.72rem; letter-spacing: 0.1em;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 2px; opacity: 0.85;
+}
+.region__btn:hover { opacity: 1; }
+.region__btn svg { width: 9px; height: 9px; }
+.region__menu {
+  position: absolute; right: 0; top: calc(100% + 8px);
+  background: var(--blanc); color: var(--encre);
+  border: 1px solid var(--ligne); border-radius: var(--rayon);
+  box-shadow: var(--ombre-forte);
+  min-width: 210px; padding: 6px; z-index: 90; display: none;
+}
+.region__menu.ouvert { display: block; }
+.region__menu button {
+  display: block; width: 100%; text-align: left;
+  background: none; border: 0; padding: 9px 12px;
+  font-size: 0.82rem; letter-spacing: 0.02em; border-radius: 2px;
+}
+.region__menu button:hover { background: var(--papier-2); }
+.region__menu button[aria-checked="true"] { color: var(--or); font-weight: 600; }
+.region__menu button small { display: block; color: var(--encre-3); font-size: 0.72rem; letter-spacing: 0; }
+
+/* ================= En-tête ================= */
+.entete {
+  position: sticky; top: 0; z-index: 80;
+  background: rgba(251, 248, 242, 0.96);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--ligne);
+}
+.entete__haut {
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+  padding: 16px 0 12px;
+}
+.marque { text-align: center; grid-column: 2; }
+.marque__nom {
+  font-family: var(--serif); font-size: 1.55rem; letter-spacing: 0.12em;
+  text-transform: uppercase; display: block; line-height: 1.1;
+}
+.marque__sous {
+  display: block; font-size: 0.6rem; letter-spacing: 0.28em;
+  text-transform: uppercase; color: var(--encre-3); margin-top: 5px;
+}
+.entete__actions { grid-column: 3; display: flex; justify-content: flex-end; gap: 4px; }
+.entete__gauche { grid-column: 1; display: flex; gap: 4px; }
+
+.icone-btn {
+  background: none; border: 0; padding: 8px; color: var(--encre);
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+  position: relative;
+}
+.icone-btn:hover { color: var(--or); }
+.icone-btn svg { width: 19px; height: 19px; stroke: currentColor; fill: none; stroke-width: 1.4; }
+.pastille {
+  position: absolute; top: 2px; right: 0;
+  background: var(--or); color: #fff;
+  font-size: 0.6rem; font-weight: 700; line-height: 1;
+  min-width: 16px; height: 16px; border-radius: 9px;
+  display: none; align-items: center; justify-content: center; padding: 0 4px;
+  letter-spacing: 0;
+}
+.pastille.visible { display: inline-flex; }
+
+/* Navigation principale */
+.nav-principale { border-top: 1px solid var(--ligne); }
+.nav-principale ul {
+  display: flex; justify-content: center; flex-wrap: wrap;
+  gap: 4px 30px; list-style: none; margin: 0; padding: 11px 0;
+}
+.nav-principale a {
+  font-size: 0.74rem; letter-spacing: 0.16em; text-transform: uppercase;
+  padding: 5px 0; display: inline-block; position: relative; color: var(--encre-2);
+}
+.nav-principale a::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0;
+  height: 1px; background: var(--or); transform: scaleX(0);
+  transition: transform 0.25s ease;
+}
+.nav-principale a:hover, .nav-principale a[aria-current="page"] { color: var(--encre); }
+.nav-principale a:hover::after, .nav-principale a[aria-current="page"]::after { transform: scaleX(1); }
+
+.burger { display: none; }
+
+/* Menu mobile */
+.menu-mobile {
+  position: fixed; inset: 0; z-index: 95;
+  background: var(--papier); padding: 22px;
+  transform: translateX(-100%); transition: transform 0.32s ease;
+  overflow-y: auto;
+}
+.menu-mobile.ouvert { transform: translateX(0); }
+.menu-mobile__haut { display: flex; justify-content: space-between; align-items: center; margin-bottom: 26px; }
+.menu-mobile ul { list-style: none; margin: 0; padding: 0; }
+.menu-mobile li { border-bottom: 1px solid var(--ligne); }
+.menu-mobile a {
+  display: block; padding: 15px 2px;
+  font-family: var(--serif); font-size: 1.12rem;
+}
+.menu-mobile__bas { margin-top: 26px; font-size: 0.82rem; color: var(--encre-2); }
+
+/* ================= Hero ================= */
+.hero {
+  position: relative; overflow: hidden;
+  background:
+    radial-gradient(120% 90% at 20% 0%, #fdfbf6 0%, rgba(253, 251, 246, 0) 60%),
+    linear-gradient(160deg, var(--papier-2) 0%, var(--papier-3) 100%);
+  border-bottom: 1px solid var(--ligne);
+}
+.hero__grille {
+  display: grid; grid-template-columns: 1.05fr 0.95fr; align-items: center;
+  gap: 50px; padding: 70px 0 76px;
+}
+.hero h1 { margin-bottom: 0.3em; }
+.hero h1 em { font-style: italic; color: var(--or); }
+.hero__texte p {
+  font-size: 1.06rem; color: var(--encre-2); max-width: 46ch;
+}
+.hero__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+.hero__note {
+  margin-top: 24px; font-size: 0.8rem; color: var(--encre-3);
+  display: flex; align-items: center; gap: 9px; flex-wrap: wrap;
+}
+.hero__collage {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+}
+.hero__collage img {
+  width: 100%; aspect-ratio: 1; object-fit: cover;
+  border: 1px solid var(--ligne); border-radius: var(--rayon);
+  box-shadow: var(--ombre-douce); background: var(--blanc);
+}
+.hero__collage > *:nth-child(1) { transform: translateY(-16px) rotate(-1.2deg); }
+.hero__collage > *:nth-child(2) { transform: translateY(10px) rotate(1deg); }
+.hero__collage > *:nth-child(3) { transform: translateY(-4px) rotate(0.8deg); }
+.hero__collage > *:nth-child(4) { transform: translateY(22px) rotate(-0.6deg); }
+
+/* ================= Bandeau réassurance ================= */
+.reassurance { background: var(--blanc); border-bottom: 1px solid var(--ligne); }
+.reassurance__grille {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 26px; padding: 34px 0;
+}
+.reassurance__item { display: flex; gap: 13px; align-items: flex-start; }
+.reassurance__item svg {
+  width: 26px; height: 26px; flex: none; margin-top: 2px;
+  stroke: var(--or); fill: none; stroke-width: 1.3;
+}
+.reassurance__item strong {
+  display: block; font-size: 0.78rem; letter-spacing: 0.1em;
+  text-transform: uppercase; margin-bottom: 3px;
+}
+.reassurance__item span { font-size: 0.85rem; color: var(--encre-2); line-height: 1.5; }
+
+/* Version large (page dédiée / bas de page produit) */
+.reassurance--riche { background: var(--sauge-clair); border-top: 1px solid var(--ligne); }
+.reassurance--riche .reassurance__item svg { stroke: var(--sauge); }
+
+/* ================= Sections ================= */
+.section { padding: 66px 0; }
+.section--serre { padding: 46px 0; }
+.section--papier { background: var(--papier-2); }
+.section--blanc { background: var(--blanc); }
+.section__entete { margin-bottom: 30px; }
+.section__entete p { color: var(--encre-2); max-width: 58ch; margin: 0 auto; }
+.section__entete--ligne {
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 20px;
+}
+.section__entete--ligne p { margin: 0; }
+.section__lien {
+  font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--or); white-space: nowrap; border-bottom: 1px solid transparent;
+}
+.section__lien:hover { border-color: var(--or); }
+
+/* ================= Carrousel ================= */
+.carrousel { position: relative; }
+.carrousel__piste {
+  display: flex; gap: 22px; overflow-x: auto; scroll-snap-type: x mandatory;
+  padding: 4px 2px 16px; scrollbar-width: none;
+}
+.carrousel__piste::-webkit-scrollbar { display: none; }
+.carrousel__piste > * { scroll-snap-align: start; flex: 0 0 auto; width: calc(25% - 16.5px); }
+@media (max-width: 1080px) { .carrousel__piste > * { width: calc(33.333% - 15px); } }
+.carrousel__fleches { display: flex; gap: 8px; }
+.carrousel__fleche {
+  width: 38px; height: 38px; border-radius: 50%;
+  border: 1px solid var(--ligne); background: var(--blanc); color: var(--encre);
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: background 0.2s, border-color 0.2s, opacity 0.2s;
+}
+.carrousel__fleche svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.6; }
+.carrousel__fleche:hover { background: var(--encre); color: var(--papier); border-color: var(--encre); }
+.carrousel__fleche[disabled] { opacity: 0.3; }
+
+/* ================= Carte produit ================= */
+.grille-produits {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(228px, 1fr));
+  gap: 34px 22px;
+}
+.carte { display: flex; flex-direction: column; position: relative; }
+.carte__media {
+  position: relative; display: block; overflow: hidden;
+  border: 1px solid var(--ligne); border-radius: var(--rayon);
+  background: var(--blanc);
+}
+.carte__media img {
+  width: 100%; aspect-ratio: 1; object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.3, 1), opacity 0.4s;
+}
+.carte__media img.carte__survol { position: absolute; inset: 0; opacity: 0; }
+.carte:hover .carte__media img.carte__survol { opacity: 1; }
+.carte:hover .carte__media img { transform: scale(1.035); }
+
+.carte__corps { padding-top: 13px; display: flex; flex-direction: column; flex: 1; }
+.carte__ref {
+  font-size: 0.63rem; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--encre-3);
+}
+.carte__nom {
+  font-family: var(--serif); font-size: 1.02rem; line-height: 1.35;
+  margin: 5px 0 7px;
+}
+.carte:hover .carte__nom { color: var(--or); }
+.carte__prix { font-size: 0.98rem; letter-spacing: 0.02em; margin-top: auto; padding-top: 7px; }
+.carte__prix small { color: var(--encre-3); font-size: 0.75rem; }
+
+/* Badges */
+.badges { position: absolute; top: 10px; left: 10px; display: flex; flex-direction: column; gap: 6px; z-index: 2; }
+.badge {
+  font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 5px 9px; border-radius: 2px; font-weight: 600;
+  background: var(--blanc); color: var(--encre); border: 1px solid var(--ligne);
+  box-shadow: 0 1px 3px rgba(60, 48, 32, 0.07);
+  display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+}
+.badge svg { width: 11px; height: 11px; stroke: currentColor; fill: none; stroke-width: 1.6; }
+.badge--unique { background: var(--sauge-clair); border-color: #cdd4c3; color: #46503c; }
+.badge--dernier { background: #f6e7dd; border-color: #e6cdbc; color: #8a4a2c; }
+.badge--epuise { background: #ece8e1; border-color: #d9d2c6; color: #6d6659; }
+.badge--coup { background: #f3e6e4; border-color: #e3cbc6; color: #8b4436; }
+
+/* Produit épuisé : jamais mis en avant, simplement grisé et signalé */
+.carte--epuise .carte__media { background: #f2efe9; }
+.carte--epuise .carte__media img { filter: grayscale(0.68) contrast(0.94); opacity: 0.72; }
+.carte--epuise .carte__nom { color: var(--encre-2); }
+.carte--epuise .carte__prix { color: var(--encre-3); text-decoration: line-through; text-decoration-thickness: 1px; }
+.carte__alerte { margin-top: 11px; }
+
+/* Étoiles */
+.etoiles { display: inline-flex; align-items: center; gap: 5px; line-height: 1; }
+.etoiles__glyphes { color: var(--or-clair); letter-spacing: 0.1em; font-size: 0.85rem; }
+.etoiles__compte { font-size: 0.72rem; color: var(--encre-3); }
+.etoiles--grand .etoiles__glyphes { font-size: 1.15rem; }
+
+/* ================= Univers (blocs catégories) ================= */
+.univers-bloc + .univers-bloc { border-top: 1px solid var(--ligne); }
+.univers-titre { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+.univers-titre h2 { margin: 0; }
+.univers-titre span { font-size: 0.78rem; color: var(--encre-3); letter-spacing: 0.06em; }
+
+.mosaique-univers {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;
+}
+.tuile {
+  position: relative; overflow: hidden; border-radius: var(--rayon);
+  border: 1px solid var(--ligne); background: var(--blanc); display: block;
+}
+.tuile img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; transition: transform 0.6s; }
+.tuile:hover img { transform: scale(1.05); }
+.tuile__legende {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  padding: 34px 16px 14px; color: #fff;
+  background: linear-gradient(transparent, rgba(38, 32, 24, 0.72));
+}
+.tuile__legende strong { font-family: var(--serif); font-size: 1.08rem; font-weight: 400; display: block; }
+.tuile__legende span { font-size: 0.72rem; opacity: 0.85; letter-spacing: 0.08em; }
+
+/* ================= Avis ================= */
+.avis-grille { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.avis-carte {
+  background: var(--blanc); border: 1px solid var(--ligne); border-radius: var(--rayon);
+  padding: 26px 24px; display: flex; flex-direction: column;
+  box-shadow: var(--ombre-douce);
+}
+.avis-carte__texte {
+  font-family: var(--serif); font-size: 1rem; line-height: 1.62;
+  color: var(--encre); margin: 13px 0 18px; flex: 1;
+}
+.avis-carte__texte::before { content: "« "; color: var(--or-clair); }
+.avis-carte__texte::after { content: " »"; color: var(--or-clair); }
+.avis-carte__pied {
+  font-size: 0.8rem; color: var(--encre-2);
+  border-top: 1px solid var(--ligne); padding-top: 13px;
+}
+.avis-carte__pied strong { color: var(--encre); font-weight: 600; }
+.avis-carte__objet { display: block; font-size: 0.74rem; color: var(--encre-3); margin-top: 2px; }
+
+.avis-resume {
+  display: flex; align-items: center; justify-content: center; gap: 16px;
+  flex-wrap: wrap; margin-top: 8px;
+}
+.avis-resume__note { font-family: var(--serif); font-size: 2.1rem; line-height: 1; }
+.avis-resume__detail { font-size: 0.84rem; color: var(--encre-2); text-align: left; }
+
+/* Avis sur fiche produit */
+.avis-liste { display: flex; flex-direction: column; gap: 20px; }
+.avis-ligne { border-bottom: 1px solid var(--ligne); padding-bottom: 20px; }
+.avis-ligne:last-child { border-bottom: 0; }
+.avis-ligne__haut { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 7px; }
+.avis-ligne__nom { font-weight: 600; font-size: 0.92rem; }
+.avis-ligne__date { font-size: 0.76rem; color: var(--encre-3); }
+.avis-ligne__verifie {
+  font-size: 0.63rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--sauge); border: 1px solid #cdd4c3; border-radius: 2px; padding: 2px 7px;
+}
+.avis-ligne p { margin: 0; color: var(--encre-2); }
+
+/* ================= À propos ================= */
+.apropos {
+  display: grid; grid-template-columns: 0.95fr 1.05fr; gap: 54px; align-items: center;
+}
+.apropos__images { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.apropos__images img {
+  width: 100%; aspect-ratio: 1; object-fit: cover;
+  border: 1px solid var(--ligne); border-radius: var(--rayon); background: var(--blanc);
+}
+.apropos__images img:nth-child(2) { margin-top: 28px; }
+.apropos__images img:nth-child(3) { margin-top: -28px; }
+.apropos p { color: var(--encre-2); }
+.apropos__signature {
+  font-family: var(--serif); font-style: italic; font-size: 1.15rem;
+  color: var(--or); margin-top: 6px;
+}
+.liste-verif { list-style: none; margin: 22px 0; padding: 0; display: grid; gap: 11px; }
+.liste-verif li {
+  display: flex; gap: 11px; align-items: flex-start;
+  font-size: 0.92rem; color: var(--encre-2);
+}
+.liste-verif svg { width: 17px; height: 17px; flex: none; margin-top: 4px; stroke: var(--sauge); fill: none; stroke-width: 1.8; }
+
+/* ================= Fiche produit ================= */
+.fil-ariane {
+  font-size: 0.72rem; letter-spacing: 0.08em; color: var(--encre-3);
+  padding: 18px 0; text-transform: uppercase;
+}
+.fil-ariane a:hover { color: var(--or); }
+.fil-ariane span { margin: 0 7px; opacity: 0.5; }
+
+.produit { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 54px; padding-bottom: 60px; }
+.galerie__principale {
+  border: 1px solid var(--ligne); border-radius: var(--rayon);
+  background: var(--blanc); position: relative; overflow: hidden;
+}
+.galerie__principale img { width: 100%; aspect-ratio: 1; object-fit: cover; }
+.galerie--epuise img { filter: grayscale(0.6) contrast(0.95); opacity: 0.8; }
+.galerie__vignettes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px; }
+.galerie__vignettes button {
+  padding: 0; border: 1px solid var(--ligne); background: var(--blanc);
+  border-radius: var(--rayon); overflow: hidden; transition: border-color 0.2s;
+}
+.galerie__vignettes button[aria-current="true"] { border-color: var(--or); }
+.galerie__vignettes img { width: 100%; aspect-ratio: 1; object-fit: cover; }
+
+.produit__badges { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px; }
+.produit__badges .badge { position: static; }
+.produit h1 { font-size: clamp(1.6rem, 3.2vw, 2.35rem); margin-bottom: 0.25em; }
+.produit__ref { font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--encre-3); }
+.produit__prix { font-size: 1.6rem; font-family: var(--serif); margin: 16px 0 6px; }
+.produit__tva { font-size: 0.8rem; color: var(--encre-3); }
+.produit__accroche {
+  font-family: var(--serif); font-size: 1.1rem; line-height: 1.6;
+  color: var(--encre); margin: 22px 0; padding-left: 17px;
+  border-left: 2px solid var(--or-clair);
+}
+.produit__histoire { color: var(--encre-2); }
+.produit__achat { margin: 26px 0; display: grid; gap: 11px; }
+.produit__urgence {
+  display: flex; align-items: center; gap: 11px; flex-wrap: wrap;
+  margin: 0 0 3px; font-size: 0.84rem; color: var(--encre-2);
+}
+.produit__urgence .badge { position: static; }
+.produit__epuise {
+  background: var(--papier-2); border: 1px solid var(--ligne);
+  border-radius: var(--rayon); padding: 20px;
+}
+.produit__epuise strong { display: block; margin-bottom: 5px; }
+.produit__epuise p { font-size: 0.88rem; color: var(--encre-2); margin-bottom: 14px; }
+
+.fiche-tech { border-top: 1px solid var(--ligne); margin-top: 26px; }
+.fiche-tech dl { display: grid; grid-template-columns: 1fr 1.6fr; gap: 0; margin: 0; }
+.fiche-tech dt, .fiche-tech dd {
+  padding: 11px 0; border-bottom: 1px solid var(--ligne); margin: 0; font-size: 0.88rem;
+}
+.fiche-tech dt { color: var(--encre-3); letter-spacing: 0.06em; text-transform: uppercase; font-size: 0.72rem; padding-top: 14px; }
+.fiche-tech dd { color: var(--encre-2); }
+
+.livraison-note {
+  background: var(--sauge-clair); border-radius: var(--rayon);
+  padding: 15px 17px; font-size: 0.86rem; color: #47513c; margin-top: 18px;
+  display: flex; gap: 11px; align-items: flex-start;
+}
+.livraison-note svg { width: 18px; height: 18px; flex: none; margin-top: 3px; stroke: var(--sauge); fill: none; stroke-width: 1.5; }
+
+/* Accordéon */
+.accordeon { border-top: 1px solid var(--ligne); }
+.accordeon__item { border-bottom: 1px solid var(--ligne); }
+.accordeon__titre {
+  width: 100%; background: none; border: 0; text-align: left;
+  padding: 16px 0; display: flex; justify-content: space-between; align-items: center;
+  font-size: 0.78rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--encre);
+}
+.accordeon__titre svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.6; transition: transform 0.25s; }
+.accordeon__item.ouvert .accordeon__titre svg { transform: rotate(45deg); }
+.accordeon__contenu { display: none; padding-bottom: 18px; font-size: 0.9rem; color: var(--encre-2); }
+.accordeon__item.ouvert .accordeon__contenu { display: block; }
+
+/* ================= Boutique (filtres) ================= */
+.barre-filtres {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap; padding: 18px 0;
+  border-top: 1px solid var(--ligne); border-bottom: 1px solid var(--ligne);
+  margin-bottom: 34px;
+}
+.puces { display: flex; gap: 8px; flex-wrap: wrap; }
+.puce {
+  background: none; border: 1px solid var(--ligne); border-radius: 40px;
+  padding: 7px 15px; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--encre-2); transition: all 0.2s;
+}
+.puce:hover { border-color: var(--or-clair); color: var(--encre); }
+.puce[aria-pressed="true"] { background: var(--encre); border-color: var(--encre); color: var(--papier); }
+.tri { display: flex; align-items: center; gap: 18px; font-size: 0.8rem; color: var(--encre-2); }
+.tri select {
+  font: inherit; font-size: 0.8rem; padding: 7px 10px;
+  border: 1px solid var(--ligne); border-radius: var(--rayon);
+  background: var(--blanc); color: var(--encre);
+}
+.compteur { font-size: 0.78rem; color: var(--encre-3); margin-bottom: 20px; }
+.vide { text-align: center; padding: 70px 0; color: var(--encre-2); }
+
+/* ================= Panier (tiroir) ================= */
+.voile {
+  position: fixed; inset: 0; background: rgba(44, 40, 34, 0.42);
+  opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 96;
+}
+.voile.visible { opacity: 1; pointer-events: auto; }
+.tiroir {
+  position: fixed; top: 0; right: 0; bottom: 0; width: min(420px, 100%);
+  background: var(--papier); z-index: 97; display: flex; flex-direction: column;
+  transform: translateX(100%); transition: transform 0.34s cubic-bezier(0.3, 0.8, 0.3, 1);
+  box-shadow: var(--ombre-forte);
+}
+.tiroir.ouvert { transform: translateX(0); }
+.tiroir__haut {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 22px; border-bottom: 1px solid var(--ligne);
+}
+.tiroir__haut h2 { margin: 0; font-size: 1.15rem; letter-spacing: 0.1em; text-transform: uppercase; font-family: var(--sans); font-weight: 600; }
+.tiroir__corps { flex: 1; overflow-y: auto; padding: 20px 22px; }
+.tiroir__bas { border-top: 1px solid var(--ligne); padding: 20px 22px; background: var(--blanc); }
+.ligne-panier { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--ligne); }
+.ligne-panier img { width: 74px; height: 74px; object-fit: cover; border: 1px solid var(--ligne); border-radius: 2px; }
+.ligne-panier__nom { font-family: var(--serif); font-size: 0.95rem; line-height: 1.3; }
+.ligne-panier__ref { font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--encre-3); }
+.ligne-panier__prix { margin-top: 5px; font-size: 0.9rem; }
+.ligne-panier__retirer {
+  background: none; border: 0; padding: 0; color: var(--encre-3);
+  font-size: 0.74rem; text-decoration: underline; margin-top: 5px;
+}
+.ligne-panier__retirer:hover { color: var(--brique); }
+.total-ligne { display: flex; justify-content: space-between; font-size: 0.88rem; margin-bottom: 7px; color: var(--encre-2); }
+.total-ligne--fort { font-size: 1.1rem; color: var(--encre); font-family: var(--serif); margin: 12px 0 16px; }
+
+/* ================= Modale ================= */
+.modale {
+  position: fixed; inset: 0; z-index: 98;
+  display: none; align-items: center; justify-content: center; padding: 22px;
+}
+.modale.ouverte { display: flex; }
+.modale__fond { position: absolute; inset: 0; background: rgba(44, 40, 34, 0.5); }
+.modale__boite {
+  position: relative; background: var(--papier); border-radius: var(--rayon);
+  max-width: 420px; width: 100%; padding: 32px 30px; box-shadow: var(--ombre-forte);
+}
+.modale__fermer {
+  position: absolute; top: 12px; right: 12px; background: none; border: 0;
+  color: var(--encre-3); font-size: 1.3rem; line-height: 1; padding: 6px;
+}
+.champ { display: block; margin-bottom: 15px; }
+.champ span {
+  display: block; font-size: 0.7rem; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--encre-2); margin-bottom: 7px;
+}
+.champ input, .champ textarea, .champ select {
+  width: 100%; font: inherit; font-size: 0.95rem; padding: 11px 13px;
+  border: 1px solid var(--ligne); border-radius: var(--rayon);
+  background: var(--blanc); color: var(--encre);
+}
+.champ input:focus, .champ textarea:focus { outline: 2px solid var(--or-clair); outline-offset: 1px; }
+.message-succes {
+  background: var(--sauge-clair); border: 1px solid #cdd4c3; color: #45503b;
+  padding: 13px 15px; border-radius: var(--rayon); font-size: 0.88rem; margin-top: 14px;
+}
+
+/* Notification flottante */
+.toast {
+  position: fixed; left: 50%; bottom: 26px; transform: translate(-50%, 20px);
+  background: var(--encre); color: var(--papier);
+  padding: 13px 22px; border-radius: 40px; font-size: 0.85rem;
+  box-shadow: var(--ombre-forte); z-index: 99;
+  opacity: 0; pointer-events: none; transition: opacity 0.3s, transform 0.3s;
+  max-width: calc(100% - 40px); text-align: center;
+}
+.toast.visible { opacity: 1; transform: translate(-50%, 0); }
+
+/* ================= Pages de contenu ================= */
+.page-texte { max-width: 760px; margin: 0 auto; padding: 50px 0 70px; }
+.page-texte h2 { margin-top: 2em; font-size: 1.45rem; }
+.page-texte h2:first-of-type { margin-top: 1em; }
+.page-texte ul { padding-left: 1.2em; color: var(--encre-2); }
+.page-texte li { margin-bottom: 0.5em; }
+.entete-page {
+  background: var(--papier-2); border-bottom: 1px solid var(--ligne);
+  padding: 52px 0 46px; text-align: center;
+}
+.entete-page p { color: var(--encre-2); max-width: 60ch; margin: 0 auto; }
+
+/* ================= Pied de page ================= */
+.pied { background: var(--encre); color: #cfc6b6; padding: 62px 0 0; margin-top: 0; }
+.pied a { color: #cfc6b6; }
+.pied a:hover { color: var(--blanc); }
+.pied__grille {
+  display: grid; grid-template-columns: 1.4fr 1fr 1fr 1.3fr; gap: 40px; padding-bottom: 46px;
+}
+.pied h3 {
+  font-family: var(--sans); font-size: 0.72rem; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--blanc); margin-bottom: 17px; font-weight: 600;
+}
+.pied ul { list-style: none; margin: 0; padding: 0; }
+.pied li { margin-bottom: 9px; font-size: 0.88rem; }
+.pied p { font-size: 0.88rem; line-height: 1.7; }
+.pied__marque {
+  font-family: var(--serif); font-size: 1.3rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--blanc); display: block; margin-bottom: 13px;
+}
+.pied__bas {
+  border-top: 1px solid rgba(255, 255, 255, 0.12); padding: 20px 0 26px;
+  display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  font-size: 0.78rem; color: #9d9484;
+}
+.pied__paiement { display: flex; gap: 7px; align-items: center; flex-wrap: wrap; }
+.pied__paiement span {
+  border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 3px;
+  padding: 3px 8px; font-size: 0.66rem; letter-spacing: 0.08em;
+}
+
+/* ================= Réactivité ================= */
+@media (max-width: 1000px) {
+  .reassurance__grille { grid-template-columns: repeat(2, 1fr); }
+  .avis-grille { grid-template-columns: repeat(2, 1fr); }
+  .pied__grille { grid-template-columns: 1fr 1fr; gap: 32px; }
+  .apropos { gap: 34px; }
+}
+
+@media (max-width: 860px) {
+  .nav-principale { display: none; }
+  .burger { display: inline-flex; }
+  .entete__haut { padding: 12px 0; }
+  .marque__nom { font-size: 1.18rem; }
+  .marque__sous { font-size: 0.52rem; letter-spacing: 0.2em; }
+  .icone-btn span { display: none; }
+
+  .hero__grille { grid-template-columns: 1fr; gap: 34px; padding: 44px 0 50px; }
+  .hero__texte { text-align: center; }
+  .hero__texte p { margin-left: auto; margin-right: auto; }
+  .hero__actions, .hero__note { justify-content: center; }
+  .hero__collage { max-width: 420px; margin: 0 auto; }
+
+  .produit { grid-template-columns: 1fr; gap: 32px; }
+  .avis-zone, .contact-grille { grid-template-columns: 1fr !important; gap: 32px !important; }
+  .apropos { grid-template-columns: 1fr; }
+  .apropos__images { max-width: 420px; }
+  .mosaique-univers { grid-template-columns: repeat(2, 1fr); }
+  .section { padding: 46px 0; }
+  .section__entete--ligne { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .carrousel__piste { gap: 16px; }
+  .carrousel__piste > * { width: 62%; }
+  .grille-produits { grid-template-columns: repeat(2, 1fr); gap: 26px 16px; }
+}
+
+@media (max-width: 560px) {
+  body { font-size: 15.5px; }
+  .enveloppe { padding: 0 16px; }
+  .annonce__texte { font-size: 0.66rem; }
+  .reassurance__grille { grid-template-columns: 1fr; gap: 18px; padding: 26px 0; }
+  .avis-grille { grid-template-columns: 1fr; }
+  .pied__grille { grid-template-columns: 1fr; }
+  .mosaique-univers { grid-template-columns: 1fr; }
+  .carrousel__piste > * { width: 78%; }
+  .fiche-tech dl { grid-template-columns: 1fr; }
+  .fiche-tech dt { border-bottom: 0; padding-bottom: 0; }
+  .fiche-tech dd { padding-top: 3px; }
+  .hero__collage > *:nth-child(n) { transform: none; }
+  .apropos__images img:nth-child(n) { margin-top: 0; }
+  .barre-filtres { flex-direction: column; align-items: stretch; }
+  .puces { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; scrollbar-width: none; }
+  .puces::-webkit-scrollbar { display: none; }
+  .puce { white-space: nowrap; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+
+</style>
+
+<main id="page">
+    <section class="entete-page" style="min-height:70vh;display:flex;align-items:center">
+      <div class="enveloppe">
+        <p class="surtitre">La Malle d'Automne</p>
+        <h1>Chargement de la boutique…</h1>
+        <p>Si rien n'apparaît, c'est que le JavaScript est désactivé dans ce navigateur.</p>
+      </div>
+    </section></main>
+<script>
+/* ------------------------------------------------------------------
+   La Malle d'Automne — données de la boutique
+   Tout est en dur : aucun serveur, aucune base de données.
+   ------------------------------------------------------------------ */
+
+const BOUTIQUE = {
+  nom: "La Malle d'Automne",
+  baseline: "Brocante en ligne — pièces uniques chinées à la main",
+  email: "bonjour@lamalledautomne.fr",
+  telephone: "06 12 34 56 78",
+};
+
+/* Les univers = les entrées du menu principal ------------------------ */
+const UNIVERS = [
+  {
+    slug: "art-de-la-table",
+    nom: "Art de la table",
+    accroche: "Faïences, porcelaines et petites vaisselles dépareillées.",
+    intro:
+      "Des assiettes qui ont vu passer des générations de dimanches en famille. Je les choisis pour leur décor, leur émail craquelé, leur façon de rendre une table vivante.",
+  },
+  {
+    slug: "le-verre",
+    nom: "Le verre",
+    accroche: "Verres à pied, carafes, compotiers et cristal.",
+    intro:
+      "Tout ce qui laisse passer la lumière : le verre soufflé un peu irrégulier, le cristal taillé qui fait des arcs-en-ciel sur la nappe.",
+  },
+  {
+    slug: "l-argenterie",
+    nom: "L'argenterie",
+    accroche: "Métal argenté, couverts et accessoires de table.",
+    intro:
+      "Le métal argenté a cette patine douce qu'aucun neuf ne sait imiter. Ronds de serviette, passe-thé, porte-couteaux : les petits gestes du couvert d'autrefois.",
+  },
+  {
+    slug: "les-tissus",
+    nom: "Les tissus",
+    accroche: "Torchons, nappes, mouchoirs et linge monogrammé.",
+    intro:
+      "Du linge de maison lavé, repassé, plié. Les monogrammes brodés main sont mes préférés : deux lettres, et toute une maisonnée derrière.",
+  },
+  {
+    slug: "le-papier",
+    nom: "Le papier",
+    accroche: "Gravures, livres reliés, chromos et cartes postales.",
+    intro:
+      "Tout ce qui se trouve être en papier. Les gravures botaniques, les cartes écrites à la plume, les reliures fatiguées qui sentent la cave et le grenier.",
+  },
+  {
+    slug: "la-decoration",
+    nom: "La décoration",
+    accroche: "Tableaux, miroirs, boîtes et objets de curiosité.",
+    intro:
+      "Les pièces qu'on pose sur une commode et qu'on regarde tous les jours sans s'en lasser. Un petit tableau, un miroir piqué, une boîte en marqueterie.",
+  },
+];
+
+/* Les produits ------------------------------------------------------- */
+/* stock : 1 = disponible, 0 = épuisé
+   img   : { forme, teinte, motif } → sert au générateur d'images SVG   */
+
+const PRODUITS = [
+  /* ---------------- ART DE LA TABLE ---------------- */
+  {
+    ref: "AT-104",
+    nom: "Paire de tasses à brûlot en faïence, XIXᵉ",
+    univers: "art-de-la-table",
+    prix: 74,
+    stock: 1,
+    coupDeCoeur: true,
+    accroche:
+      "Deux petites tasses qui ne servent plus à personne — et qui feront pourtant sensation en fin de repas, avec un café serré ou une bougie chauffe-plat glissée dedans.",
+    histoire:
+      "Faïence fine à décor floral peint à la main, rehaussé d'un filet ocre au pinceau. Le brûlot était l'usage normand du café arrosé d'eau-de-vie, servi brûlant dans des tasses sans anse. Émail légèrement tressailli, ce qui est normal et attendu sur cette production. Aucun éclat, aucune restauration.",
+    fabricant: "Faïencerie de l'Est, non signée",
+    epoque: "Fin XIXᵉ siècle",
+    etat: "Très bon état d'usage — tressaillage de l'émail, pas d'éclat",
+    dimensions: "H. 5,5 cm — Ø 7 cm (les deux)",
+    matiere: "Faïence fine",
+    img: { forme: "tasse", teinte: "creme", motif: "floral" },
+  },
+  {
+    ref: "AT-112",
+    nom: "Plat ovale Keller & Guérin, Lunéville",
+    univers: "art-de-la-table",
+    prix: 96,
+    stock: 1,
+    coupDeCoeur: true,
+    accroche:
+      "Le plat qui sauve les grandes tablées : assez large pour un rôti, assez beau pour rester sur la table jusqu'au dessert.",
+    histoire:
+      "Faïence de Lunéville, décor floral polychrome au centre et bord contourné souligné d'un filet vert. Marque en creux et cachet bleu « K&G Lunéville » sous la base. La manufacture Keller & Guérin a repris la faïencerie de Lunéville en 1788 et l'a portée à son apogée décorative au tournant du XXᵉ. Deux minuscules points d'usure sur le marli, visibles sur la dernière photo.",
+    fabricant: "Keller & Guérin — Lunéville",
+    epoque: "Vers 1900-1920",
+    etat: "Bon état — légères usures d'usage sur le marli",
+    dimensions: "L. 38 cm — l. 26 cm",
+    matiere: "Faïence",
+    img: { forme: "plat", teinte: "ivoire", motif: "floral" },
+  },
+  {
+    ref: "AT-087",
+    nom: "Six coquetiers vintage dépareillés",
+    univers: "art-de-la-table",
+    prix: 42,
+    stock: 1,
+    coupDeCoeur: false,
+    accroche:
+      "Six coquetiers qui n'ont rien à voir les uns avec les autres : c'est exactement ce qui rend un petit-déjeuner joyeux.",
+    histoire:
+      "Lot de six coquetiers en faïence et porcelaine, chinés séparément puis réunis : deux à filet doré, un à liseré bleu, un uni jaune paille, deux à décor de fleurettes. Aucune fêlure, aucun éclat sur les six. Passent au lave-vaisselle sauf les deux dorés, à laver à la main.",
+    fabricant: "Divers ateliers français",
+    epoque: "1940-1970",
+    etat: "Très bon état — aucun éclat",
+    dimensions: "H. 4,5 à 6 cm selon les pièces",
+    matiere: "Faïence et porcelaine",
+    img: { forme: "coquetier", teinte: "pastel", motif: "filet" },
+  },
+  {
+    ref: "AT-121",
+    nom: "Saucière en porcelaine blanche à filet or",
+    univers: "art-de-la-table",
+    prix: 38,
+    stock: 1,
+    coupDeCoeur: false,
+    accroche:
+      "Sortez-la pour une sauce, ou détournez-la en petit vase pour trois branches de lilas — elle est faite pour être vue.",
+    histoire:
+      "Porcelaine blanche de Limoges, forme à plateau attenant, anse relevée et double filet or au pinceau. L'or est légèrement estompé sur l'arête de l'anse, seule marque de son grand âge. Marque verte sous la base.",
+    fabricant: "Porcelaine de Limoges",
+    epoque: "Années 1930",
+    etat: "Très bon état — or légèrement estompé sur l'anse",
+    dimensions: "L. 21 cm — H. 9 cm",
+    matiere: "Porcelaine",
+    img: { forme: "sauciere", teinte: "blanc", motif: "filet" },
+  },
+  {
+    ref: "AT-093",
+    nom: "Beurrier cloche en faïence de Sarreguemines",
+    univers: "art-de-la-table",
+    prix: 54,
+    stock: 0,
+    coupDeCoeur: false,
+    accroche:
+      "Le beurre a droit à sa maison. Celle-ci a une cloche, un décor bleu et beaucoup plus d'allure qu'une plaquette dans son papier.",
+    histoire:
+      "Faïence de Sarreguemines, décor bleu au pochoir et frise de feuillage. Cloche complète avec sa prise, base à ressaut. Cachet imprimé sous la base. Une usure d'émail discrète à l'intérieur de la cloche, sans conséquence sur l'usage.",
+    fabricant: "Sarreguemines",
+    epoque: "Début XXᵉ siècle",
+    etat: "Bon état — usure d'émail intérieure",
+    dimensions: "H. 12 cm — Ø base 14 cm",
+    matiere: "Faïence",
+    img: { forme: "beurrier", teinte: "bleu", motif: "pochoir" },
+  },
+  {
+    ref: "AT-130",
+    nom: "Service à café en porcelaine, décor filet bleu",
+    univers: "art-de-la-table",
+    prix: 128,
+    stock: 1,
+    coupDeCoeur: false,
+    accroche:
+      "Un service complet et intact, ça devient rare. Celui-ci attend un dimanche après-midi et une tarte encore tiède.",
+    histoire:
+      "Cafetière, sucrier, pot à lait et six tasses avec leurs sous-tasses. Porcelaine blanche à filet bleu de cobalt et liseré or. Aucune pièce manquante, aucun éclat, les six tasses sont d'origine et non remplacées. Marque bleue sous chaque pièce.",
+    fabricant: "Porcelaine française, marque bleue",
+    epoque: "Années 1950",
+    etat: "Excellent état — service complet",
+    dimensions: "Cafetière H. 23 cm — tasses Ø 7,5 cm",
+    matiere: "Porcelaine",
+    img: { forme: "cafetiere", teinte: "blanc", motif: "filet-bleu" },
+  },
+  {
+    ref: "AT-141",
+    nom: "Six assiettes plates en faïence à décor de blé",
+    univers: "art-de-la-table",
+    prix: 66,
+    stock: 1,
+    coupDeCoeur: false,
+    accroche:
+      "Le décor d'épis de blé donne à n'importe quel plat du quotidien un petit air de repas de campagne.",
+    histoire:
+      "Six assiettes plates en faïence, décor imprimé d'épis de blé sur le marli et filet brun sur le bord. Deux assiettes présentent une usure de couteau au centre, ce qui prouve simplement qu'elles ont servi. Aucune fêlure, aucun éclat.",
+    fabricant: "Faïencerie du Nord, cachet illisible",
+    epoque: "Années 1930-1950",
+    etat: "Bon état — usures de couteau sur deux pièces",
+    dimensions: "Ø 24 cm",
+    matiere: "Faïence",
+    img: { forme: "assiette", teinte: "ivoire", motif: "ble" },
+  },
+
+  /* ---------------- LE VERRE ---------------- */
+  {
+    ref: "VE-058",
+    nom: "Six verres à pied en cristal taillé",
+    univers: "le-verre",
+    prix: 88,
+    stock: 1,
+    coupDeCoeur: true,
+    accroche:
+      "Posez-les près d'une fenêtre : ils jettent des éclats sur toute la nappe. C'est le genre de détail qui transforme un dîner ordinaire.",
+    histoire:
+      "Cristal taillé à côtes plates et bandeau de pointes de diamant, jambe balustre. Belle sonorité au tintement, signe de la teneur en plomb. Les six sont d'un même service, sans dépareillage. Aucun éclat au buvant, à laver à la main.",
+    fabricant: "Cristallerie française non signée",
+    epoque: "Années 1930-1950",
+    etat: "Très bon état — aucun éclat au buvant",
+    dimensions: "H. 14 cm — contenance ≈ 15 cl",
+    matiere: "Cristal",
+    img: { forme: "verre", teinte: "cristal", motif: "taille" },
+  },
+  {
+    ref: "VE-071",
+    nom: "Carafe à liqueur et son bouchon d'origine",
+    univers: "le-verre",
+    prix: 62,
+    stock: 1,
+    coupDeCoeur: false,
+    accroche:
+      "Une carafe de fin de repas, à remplir de prune ou de sirop de sureau selon l'heure et la compagnie.",
+    histoire:
+      "Verre soufflé légèrement irrégulier, panse aplatie et col annelé. Bouchon d'origine rodé à la carafe — il ne va sur aucune autre, c'est ce qui fait sa valeur. Quelques bulles dans la masse, caractéristiques du soufflage à la main.",
+    fabricant: "Verrerie artisanale",
+    epoque: "Fin XIXᵉ siècle",
+    etat: "Très bon état — bouchon d'origine rodé",
+    dimensions: "H. 24 cm avec bouchon",
+    matiere: "Verre soufflé",
+    img: { forme: "carafe", teinte: "cristal", motif: "lisse" },
+  },
+  {
+    ref: "VE-064",
+    nom: "Compotier sur pied en verre moulé",
+    univers: "le-verre",
+    prix: 46,
+    stock: 1,
+    coupDeCoeur: false,
+    accroche:
+      "Trois poires, deux figues, et votre table a un centre. Le compotier sur pied fait le travail d'un bouquet, en plus gourmand.",
+    histoire:
+      "Verre moulé pressé à décor de godrons rayonnants, pied conique. Production française de grande diffusion mais d'un dessin très net, sans reprise ni bavure de moule. Un petit défaut de fonte sur le bord du pied, invisible une fois posé.",
+    fabricant: "Verrerie française",
+    epoque: "Années 1940",
+    etat: "Bon état — défaut de fonte sous le pied",
+    dimensions: "H. 13 cm — Ø 24 cm",
+    matiere: "Verre moulé",
+    img: { forme: "compotier", teinte: "cristal", motif: "godron" },
+  },
+  {
+    ref: "VE-080",
+    nom: "Vase soliflore en verre fumé",
+    univers: "le-verre",
+    prix: 34,
+    stock: 0,
+    coupDeCoeur: false,
+    accroche:
+      "Une seule fleur suffit. C'est tout le principe du soliflore, et c'est aussi le plus simple des luxes.",
+    histoire:
+      "Verre teinté dans la masse d'un gris fumé profond, col resserré et base épaisse. Aucune signature. Le fond porte une marque de pontil polie, indice d'un travail soufflé.",
+    fabricant: "Non signé",
+    epoque: "Années 1960-1970",
+    etat: "Très bon état",
+    dimensions: "H. 18 cm — Ø base 6 cm",
+    matiere: "Verre teinté",
+    img: { forme: "vase", teinte: "fume", motif: "lisse" },
+  },
+  {
+    ref: "VE-089",
+    nom: "Paire de coupelles en verre opalin",
+    univers: "le-verre",
+    prix: 29,
+    stock: 1,
+    coupDeCoeur: false,
+    accroche:
+      "Pour les olives, les boutons de manchette ou les épingles à cheveux : deux petites coupelles qui trouvent leur place partout.",
+    histoire:
+      "Opaline blanc laiteux à reflets légèrement bleutés en transparence, bord ourlé au feu. Les opalines françaises du XIXᵉ se reconnaissent à ce reflet ambré lorsqu'on les tient devant une lampe. Les deux sont exemptes d'éclat.",
+    fabricant: "Opaline française",
+    epoque: "Seconde moitié du XIXᵉ",
+    etat: "Très bon état — aucun éclat",
+    dimensions: "Ø 11 cm — H. 3 cm",
+    matiere: "Opaline",
+    img: { forme: "coupelle", teinte: "opalin", motif: "lisse" },
+  },
+
+  /* ---------------- L'ARGENTERIE ---------------- */
+  {
+    ref: "AR-042",
+    nom: "Douze ronds de serviette en métal argenté",
+    univers: "l-argenterie",
+    prix: 84,
+    stock: 1,
+    coupDeCoeur: true,
+    accroche:
+      "Douze ronds de serviette, douze convives, et l'impression très agréable d'avoir une maison où l'on reçoit.",
+    histoire:
+      "Métal argenté à décor de filets et rubans croisés, dans leur coffret d'origine gainé de papier bordeaux. Aucun monogramme gravé, ce qui les rend utilisables par tout le monde. Argenture homogène, quelques micro-rayures d'usage visibles à la lumière rasante.",
+    fabricant: "Orfèvrerie française, poinçon d'orfèvre au losange",
+    epoque: "Années 1920",
+    etat: "Très bon état — coffret d'origine, argenture homogène",
+    dimensions: "Ø 4,5 cm chacun",
+    matiere: "Métal argenté",
+    img: { forme: "rond-serviette", teinte: "argent", motif: "filet" },
+  },
+  {
+    ref: "AR-055",
+    nom: "Passe-thé à manche et son présentoir",
+    univers: "l-argenterie",
+    prix: 48,
+    stock: 1,
+    coupDeCoeur: false,
+    accroche:
+      "Le thé en vrac mérite mieux qu'une boule en inox. Ce passe-thé et sa petite soucoupe font du service une petite cérémonie.",
+    histoire:
+      "Métal argenté, coupelle percée à motif rayonnant et manche à filets, livré avec son présentoir d'origine. Ensemble complet, ce qui est rare : le présentoir est presque toujours perdu. Poinçon partiellement lisible sous le manche.",
+    fabricant: "Orfèvrerie non identifiée",
+    epoque: "Début XXᵉ siècle",
+    etat: "Très bon état — ensemble complet",
+    dimensions: "L. 14 cm — présentoir Ø 8 cm",
+    matiere: "Métal argenté",
+    img: { forme: "passe-the", teinte: "argent", motif: "raie" },
+  },
+  {
+    ref: "AR-061",
+    nom: "Service à poisson à manches en ivoirine",
+    univers: "l-argenterie",
+    prix: 72,
+    stock: 1,
+    coupDeCoeur: false,
+    accroche:
+      "Deux pièces qui font tout de suite « repas de fête », même quand il n'y a qu'une truite au menu.",
+    histoire:
+      "Pelle et fourchette de service, lames en métal argenté finement ciselées de rinceaux, manches en ivoirine (résine imitant l'ivoire, matériau courant dès les années 1920). Aucune fente sur les manches, ciselure nette. Dans un écrin postérieur.",
+    fabricant: "Orfèvrerie française",
+    epoque: "Années 1920-1930",
+    etat: "Très bon état — manches sans fente",
+    dimensions: "L. 30 cm et 27 cm",
+    matiere: "Métal argenté et ivoirine",
+    img: { forme: "couverts", teinte: "argent", motif: "cisele" },
+  },
+  {
+    ref: "AR-070",
+    nom: "Huit porte-couteaux en métal argenté",
+    univers: "l-argenterie",
+    prix: 56,
+    stock: 0,
+    coupDeCoeur: false,
+    accroche:
+      "Le détail qui fait la table dressée : huit petits chevalets pour poser les couteaux entre deux services.",
+    histoire:
+      "Modèle à barrette et sabots, métal argenté sur laiton. Huit exemplaires identiques du même service. Argenture bien conservée sur sept d'entre eux, un présente une usure au sommet laissant apparaître le laiton.",
+    fabricant: "Non signé",
+    epoque: "Années 1930",
+    etat: "Bon état — une pièce avec usure d'argenture",
+    dimensions: "L. 8 cm",
+    matiere: "Métal argenté",
+    img: { forme: "porte-couteau", teinte: "argent", motif: "lisse" },
+  },
+  {
+    ref: "AR-078",
+    nom: "Pelle à tarte à décor de vigne",
+    univers: "l-argenterie",
+    prix: 39,
+    stock: 1,
+    coupDeCoeur: false,
+    accroche:
+      "Elle a probablement découpé quelques centaines de tartes aux mirabelles. Elle est prête pour les vôtres.",
+    histoire:
+      "Métal argenté, spatule ajourée à décor de pampres et grappes, manche à filet. La ciselure du décor de vigne est encore très lisible malgré l'usage. Poinçon d'orfèvre au dos de la spatule.",
+    fabricant: "Orfèvrerie française, poinçon au losange",
+    epoque: "Fin XIXᵉ siècle",
+    etat: "Bon état d'usage — ciselure nette",
+    dimensions: "L. 25 cm",
+    matiere: "Métal argenté",
+    img: { forme: "pelle", teinte: "argent", motif: "vigne" },
+  },
+
+  /* ---------------- LES TISSUS ---------------- */
+  {
+    ref: "TI-033",
+    nom: "Trois torchons monogrammés « M.L. » en métis",
+    univers: "les-tissus",
+    prix: 45,
+    stock: 1,
+    coupDeCoeur: true,
+    accroche:
+      "Le linge ancien s'améliore en vieillissant : ces torchons sont plus doux aujourd'hui qu'au jour de leur broderie.",
+    histoire:
+      "Métis de lin et coton tissé serré, bande rouge tissée dans la lisière, monogramme « M.L. » brodé main au point de tige dans un angle. Lavés à 40°, repassés, prêts à l'emploi. Aucun accroc, aucune tache rémanente ; deux petites reprises anciennes témoignent d'un linge qu'on entretenait.",
+    fabricant: "Trousseau de maison, broderie main",
+    epoque: "Années 1920-1940",
+    etat: "Très bon état — deux reprises anciennes",
+    dimensions: "70 × 50 cm environ",
+    matiere: "Métis lin et coton",
+    img: { forme: "torchon", teinte: "lin", motif: "raie-rouge" },
+  },
+  {
+    ref: "TI-041",
+    nom: "Nappe damassée blanche à décor de roses",
+    univers: "les-tissus",
+    prix: 78,
+    stock: 1,
+    coupDeCoeur: false,
+    accroche:
+      "Une vraie nappe damassée change la façon dont on s'assoit à table. Elle appelle les grandes occasions — ou le plaisir d'en inventer une.",
+    histoire:
+      "Damassé de coton blanc, décor de roses et de rinceaux visible en jeu de lumière selon l'angle. Ourlets d'origine à points glissés. Blancheur homogène, aucun jaunissement de pliure, aucune trace. Un accroc ancien de 1 cm réparé au fil de même couleur dans un angle, signalé sur les photos.",
+    fabricant: "Tissage français",
+    epoque: "Première moitié du XXᵉ",
+    etat: "Bon état — une réparation ancienne dans un angle",
+    dimensions: "230 × 150 cm",
+    matiere: "Coton damassé",
+    img: { forme: "nappe", teinte: "blanc", motif: "damasse" },
+  },
+  {
+    ref: "TI-047",
+    nom: "Lot de six mouchoirs brodés à la main",
+    univers: "les-tissus",
+    prix: 32,
+    stock: 1,
+    coupDeCoeur: false,
+    accroche:
+      "À offrir, à encadrer, ou à glisser dans une poche de veste : six petits carrés brodés qui ne ressemblent à rien d'industriel.",
+    histoire:
+      "Batiste de coton fin, jours échelle sur les bords et motifs floraux brodés au plumetis. Chaque mouchoir porte un motif différent. Deux d'entre eux comportent un monogramme discret. Lavés, repassés, sans tache ni trou.",
+    fabricant: "Broderie main, ouvrage de trousseau",
+    epoque: "Années 1930-1950",
+    etat: "Très bon état",
+    dimensions: "28 × 28 cm environ",
+    matiere: "Batiste de coton",
+    img: { forme: "mouchoir", teinte: "blanc", motif: "plumetis" },
+  },
+  {
+    ref: "TI-052",
+    nom: "Rideau brodé au filet, travail à la main",
+    univers: "les-tissus",
+    prix: 68,
+    stock: 1,
+    coupDeCoeur: false,
+    accroche:
+      "Tendu sur une fenêtre de cuisine, il filtre la lumière du matin sans l'éteindre. C'est le meilleur usage qu'on puisse en faire.",
+    histoire:
+      "Filet de coton brodé main au point de reprise, décor géométrique de losanges et frise en bordure basse. Travail long, entièrement manuel, typique des ouvrages de veillée. Deux mailles rompues sur un bord latéral, réparables ou invisibles une fois le rideau posé.",
+    fabricant: "Ouvrage domestique",
+    epoque: "Début XXᵉ siècle",
+    etat: "Bon état — deux mailles rompues sur un bord",
+    dimensions: "160 × 90 cm",
+    matiere: "Coton",
+    img: { forme: "rideau", teinte: "ecru", motif: "filet-brode" },
+  },
+  {
+    ref: "TI-059",
+    nom: "Douze serviettes de table en lin épais",
+    univers: "les-tissus",
+    prix: 92,
+    stock: 0,
+    coupDeCoeur: false,
+    accroche:
+      "Douze serviettes de lin, c'est un investissement pour vingt ans de repas. Celles-ci en ont déjà tenu quarante.",
+    histoire:
+      "Lin lourd tissé main, bordures à ourlet rabattu, monogramme « B.R. » brodé au point de croix rouge. Le lin a acquis cette souplesse que seuls les lavages répétés donnent. Un léger halo sur une serviette, signalé, qui part au soleil.",
+    fabricant: "Trousseau de maison",
+    epoque: "Fin XIXᵉ siècle",
+    etat: "Bon état — un halo léger sur une pièce",
+    dimensions: "60 × 60 cm",
+    matiere: "Lin",
+    img: { forme: "serviette", teinte: "lin", motif: "croix-rouge" },
+  },
+
+  /* ---------------- LE PAPIER ---------------- */
+  {
+    ref: "PA-018",
+    nom: "Gravure botanique aquarellée — Iris de jardin",
+    univers: "le-papier",
+    prix: 58,
+    stock: 1,
+    coupDeCoeur: true,
+    accroche:
+      "Encadrez-la au-dessus d'un bureau : une planche botanique impose immédiatement un calme de cabinet de curiosités.",
+    histoire:
+      "Gravure sur cuivre rehaussée à l'aquarelle à la main, légendée en latin sous le sujet et numérotée en haut à droite. Planche issue d'une flore illustrée démembrée. Papier vergé, marges d'origine conservées. Quelques rousseurs claires en marge, sans atteinte au sujet. Vendue sans cadre.",
+    fabricant: "Planche de flore illustrée, atelier non identifié",
+    epoque: "Milieu XIXᵉ siècle",
+    etat: "Bon état — rousseurs claires en marge",
+    dimensions: "34 × 24 cm (feuille)",
+    matiere: "Papier vergé, aquarelle",
+    img: { forme: "gravure", teinte: "papier", motif: "botanique" },
+  },
+  {
+    ref: "PA-025",
+    nom: "Lot de vingt cartes postales écrites, 1900-1930",
+    univers: "le-papier",
+    prix: 26,
+    stock: 1,
+    coupDeCoeur: false,
+    accroche:
+      "Vingt écritures différentes, vingt petites nouvelles du monde d'avant. À lire, à encadrer en série, ou à glisser dans des livres.",
+    histoire:
+      "Cartes photographiques et lithographiées, vues de villages, de gares et de fêtes de village. Toutes sont écrites au recto ou au verso, la plupart timbrées et oblitérées, ce qui permet de les dater précisément. État variable selon les pièces, décrit et photographié lot par lot : quelques coins émoussés, aucune déchirure.",
+    fabricant: "Éditeurs divers",
+    epoque: "1900-1930",
+    etat: "État variable — coins émoussés sur quelques pièces",
+    dimensions: "14 × 9 cm chacune",
+    matiere: "Papier",
+    img: { forme: "cartes", teinte: "papier", motif: "ecriture" },
+  },
+  {
+    ref: "PA-031",
+    nom: "Recueil relié plein cuir, fables et poésies",
+    univers: "le-papier",
+    prix: 64,
+    stock: 1,
+    coupDeCoeur: false,
+    accroche:
+      "Un livre qu'on ouvre pour l'odeur autant que pour le texte, et qu'on laisse ensuite bien en vue sur une pile.",
+    histoire:
+      "Reliure plein cuir fauve, dos à cinq nerfs orné de fleurons dorés, tranches jaspées. Intérieur frais, papier légèrement bruni mais sans manque ni page détachée. Coiffes frottées et coins émoussés, comme presque toujours sur ces reliures d'usage. Sans date d'édition imprimée.",
+    fabricant: "Reliure d'époque, atelier non identifié",
+    epoque: "Seconde moitié du XIXᵉ",
+    etat: "Bon état — coiffes frottées, coins émoussés",
+    dimensions: "18 × 12 cm — 320 pages environ",
+    matiere: "Cuir et papier",
+    img: { forme: "livre", teinte: "cuir", motif: "nerfs" },
+  },
+  {
+    ref: "PA-036",
+    nom: "Planche de chromos découpés — fleurs et oiseaux",
+    univers: "le-papier",
+    prix: 22,
+    stock: 0,
+    coupDeCoeur: false,
+    accroche:
+      "Les chromos étaient les images qu'on collectionnait enfant. Elles font aujourd'hui de merveilleux marque-pages ou décorations de paquets.",
+    histoire:
+      "Chromolithographies gaufrées et découpées, couleurs vives à dominante rose et bleue, encore reliées par les ponts de découpe d'origine. Ce détail compte : la plupart des chromos ont été séparés et collés dans des albums. Planche complète, sans manque.",
+    fabricant: "Chromolithographie allemande ou française",
+    epoque: "Vers 1900",
+    etat: "Très bon état — planche complète",
+    dimensions: "23 × 15 cm",
+    matiere: "Papier chromolithographié",
+    img: { forme: "chromo", teinte: "papier", motif: "chromo" },
+  },
+
+  /* ---------------- LA DÉCORATION ---------------- */
+  {
+    ref: "DE-012",
+    nom: "Petite huile sur toile — paysage de bord de rivière",
+    univers: "la-decoration",
+    prix: 145,
+    stock: 1,
+    coupDeCoeur: true,
+    accroche:
+      "Un petit format qui réchauffe un mur nu mieux qu'un grand tableau : on s'en approche, et on y reste un moment.",
+    histoire:
+      "Huile sur toile marouflée sur carton, paysage de rivière bordée de peupliers dans une palette de verts sourds et d'ocres. Signature en bas à droite peu lisible. Cadre en bois mouluré patiné d'origine, avec quelques manques au stuc sur un angle. Toile propre, sans crevé ni repeint visible sous lumière rasante.",
+    fabricant: "Peintre non identifié, signature illisible",
+    epoque: "Première moitié du XXᵉ",
+    etat: "Bon état — manques au stuc du cadre",
+    dimensions: "Cadre 38 × 30 cm — toile 27 × 19 cm",
+    matiere: "Huile sur toile, cadre bois",
+    img: { forme: "tableau", teinte: "paysage", motif: "huile" },
+  },
+  {
+    ref: "DE-019",
+    nom: "Miroir de sorcière à cadre doré",
+    univers: "la-decoration",
+    prix: 98,
+    stock: 1,
+    coupDeCoeur: false,
+    accroche:
+      "Le miroir convexe attrape toute la pièce d'un coup. Accroché face à une fenêtre, il rend la lumière deux fois.",
+    histoire:
+      "Miroir convexe dit « de sorcière », glace bombée dans un cadre circulaire en bois et stuc doré à décor de perles. La dorure a pris cette teinte cuivrée qu'on ne peut pas reproduire. Tain piqué par endroits, ce qui est habituel et participe du charme. Système d'accroche au dos en bon état.",
+    fabricant: "Travail français",
+    epoque: "Début XXᵉ siècle",
+    etat: "Bon état — tain piqué, dorure patinée",
+    dimensions: "Ø 32 cm",
+    matiere: "Bois, stuc doré, verre",
+    img: { forme: "miroir", teinte: "dore", motif: "perle" },
+  },
+  {
+    ref: "DE-027",
+    nom: "Boîte en marqueterie à couvercle étoilé",
+    univers: "la-decoration",
+    prix: 76,
+    stock: 1,
+    coupDeCoeur: false,
+    accroche:
+      "Pour ranger les lettres, les clés d'anciennes maisons, ou rien du tout — certaines boîtes se suffisent à elles-mêmes.",
+    histoire:
+      "Marqueterie de bois clairs et foncés formant une étoile à huit branches sur le couvercle, filets d'encadrement sur les côtés. Intérieur garni de feutrine verte d'origine, un peu usée. Charnières laiton en bon fonctionnement, fermeture nette. Un petit soulèvement de placage sur un angle, stable.",
+    fabricant: "Ébénisterie non signée",
+    epoque: "Fin XIXᵉ siècle",
+    etat: "Bon état — soulèvement de placage sur un angle",
+    dimensions: "L. 22 cm — l. 15 cm — H. 8 cm",
+    matiere: "Bois de placage, laiton",
+    img: { forme: "boite", teinte: "bois", motif: "etoile" },
+  },
+  {
+    ref: "DE-034",
+    nom: "Pied de lampe en céramique émaillée verte",
+    univers: "la-decoration",
+    prix: 82,
+    stock: 1,
+    coupDeCoeur: false,
+    accroche:
+      "Un vert profond de mousse, une forme pleine et ronde : posez un abat-jour écru dessus et c'est toute la pièce qui s'adoucit.",
+    histoire:
+      "Grès émaillé vert à coulures, forme balustre, base plate. Émail épais avec les variations de bain typiques d'une cuisson en atelier. Électrification refaite à neuf (cordon textile, douille E27 aux normes), vendu sans abat-jour. Signature incisée sous la base, illisible.",
+    fabricant: "Atelier de céramique, signature incisée",
+    epoque: "Années 1950-1960",
+    etat: "Très bon état — électrification refaite à neuf",
+    dimensions: "H. 30 cm sans abat-jour — Ø base 14 cm",
+    matiere: "Grès émaillé",
+    img: { forme: "lampe", teinte: "vert", motif: "coulure" },
+  },
+  {
+    ref: "DE-040",
+    nom: "Paire de cadres photo en laiton ciselé",
+    univers: "la-decoration",
+    prix: 44,
+    stock: 0,
+    coupDeCoeur: false,
+    accroche:
+      "Deux cadres qui donnent instantanément un air d'héritage à une photo prise la semaine dernière.",
+    histoire:
+      "Laiton ciselé à décor de rinceaux, chevalet articulé au dos, verre d'origine sur les deux. Le laiton a une patine chaude non polie, que je n'ai volontairement pas décapée. Un chevalet légèrement souple mais fonctionnel.",
+    fabricant: "Travail français",
+    epoque: "Années 1920",
+    etat: "Bon état — un chevalet légèrement souple",
+    dimensions: "16 × 11 cm (vue 12 × 8 cm)",
+    matiere: "Laiton et verre",
+    img: { forme: "cadre", teinte: "laiton", motif: "rinceau" },
+  },
+];
+
+/* Les avis clients ---------------------------------------------------
+   refProduit : null → avis général affiché en page d'accueil          */
+
+const AVIS = [
+  {
+    prenom: "Claire",
+    ville: "Nantes",
+    note: 5,
+    date: "12 juin 2026",
+    refProduit: "AT-104",
+    texte:
+      "Les tasses sont encore plus jolies en vrai que sur les photos, et l'emballage était impeccable — trois couches de papier de soie et du carton partout. Elles ont servi dès le dimanche suivant.",
+  },
+  {
+    prenom: "Bertrand",
+    ville: "Lyon",
+    note: 5,
+    date: "3 juin 2026",
+    refProduit: "AT-112",
+    texte:
+      "J'avais posé deux questions sur les usures du marli avant d'acheter, j'ai eu une réponse détaillée avec des photos supplémentaires le jour même. Le plat correspond exactement à la description.",
+  },
+  {
+    prenom: "Émilie",
+    ville: "Bordeaux",
+    note: 5,
+    date: "28 mai 2026",
+    refProduit: "VE-058",
+    texte:
+      "Six verres en cristal expédiés sans une égratignure, chacun emballé individuellement. La description mentionnait honnêtement les micro-rayures, je les cherche encore.",
+  },
+  {
+    prenom: "Marc",
+    ville: "Strasbourg",
+    note: 4,
+    date: "21 mai 2026",
+    refProduit: "AR-042",
+    texte:
+      "Très beau lot, coffret d'origine en meilleur état que je ne l'espérais. Un point en moins seulement parce que j'aurais aimé une photo du dos du coffret sur la fiche.",
+  },
+  {
+    prenom: "Sophie",
+    ville: "Rennes",
+    note: 5,
+    date: "14 mai 2026",
+    refProduit: "TI-033",
+    texte:
+      "Le linge est lavé et repassé à réception, c'est un vrai confort. Les torchons sont doux et le monogramme est superbe. Je reviendrai pour la nappe.",
+  },
+  {
+    prenom: "Jean-Pierre",
+    ville: "Toulouse",
+    note: 5,
+    date: "2 mai 2026",
+    refProduit: "PA-018",
+    texte:
+      "Gravure conforme, expédiée à plat entre deux plaques de carton rigide dans une pochette renforcée. Les rousseurs annoncées sont bien là et bien discrètes, comme promis.",
+  },
+  {
+    prenom: "Anne-Laure",
+    ville: "Lille",
+    note: 5,
+    date: "24 avril 2026",
+    refProduit: "DE-012",
+    texte:
+      "Le petit tableau est arrivé en deux jours, calé dans une caisse en carton double cannelure. J'apprécie qu'on m'ait prévenue du manque de stuc avant l'achat plutôt que de le découvrir en ouvrant.",
+  },
+  {
+    prenom: "Camille",
+    ville: "Aix-en-Provence",
+    note: 5,
+    date: "18 avril 2026",
+    refProduit: "AT-130",
+    texte:
+      "Service complet et vraiment intact, ce qui est rare. J'ai posé une question un dimanche soir, réponse le lundi matin. Rien à redire.",
+  },
+  {
+    prenom: "Hélène",
+    ville: "Angers",
+    note: 5,
+    date: "9 avril 2026",
+    refProduit: "VE-071",
+    texte:
+      "La carafe a un bouchon parfaitement rodé, ce qui n'était pas gagné. Belle surprise, et les bulles dans le verre lui donnent tout son cachet.",
+  },
+  {
+    prenom: "Thierry",
+    ville: "Dijon",
+    note: 4,
+    date: "30 mars 2026",
+    refProduit: "AR-061",
+    texte:
+      "Service à poisson très propre, ciselure nette. L'écrin n'est pas d'origine, c'était bien précisé dans la fiche. Livraison un peu longue mais rien d'anormal.",
+  },
+  {
+    prenom: "Nathalie",
+    ville: "Caen",
+    note: 5,
+    date: "22 mars 2026",
+    refProduit: "TI-041",
+    texte:
+      "La nappe est magnifique et la réparation ancienne est réellement invisible. On sent que chaque pièce est vérifiée avant de partir.",
+  },
+  {
+    prenom: "Olivier",
+    ville: "Clermont-Ferrand",
+    note: 5,
+    date: "11 mars 2026",
+    refProduit: "AT-087",
+    texte:
+      "Les six coquetiers dépareillés sont une excellente idée. Mes enfants choisissent le leur chaque matin. Emballage soigné, aucun éclat.",
+  },
+];
+
+/* ------------------------------------------------------------------ */
+/* Petits utilitaires de données                                       */
+/* ------------------------------------------------------------------ */
+
+function universParSlug(slug) {
+  return UNIVERS.find((u) => u.slug === slug) || null;
+}
+
+function produitParRef(ref) {
+  return PRODUITS.find((p) => p.ref === ref) || null;
+}
+
+function produitsDeLUnivers(slug, options) {
+  const opts = options || {};
+  let liste = PRODUITS.filter((p) => p.univers === slug);
+  if (opts.disponiblesSeulement) liste = liste.filter((p) => p.stock > 0);
+  return liste;
+}
+
+/* Avis d'un produit + moyenne */
+function avisDuProduit(ref) {
+  return AVIS.filter((a) => a.refProduit === ref);
+}
+
+function noteMoyenne(ref) {
+  const liste = avisDuProduit(ref);
+  if (!liste.length) return null;
+  const somme = liste.reduce((t, a) => t + a.note, 0);
+  return Math.round((somme / liste.length) * 10) / 10;
+}
+
+function noteMoyenneBoutique() {
+  const somme = AVIS.reduce((t, a) => t + a.note, 0);
+  return Math.round((somme / AVIS.length) * 10) / 10;
+}
+
+/* Règle métier : un produit épuisé n'est jamais mis en avant. */
+function coupsDeCoeur() {
+  return PRODUITS.filter((p) => p.coupDeCoeur && p.stock > 0);
+}
+
+function misEnAvantPourUnivers(slug, nombre) {
+  const dispo = produitsDeLUnivers(slug, { disponiblesSeulement: true });
+  return nombre ? dispo.slice(0, nombre) : dispo;
+}
+
+</script>
+<script>
+/* ------------------------------------------------------------------
+   Générateur d'illustrations produit.
+   Tout est dessiné en SVG à la volée : aucune image externe, aucune
+   requête réseau. Le site fonctionne donc hors ligne, y compris en
+   ouvrant simplement le fichier index.html depuis un téléphone.
+   ------------------------------------------------------------------ */
+
+const TEINTES = {
+  creme:   { base: "#F0E6D2", clair: "#FBF5E9", fonce: "#D6C3A2", trait: "#8C7A5E", deco: "#9A6B58" },
+  ivoire:  { base: "#F5EEE2", clair: "#FDF9F1", fonce: "#DCCFB8", trait: "#8A7B63", deco: "#6E7F63" },
+  blanc:   { base: "#F8F5F0", clair: "#FFFFFF", fonce: "#E0D9CD", trait: "#8B8378", deco: "#B08D4E" },
+  pastel:  { base: "#EFE3D6", clair: "#FBF3E9", fonce: "#D8C4AE", trait: "#8A7660", deco: "#7C8871" },
+  bleu:    { base: "#EAEFF3", clair: "#F8FBFD", fonce: "#C4D2DE", trait: "#5E7186", deco: "#41637F" },
+  cristal: { base: "#EDF1F0", clair: "#FBFDFC", fonce: "#CEDAD8", trait: "#7C8B8A", deco: "#A9B8B6" },
+  fume:    { base: "#CFCAC6", clair: "#E5E1DD", fonce: "#A49D98", trait: "#6B635D", deco: "#8A817B" },
+  opalin:  { base: "#F4F1EA", clair: "#FFFFFF", fonce: "#DCD6C9", trait: "#8C8677", deco: "#B9C3C6" },
+  argent:  { base: "#DAD8D3", clair: "#F1F0EC", fonce: "#AEACA5", trait: "#6E6B64", deco: "#8E8B83" },
+  lin:     { base: "#E7DDCB", clair: "#F4EDE0", fonce: "#CBBBA0", trait: "#8A7A60", deco: "#A5453C" },
+  ecru:    { base: "#EFE7D8", clair: "#F9F4EA", fonce: "#D5C8B0", trait: "#8B7C64", deco: "#9C8C72" },
+  papier:  { base: "#F1E9D9", clair: "#FAF5EA", fonce: "#DACDB4", trait: "#8B7C61", deco: "#6E7F63" },
+  cuir:    { base: "#9A6B45", clair: "#B98A62", fonce: "#6E482B", trait: "#4A2F1B", deco: "#C9A45E" },
+  paysage: { base: "#8E9A78", clair: "#C7CBA9", fonce: "#5E6A52", trait: "#4A4436", deco: "#A98A5C" },
+  dore:    { base: "#C6A365", clair: "#E3CA96", fonce: "#9A7B41", trait: "#6B5227", deco: "#EFE4C8" },
+  bois:    { base: "#B08E63", clair: "#CDAE85", fonce: "#7E6039", trait: "#54402A", deco: "#EADFC6" },
+  vert:    { base: "#6E8163", clair: "#8FA283", fonce: "#4C5B44", trait: "#39412F", deco: "#C6D0B4" },
+  laiton:  { base: "#C4A567", clair: "#DDC391", fonce: "#96793F", trait: "#665028", deco: "#F2E9D4" },
+};
+
+const FOND = { haut: "#F6F1E7", bas: "#EDE5D6", ombre: "#D9CDB8" };
+
+function _teinte(nom) {
+  return TEINTES[nom] || TEINTES.creme;
+}
+
+/* --- petits helpers de dessin ------------------------------------- */
+
+function _ombrePortee(cx, cy, rx, ry) {
+  return `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="url(#ombre)"/>`;
+}
+
+function _filet(d, couleur, epaisseur) {
+  return `<path d="${d}" fill="none" stroke="${couleur}" stroke-width="${epaisseur || 2}" stroke-linecap="round"/>`;
+}
+
+/* Semis de petites fleurs / points, utilisé pour les décors peints */
+function _semis(cx, cy, rayon, couleur, nb, graine) {
+  let out = "";
+  let s = graine || 7;
+  const rnd = () => {
+    s = (s * 9301 + 49297) % 233280;
+    return s / 233280;
+  };
+  for (let i = 0; i < (nb || 6); i++) {
+    const a = rnd() * Math.PI * 2;
+    const r = rayon * (0.35 + rnd() * 0.6);
+    const x = cx + Math.cos(a) * r;
+    const y = cy + Math.sin(a) * r * 0.85;
+    const t = 3 + rnd() * 4;
+    out += `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)})" opacity="0.75">`;
+    for (let p = 0; p < 5; p++) {
+      const ang = (p / 5) * 360;
+      out += `<ellipse cx="0" cy="${-t}" rx="${(t * 0.55).toFixed(1)}" ry="${t.toFixed(1)}" fill="${couleur}" transform="rotate(${ang})"/>`;
+    }
+    out += `<circle r="${(t * 0.4).toFixed(1)}" fill="${FOND.haut}"/></g>`;
+  }
+  return out;
+}
+
+/* --- les formes ---------------------------------------------------- */
+
+const FORMES = {
+  /* ---- céramiques rondes ---- */
+  assiette(t, m) {
+    return (
+      _ombrePortee(300, 400, 175, 26) +
+      `<circle cx="300" cy="300" r="185" fill="${t.base}"/>` +
+      `<circle cx="300" cy="300" r="185" fill="none" stroke="${t.fonce}" stroke-width="3"/>` +
+      `<circle cx="300" cy="292" r="168" fill="${t.clair}"/>` +
+      `<circle cx="300" cy="292" r="120" fill="none" stroke="${t.fonce}" stroke-width="1.5" opacity="0.7"/>` +
+      `<circle cx="300" cy="292" r="150" fill="none" stroke="${t.deco}" stroke-width="3" opacity="0.8"/>` +
+      (m === "ble" ? _epis(300, 292, 135, t.deco) : _semis(300, 292, 95, t.deco, 7, 11)) +
+      `<path d="M180 200 A 170 170 0 0 1 330 138" fill="none" stroke="#FFFFFF" stroke-width="16" opacity="0.35" stroke-linecap="round"/>`
+    );
+  },
+  plat(t, m) {
+    return (
+      _ombrePortee(300, 415, 200, 24) +
+      `<ellipse cx="300" cy="300" rx="230" ry="160" fill="${t.base}"/>` +
+      `<ellipse cx="300" cy="294" rx="230" ry="160" fill="${t.clair}" stroke="${t.fonce}" stroke-width="3"/>` +
+      `<ellipse cx="300" cy="294" rx="188" ry="122" fill="none" stroke="${t.deco}" stroke-width="3" opacity="0.85"/>` +
+      `<ellipse cx="300" cy="294" rx="150" ry="92" fill="none" stroke="${t.fonce}" stroke-width="1.5" opacity="0.6"/>` +
+      _semis(300, 294, 78, t.deco, 8, 5) +
+      `<path d="M120 240 A 200 130 0 0 1 260 170" fill="none" stroke="#FFFFFF" stroke-width="18" opacity="0.35" stroke-linecap="round"/>`
+    );
+  },
+  coupelle(t) {
+    return (
+      _ombrePortee(300, 392, 140, 20) +
+      `<ellipse cx="300" cy="330" rx="150" ry="52" fill="${t.fonce}"/>` +
+      `<path d="M150 330 Q300 430 450 330 Z" fill="${t.base}"/>` +
+      `<ellipse cx="300" cy="318" rx="150" ry="52" fill="${t.clair}" stroke="${t.fonce}" stroke-width="2.5"/>` +
+      `<ellipse cx="300" cy="318" rx="118" ry="38" fill="none" stroke="${t.deco}" stroke-width="2" opacity="0.6"/>` +
+      `<ellipse cx="252" cy="222" rx="120" ry="26" fill="#FFFFFF" opacity="0.28" transform="rotate(-12 252 222)"/>` +
+      `<ellipse cx="300" cy="380" rx="150" ry="46" fill="none" stroke="${t.fonce}" stroke-width="2" opacity="0.35"/>`
+    );
+  },
+  compotier(t) {
+    return (
+      _ombrePortee(300, 470, 130, 20) +
+      `<path d="M255 340 L245 445 L355 445 L345 340 Z" fill="${t.base}" stroke="${t.fonce}" stroke-width="2"/>` +
+      `<ellipse cx="300" cy="447" rx="86" ry="22" fill="${t.clair}" stroke="${t.fonce}" stroke-width="2"/>` +
+      `<path d="M130 250 Q300 400 470 250 Z" fill="${t.base}"/>` +
+      `<ellipse cx="300" cy="250" rx="170" ry="58" fill="${t.clair}" stroke="${t.fonce}" stroke-width="2.5"/>` +
+      _godrons(300, 250, 170, 58, t.fonce) +
+      `<ellipse cx="250" cy="238" rx="95" ry="20" fill="#FFFFFF" opacity="0.3" transform="rotate(-10 250 238)"/>`
+    );
+  },
+
+  /* ---- pièces à anse ---- */
+  tasse(t, m) {
+    return (
+      _ombrePortee(300, 432, 155, 22) +
+      `<ellipse cx="300" cy="415" rx="165" ry="42" fill="${t.base}" stroke="${t.fonce}" stroke-width="2"/>` +
+      `<ellipse cx="300" cy="404" rx="165" ry="42" fill="${t.clair}" stroke="${t.fonce}" stroke-width="2"/>` +
+      `<ellipse cx="300" cy="404" rx="118" ry="28" fill="none" stroke="${t.deco}" stroke-width="2" opacity="0.55"/>` +
+      `<path d="M425 230 q58 22 0 76" fill="none" stroke="${t.fonce}" stroke-width="16" stroke-linecap="round"/>` +
+      `<path d="M425 230 q58 22 0 76" fill="none" stroke="${t.clair}" stroke-width="8" stroke-linecap="round"/>` +
+      `<path d="M195 215 q10 150 32 168 q73 20 146 0 q22 -18 32 -168 Z" fill="${t.base}" stroke="${t.fonce}" stroke-width="2.5"/>` +
+      `<ellipse cx="300" cy="215" rx="105" ry="34" fill="${t.clair}" stroke="${t.fonce}" stroke-width="2.5"/>` +
+      `<ellipse cx="300" cy="215" rx="88" ry="26" fill="${t.fonce}" opacity="0.25"/>` +
+      (m === "floral" ? _semis(300, 300, 62, t.deco, 6, 3) : _filet("M206 262 q94 26 188 0", t.deco, 3)) +
+      `<path d="M222 250 q-4 100 14 128" fill="none" stroke="#FFFFFF" stroke-width="14" opacity="0.35" stroke-linecap="round"/>`
+    );
+  },
+  coquetier(t) {
+    let out = _ombrePortee(300, 452, 190, 22);
+    const pos = [
+      { x: 150, y: 300, s: 0.92 },
+      { x: 300, y: 285, s: 1.0 },
+      { x: 452, y: 302, s: 0.9 },
+    ];
+    const tons = [t.clair, t.base, t.fonce];
+    pos.forEach((p, i) => {
+      const c = tons[i % tons.length];
+      out +=
+        `<g transform="translate(${p.x} ${p.y}) scale(${p.s})">` +
+        `<ellipse cx="0" cy="148" rx="52" ry="16" fill="${t.fonce}" opacity="0.5"/>` +
+        `<path d="M-30 60 L-38 140 L38 140 L30 60 Z" fill="${c}" stroke="${t.trait}" stroke-width="2"/>` +
+        `<ellipse cx="0" cy="142" rx="42" ry="12" fill="${c}" stroke="${t.trait}" stroke-width="2"/>` +
+        `<path d="M-56 -10 q0 70 26 72 q30 8 60 0 q26 -2 26 -72 Z" fill="${c}" stroke="${t.trait}" stroke-width="2"/>` +
+        `<ellipse cx="0" cy="-10" rx="56" ry="18" fill="${t.clair}" stroke="${t.trait}" stroke-width="2"/>` +
+        `<ellipse cx="0" cy="-14" rx="40" ry="12" fill="${t.deco}" opacity="0.35"/>` +
+        _filet("M-52 22 q52 16 104 0", t.deco, 2.5) +
+        `</g>`;
+    });
+    return out;
+  },
+  sauciere(t) {
+    return (
+      _ombrePortee(300, 430, 175, 22) +
+      `<ellipse cx="300" cy="408" rx="185" ry="40" fill="${t.base}" stroke="${t.fonce}" stroke-width="2"/>` +
+      `<ellipse cx="300" cy="398" rx="185" ry="40" fill="${t.clair}" stroke="${t.fonce}" stroke-width="2"/>` +
+      `<path d="M160 250 q6 120 40 138 q100 22 200 0 q34 -18 40 -138 Z" fill="${t.base}" stroke="${t.fonce}" stroke-width="2.5"/>` +
+      `<path d="M160 250 q140 44 280 0 l-14 -16 q-126 34 -252 0 Z" fill="${t.clair}" stroke="${t.fonce}" stroke-width="2"/>` +
+      `<path d="M150 244 l-52 -34 q-8 22 18 40 Z" fill="${t.clair}" stroke="${t.fonce}" stroke-width="2"/>` +
+      `<path d="M440 236 q76 -46 46 60" fill="none" stroke="${t.fonce}" stroke-width="14" stroke-linecap="round"/>` +
+      `<path d="M440 236 q76 -46 46 60" fill="none" stroke="${t.deco}" stroke-width="6" stroke-linecap="round"/>` +
+      _filet("M172 298 q128 34 256 0", t.deco, 3) +
+      `<path d="M188 286 q6 82 24 100" fill="none" stroke="#FFFFFF" stroke-width="14" opacity="0.35" stroke-linecap="round"/>`
+    );
+  },
+  beurrier(t) {
+    return (
+      _ombrePortee(300, 448, 165, 22) +
+      `<ellipse cx="300" cy="424" rx="172" ry="38" fill="${t.base}" stroke="${t.fonce}" stroke-width="2"/>` +
+      `<ellipse cx="300" cy="414" rx="172" ry="38" fill="${t.clair}" stroke="${t.fonce}" stroke-width="2"/>` +
+      `<path d="M155 400 q-4 -190 145 -190 q149 0 145 190 Z" fill="${t.base}" stroke="${t.fonce}" stroke-width="2.5"/>` +
+      `<ellipse cx="300" cy="400" rx="145" ry="34" fill="${t.clair}" opacity="0.6"/>` +
+      `<circle cx="300" cy="192" r="26" fill="${t.clair}" stroke="${t.fonce}" stroke-width="2.5"/>` +
+      _filet("M172 330 q128 40 256 0", t.deco, 4) +
+      _filet("M164 300 q136 42 272 0", t.deco, 2) +
+      _semis(300, 350, 60, t.deco, 5, 17) +
+      `<path d="M198 268 q-14 70 -8 120" fill="none" stroke="#FFFFFF" stroke-width="16" opacity="0.35" stroke-linecap="round"/>`
+    );
+  },
+  cafetiere(t) {
+    return (
+      _ombrePortee(300, 470, 150, 22) +
+      `<ellipse cx="300" cy="448" rx="112" ry="28" fill="${t.fonce}"/>` +
+      `<path d="M198 180 q-16 240 4 268 q98 22 196 0 q20 -28 4 -268 Z" fill="${t.base}" stroke="${t.trait}" stroke-width="2.5"/>` +
+      `<path d="M395 240 q78 30 6 116" fill="none" stroke="${t.trait}" stroke-width="16" stroke-linecap="round"/>` +
+      `<path d="M395 240 q78 30 6 116" fill="none" stroke="${t.clair}" stroke-width="8" stroke-linecap="round"/>` +
+      `<path d="M200 214 l-56 -34 q-12 26 18 48 Z" fill="${t.clair}" stroke="${t.trait}" stroke-width="2"/>` +
+      `<ellipse cx="300" cy="180" rx="102" ry="26" fill="${t.clair}" stroke="${t.trait}" stroke-width="2.5"/>` +
+      `<path d="M212 172 q88 -78 176 0 Z" fill="${t.clair}" stroke="${t.trait}" stroke-width="2.5"/>` +
+      `<circle cx="300" cy="108" r="16" fill="${t.base}" stroke="${t.trait}" stroke-width="2.5"/>` +
+      _filet("M204 262 q96 24 192 0", t.deco, 4) +
+      _filet("M202 420 q98 22 196 0", t.deco, 3) +
+      `<path d="M226 232 q-12 120 -4 190" fill="none" stroke="#FFFFFF" stroke-width="16" opacity="0.35" stroke-linecap="round"/>`
+    );
+  },
+
+  /* ---- verrerie ---- */
+  verre(t, m) {
+    return (
+      _ombrePortee(300, 486, 120, 18) +
+      `<ellipse cx="300" cy="470" rx="98" ry="24" fill="${t.base}" stroke="${t.trait}" stroke-width="2" opacity="0.9"/>` +
+      `<path d="M292 300 L292 462 L308 462 L308 300 Z" fill="${t.base}" opacity="0.85" stroke="${t.trait}" stroke-width="1.5"/>` +
+      `<ellipse cx="300" cy="356" rx="26" ry="26" fill="${t.clair}" stroke="${t.trait}" stroke-width="1.5" opacity="0.9"/>` +
+      `<path d="M186 132 q0 190 114 190 q114 0 114 -190 Z" fill="${t.base}" opacity="0.7" stroke="${t.trait}" stroke-width="2"/>` +
+      `<ellipse cx="300" cy="132" rx="114" ry="30" fill="${t.clair}" stroke="${t.trait}" stroke-width="2"/>` +
+      (m === "taille" ? _tailleDiamant(300, 200, 100, t.trait) : "") +
+      `<path d="M214 168 q6 116 62 146" fill="none" stroke="#FFFFFF" stroke-width="14" opacity="0.55" stroke-linecap="round"/>` +
+      `<path d="M370 174 q-4 96 -34 128" fill="none" stroke="#FFFFFF" stroke-width="7" opacity="0.4" stroke-linecap="round"/>`
+    );
+  },
+  carafe(t) {
+    return (
+      _ombrePortee(300, 486, 135, 20) +
+      `<path d="M270 176 L270 236 q-108 56 -108 152 q0 84 138 84 q138 0 138 -84 q0 -96 -108 -152 L330 176 Z" fill="${t.base}" opacity="0.75" stroke="${t.trait}" stroke-width="2.5"/>` +
+      `<ellipse cx="300" cy="470" rx="112" ry="22" fill="${t.clair}" opacity="0.5"/>` +
+      `<rect x="268" y="150" width="64" height="16" rx="6" fill="${t.clair}" stroke="${t.trait}" stroke-width="2"/>` +
+      `<path d="M262 150 q38 -70 76 0 Z" fill="${t.clair}" stroke="${t.trait}" stroke-width="2.5"/>` +
+      `<circle cx="300" cy="86" r="30" fill="${t.base}" stroke="${t.trait}" stroke-width="2.5" opacity="0.85"/>` +
+      `<circle cx="290" cy="78" r="10" fill="#FFFFFF" opacity="0.7"/>` +
+      `<path d="M198 320 q-10 92 62 128" fill="none" stroke="#FFFFFF" stroke-width="16" opacity="0.5" stroke-linecap="round"/>` +
+      `<circle cx="352" cy="330" r="6" fill="#FFFFFF" opacity="0.5"/>` +
+      `<circle cx="330" cy="382" r="4" fill="#FFFFFF" opacity="0.45"/>`
+    );
+  },
+  vase(t) {
+    return (
+      _ombrePortee(300, 478, 96, 18) +
+      `<path d="M262 130 q-8 90 -32 150 q-22 56 -6 100 q30 84 76 84 q46 0 76 -84 q16 -44 -6 -100 q-24 -60 -32 -150 Z" fill="${t.base}" stroke="${t.trait}" stroke-width="2.5"/>` +
+      `<ellipse cx="300" cy="130" rx="38" ry="12" fill="${t.fonce}" stroke="${t.trait}" stroke-width="2"/>` +
+      `<ellipse cx="300" cy="126" rx="28" ry="8" fill="${t.trait}" opacity="0.5"/>` +
+      `<path d="M252 300 q-24 96 22 150" fill="none" stroke="#FFFFFF" stroke-width="18" opacity="0.32" stroke-linecap="round"/>` +
+      `<path d="M276 168 q-6 60 -18 96" fill="none" stroke="#FFFFFF" stroke-width="8" opacity="0.4" stroke-linecap="round"/>`
+    );
+  },
+  lampe(t) {
+    return (
+      _ombrePortee(300, 486, 118, 20) +
+      `<ellipse cx="300" cy="470" rx="104" ry="26" fill="${t.fonce}" stroke="${t.trait}" stroke-width="2"/>` +
+      `<path d="M258 180 q-14 66 -46 116 q-40 62 -18 122 q26 62 106 62 q80 0 106 -62 q22 -60 -18 -122 q-32 -50 -46 -116 Z" fill="${t.base}" stroke="${t.trait}" stroke-width="2.5"/>` +
+      `<ellipse cx="300" cy="180" rx="42" ry="13" fill="${t.clair}" stroke="${t.trait}" stroke-width="2"/>` +
+      `<rect x="288" y="96" width="24" height="88" rx="8" fill="${t.fonce}" stroke="${t.trait}" stroke-width="2"/>` +
+      `<rect x="270" y="72" width="60" height="30" rx="10" fill="${t.clair}" stroke="${t.trait}" stroke-width="2"/>` +
+      `<path d="M242 300 q-40 92 12 150" fill="none" stroke="${t.clair}" stroke-width="22" opacity="0.45" stroke-linecap="round"/>` +
+      `<path d="M340 262 q34 84 8 148" fill="none" stroke="${t.fonce}" stroke-width="14" opacity="0.5" stroke-linecap="round"/>`
+    );
+  },
+
+  /* ---- métal argenté ---- */
+  "rond-serviette"(t) {
+    let out = _ombrePortee(300, 432, 190, 22);
+    const pos = [
+      { x: 196, y: 330, r: 92 },
+      { x: 404, y: 330, r: 92 },
+      { x: 300, y: 218, r: 100 },
+    ];
+    pos.forEach((p) => {
+      out +=
+        `<ellipse cx="${p.x}" cy="${p.y}" rx="${p.r}" ry="${p.r * 0.94}" fill="${t.base}" stroke="${t.trait}" stroke-width="2.5"/>` +
+        `<ellipse cx="${p.x}" cy="${p.y}" rx="${p.r * 0.7}" ry="${p.r * 0.66}" fill="${FOND.haut}" stroke="${t.trait}" stroke-width="2"/>` +
+        `<ellipse cx="${p.x}" cy="${p.y}" rx="${p.r * 0.86}" ry="${p.r * 0.81}" fill="none" stroke="${t.clair}" stroke-width="3"/>` +
+        `<path d="M${p.x - p.r * 0.72} ${p.y - p.r * 0.4} a ${p.r} ${p.r} 0 0 1 ${p.r * 0.8} ${-p.r * 0.36}" fill="none" stroke="#FFFFFF" stroke-width="8" opacity="0.6" stroke-linecap="round"/>`;
+    });
+    return out;
+  },
+  "passe-the"(t) {
+    return (
+      _ombrePortee(300, 430, 170, 22) +
+      `<ellipse cx="300" cy="400" rx="150" ry="42" fill="${t.base}" stroke="${t.trait}" stroke-width="2.5"/>` +
+      `<ellipse cx="300" cy="392" rx="150" ry="42" fill="${t.clair}" stroke="${t.trait}" stroke-width="2"/>` +
+      `<ellipse cx="300" cy="392" rx="110" ry="28" fill="none" stroke="${t.deco}" stroke-width="2"/>` +
+      `<g transform="translate(268 240) rotate(-18)">` +
+      `<rect x="60" y="-9" width="180" height="18" rx="9" fill="${t.base}" stroke="${t.trait}" stroke-width="2"/>` +
+      `<circle cx="0" cy="0" r="84" fill="${t.base}" stroke="${t.trait}" stroke-width="2.5"/>` +
+      `<circle cx="0" cy="0" r="66" fill="${t.clair}" stroke="${t.trait}" stroke-width="1.5"/>` +
+      _perforations(0, 0, 56, t.trait) +
+      `<path d="M-60 -46 a 78 78 0 0 1 62 -30" fill="none" stroke="#FFFFFF" stroke-width="9" opacity="0.6" stroke-linecap="round"/>` +
+      `</g>`
+    );
+  },
+  couverts(t) {
+    return (
+      _ombrePortee(300, 470, 175, 22) +
+      `<g transform="translate(228 300) rotate(-9)">` +
+      `<path d="M-22 -180 q40 -34 44 0 q10 90 -18 118 l-8 0 q-28 -28 -18 -118 Z" fill="${t.base}" stroke="${t.trait}" stroke-width="2"/>` +
+      `<rect x="-11" y="-64" width="22" height="220" rx="9" fill="${t.deco}" stroke="${t.trait}" stroke-width="2"/>` +
+      `<circle cx="0" cy="-140" r="7" fill="${t.clair}" opacity="0.7"/>` +
+      `</g>` +
+      `<g transform="translate(372 300) rotate(9)">` +
+      `<path d="M-34 -180 q34 -26 68 0 q6 78 -22 96 l-24 0 q-28 -18 -22 -96 Z" fill="${t.base}" stroke="${t.trait}" stroke-width="2"/>` +
+      `<path d="M-20 -170 l0 60 M0 -176 l0 66 M20 -170 l0 60" stroke="${t.trait}" stroke-width="3" fill="none" stroke-linecap="round"/>` +
+      `<rect x="-11" y="-88" width="22" height="240" rx="9" fill="${t.deco}" stroke="${t.trait}" stroke-width="2"/>` +
+      `</g>` +
+      `<path d="M206 130 q22 -20 40 -4" fill="none" stroke="#FFFFFF" stroke-width="8" opacity="0.6" stroke-linecap="round"/>`
+    );
+  },
+  "porte-couteau"(t) {
+    let out = _ombrePortee(300, 400, 190, 20);
+    const pos = [
+      { x: 176, y: 322, s: 0.78 },
+      { x: 300, y: 246, s: 0.84 },
+      { x: 424, y: 322, s: 0.78 },
+    ];
+    pos.forEach((p) => {
+      out +=
+        `<g transform="translate(${p.x} ${p.y}) scale(${p.s})">` +
+        `<ellipse cx="0" cy="66" rx="82" ry="13" fill="${t.trait}" opacity="0.22"/>` +
+        `<circle cx="-62" cy="44" r="22" fill="${t.base}" stroke="${t.trait}" stroke-width="2.5"/>` +
+        `<circle cx="62" cy="44" r="22" fill="${t.base}" stroke="${t.trait}" stroke-width="2.5"/>` +
+        `<path d="M-62 22 q62 -92 124 0 q-14 8 -22 4 q-40 -58 -80 0 q-8 4 -22 -4 Z" fill="${t.clair}" stroke="${t.trait}" stroke-width="2.5" stroke-linejoin="round"/>` +
+        `<path d="M-34 -6 q34 -40 68 0" fill="none" stroke="#FFFFFF" stroke-width="6" opacity="0.7" stroke-linecap="round"/>` +
+        `</g>`;
+    });
+    return out;
+  },
+  pelle(t) {
+    return (
+      _ombrePortee(300, 458, 150, 20) +
+      `<g transform="translate(300 300) rotate(-14)">` +
+      `<path d="M-90 -190 q90 -46 180 0 q10 96 -50 132 l-80 0 q-60 -36 -50 -132 Z" fill="${t.base}" stroke="${t.trait}" stroke-width="2.5"/>` +
+      `<path d="M-56 -140 q56 -26 112 0" fill="none" stroke="${t.trait}" stroke-width="2.5"/>` +
+      _vigne(0, -100, t.trait) +
+      `<rect x="-14" y="-62" width="28" height="270" rx="12" fill="${t.base}" stroke="${t.trait}" stroke-width="2.5"/>` +
+      `<path d="M-6 -40 l0 230" stroke="#FFFFFF" stroke-width="7" opacity="0.55" stroke-linecap="round"/>` +
+      `<circle cx="0" cy="196" r="16" fill="${t.clair}" stroke="${t.trait}" stroke-width="2.5"/>` +
+      `</g>`
+    );
+  },
+
+  /* ---- textiles ---- */
+  torchon(t, m) {
+    return (
+      _ombrePortee(300, 476, 190, 20) +
+      `<g transform="translate(300 300) rotate(-3)">` +
+      `<rect x="-210" y="-176" width="420" height="352" rx="8" fill="${t.base}" stroke="${t.fonce}" stroke-width="2"/>` +
+      _trameLin(-210, -176, 420, 352, t.fonce) +
+      (m === "raie-rouge"
+        ? `<rect x="-210" y="-104" width="420" height="26" fill="${t.deco}" opacity="0.85"/>
+           <rect x="-210" y="-64" width="420" height="10" fill="${t.deco}" opacity="0.6"/>`
+        : "") +
+      `<path d="M-210 60 q108 -34 210 0 q104 32 210 0" fill="none" stroke="${t.fonce}" stroke-width="2" opacity="0.5"/>` +
+      `<g transform="translate(96 116)" fill="none" stroke="${t.deco}" stroke-width="4" stroke-linecap="round">` +
+      `<path d="M-34 22 l0 -44 l18 32 l18 -32 l0 44"/><path d="M22 -22 l0 44 l30 0"/></g>` +
+      `<path d="M-190 -160 q30 340 0 320" fill="none" stroke="#FFFFFF" stroke-width="14" opacity="0.3"/>` +
+      `</g>`
+    );
+  },
+  nappe(t) {
+    return (
+      _ombrePortee(300, 486, 205, 20) +
+      `<path d="M92 128 q208 -40 416 0 l0 350 q-208 40 -416 0 Z" fill="${t.base}" stroke="${t.fonce}" stroke-width="2"/>` +
+      `<path d="M92 128 q208 -40 416 0" fill="none" stroke="${t.fonce}" stroke-width="2" opacity="0.6"/>` +
+      _damasse(120, 150, 360, 300, t.fonce) +
+      `<path d="M124 140 q0 350 0 340 M188 132 q0 356 0 348 M412 132 q0 356 0 348 M476 140 q0 344 0 336" fill="none" stroke="${t.fonce}" stroke-width="1.2" opacity="0.35"/>` +
+      `<path d="M150 150 q22 330 4 320" fill="none" stroke="#FFFFFF" stroke-width="26" opacity="0.45"/>` +
+      `<path d="M380 146 q-16 336 2 324" fill="none" stroke="${t.fonce}" stroke-width="10" opacity="0.16"/>`
+    );
+  },
+  mouchoir(t) {
+    let out = _ombrePortee(300, 462, 180, 20);
+    const pos = [
+      { x: 226, y: 268, r: -12 },
+      { x: 378, y: 250, r: 9 },
+      { x: 300, y: 366, r: -3 },
+    ];
+    pos.forEach((p, i) => {
+      out +=
+        `<g transform="translate(${p.x} ${p.y}) rotate(${p.r})">` +
+        `<rect x="-124" y="-124" width="248" height="248" rx="6" fill="${i === 2 ? t.clair : t.base}" stroke="${t.fonce}" stroke-width="2"/>` +
+        `<rect x="-104" y="-104" width="208" height="208" fill="none" stroke="${t.fonce}" stroke-width="1.5" stroke-dasharray="6 5" opacity="0.7"/>` +
+        _semis(-56, -50, 42, t.deco, 4, 9 + i * 4) +
+        `</g>`;
+    });
+    return out;
+  },
+  rideau(t) {
+    return (
+      `<rect x="118" y="96" width="364" height="408" rx="4" fill="${t.base}" stroke="${t.fonce}" stroke-width="2"/>` +
+      _filetBrode(130, 108, 340, 384, t.fonce) +
+      `<path d="M130 430 l340 0" stroke="${t.fonce}" stroke-width="3" opacity="0.6"/>` +
+      `<path d="M140 452 l14 26 l14 -26 M180 452 l14 26 l14 -26 M220 452 l14 26 l14 -26 M260 452 l14 26 l14 -26 M300 452 l14 26 l14 -26 M340 452 l14 26 l14 -26 M380 452 l14 26 l14 -26 M420 452 l14 26 l14 -26" fill="none" stroke="${t.fonce}" stroke-width="2.5"/>` +
+      `<path d="M160 100 q20 200 -4 400" fill="none" stroke="#FFFFFF" stroke-width="26" opacity="0.35"/>`
+    );
+  },
+  serviette(t, m) {
+    let out = _ombrePortee(300, 466, 180, 20);
+    const pos = [
+      { x: 300, y: 350, s: 1 },
+      { x: 300, y: 250, s: 0.94 },
+      { x: 300, y: 162, s: 0.88 },
+    ];
+    pos.reverse().forEach((p, i) => {
+      out +=
+        `<g transform="translate(${p.x} ${p.y}) scale(${p.s})">` +
+        `<rect x="-176" y="-58" width="352" height="116" rx="6" fill="${i % 2 ? t.clair : t.base}" stroke="${t.fonce}" stroke-width="2"/>` +
+        _trameLin(-176, -58, 352, 116, t.fonce) +
+        `<path d="M-176 -34 l352 0 M-176 34 l352 0" stroke="${t.fonce}" stroke-width="1.2" opacity="0.4"/>` +
+        (m === "croix-rouge"
+          ? `<g transform="translate(112 0)" stroke="${t.deco}" stroke-width="4" fill="none" stroke-linecap="round">
+               <path d="M-18 14 l0 -28 M-18 -14 l16 28 l16 -28 M14 -14 l0 28"/></g>`
+          : "") +
+        `</g>`;
+    });
+    return out;
+  },
+
+  /* ---- papier & cadres ---- */
+  gravure(t) {
+    return (
+      `<rect x="118" y="76" width="364" height="448" rx="3" fill="${t.clair}" stroke="${t.fonce}" stroke-width="2"/>` +
+      _rousseurs(118, 76, 364, 448) +
+      `<rect x="150" y="108" width="300" height="384" fill="none" stroke="${t.fonce}" stroke-width="1" opacity="0.5"/>` +
+      _iris(300, 300, t) +
+      `<path d="M212 470 l176 0" stroke="${t.trait}" stroke-width="1.5" opacity="0.5"/>` +
+      `<text x="300" y="492" font-family="Georgia, serif" font-style="italic" font-size="19" fill="${t.trait}" text-anchor="middle" opacity="0.75">Iris germanica</text>` +
+      `<text x="452" y="100" font-family="Georgia, serif" font-size="15" fill="${t.trait}" text-anchor="end" opacity="0.6">Pl. XIV</text>`
+    );
+  },
+  cartes(t) {
+    let out = _ombrePortee(300, 470, 180, 20);
+    const pos = [
+      { x: 214, y: 296, r: -11 },
+      { x: 386, y: 274, r: 8 },
+      { x: 300, y: 372, r: -2 },
+    ];
+    pos.forEach((p, i) => {
+      out +=
+        `<g transform="translate(${p.x} ${p.y}) rotate(${p.r})">` +
+        `<rect x="-118" y="-78" width="236" height="156" rx="4" fill="${i === 2 ? t.clair : t.base}" stroke="${t.fonce}" stroke-width="2"/>` +
+        `<rect x="-108" y="-68" width="122" height="136" fill="${t.fonce}" opacity="0.3"/>` +
+        `<path d="M-104 34 q30 -44 58 -8 q22 -34 44 14 l0 24 l-102 0 Z" fill="${t.trait}" opacity="0.35"/>` +
+        `<circle cx="-72" cy="-32" r="12" fill="${t.clair}" opacity="0.6"/>` +
+        `<path d="M28 -46 l80 0 M28 -26 l72 0 M28 -6 l84 0 M28 14 l60 0 M28 34 l76 0" stroke="${t.trait}" stroke-width="2" opacity="0.45" stroke-linecap="round"/>` +
+        `<rect x="72" y="-64" width="34" height="26" fill="none" stroke="${t.deco}" stroke-width="1.5" opacity="0.6"/>` +
+        `</g>`;
+    });
+    return out;
+  },
+  livre(t) {
+    return (
+      _ombrePortee(300, 470, 178, 22) +
+      `<g transform="translate(300 300) rotate(-4)">` +
+      `<path d="M-158 -180 l276 0 q26 0 26 26 l0 300 q0 26 -26 26 l-276 0 Z" fill="${t.base}" stroke="${t.fonce}" stroke-width="2.5"/>` +
+      `<path d="M-158 -180 q-26 176 0 352" fill="${t.fonce}" stroke="${t.fonce}" stroke-width="2.5"/>` +
+      `<path d="M118 -174 l0 340" stroke="${t.deco}" stroke-width="10" opacity="0.5"/>` +
+      `<path d="M-128 -180 l0 352 M-98 -180 l0 352" stroke="${t.fonce}" stroke-width="2" opacity="0.7"/>` +
+      `<g stroke="${t.deco}" stroke-width="2.5" fill="none">` +
+      `<path d="M-146 -110 q-14 6 0 12 M-146 -30 q-14 6 0 12 M-146 50 q-14 6 0 12 M-146 130 q-14 6 0 12"/></g>` +
+      `<rect x="-70" y="-118" width="150" height="52" rx="4" fill="none" stroke="${t.deco}" stroke-width="2.5" opacity="0.8"/>` +
+      `<path d="M-52 -100 l112 0 M-52 -84 l86 0" stroke="${t.deco}" stroke-width="3" opacity="0.7" stroke-linecap="round"/>` +
+      _fleuron(4, 40, t.deco) +
+      `<path d="M-120 -150 q-8 160 0 300" fill="none" stroke="#FFFFFF" stroke-width="12" opacity="0.18"/>` +
+      `</g>`
+    );
+  },
+  chromo(t) {
+    let out = _ombrePortee(300, 462, 170, 20);
+    out += `<rect x="146" y="112" width="308" height="376" rx="4" fill="${t.clair}" stroke="${t.fonce}" stroke-width="2"/>`;
+    out += _rousseurs(146, 112, 308, 376);
+    const fleurs = [
+      { x: 226, y: 196, c: "#C4788C" },
+      { x: 376, y: 208, c: "#7E93B8" },
+      { x: 214, y: 330, c: "#D0A05C" },
+      { x: 382, y: 348, c: "#8FA37C" },
+      { x: 300, y: 434, c: "#B96F72" },
+    ];
+    fleurs.forEach((f, i) => {
+      out += `<g transform="translate(${f.x} ${f.y})">`;
+      for (let p = 0; p < 6; p++) {
+        out += `<ellipse cx="0" cy="-30" rx="17" ry="30" fill="${f.c}" opacity="0.85" transform="rotate(${(p / 6) * 360})"/>`;
+      }
+      out += `<circle r="13" fill="${t.base}"/><circle r="13" fill="none" stroke="${f.c}" stroke-width="2"/>`;
+      out += `<path d="M0 32 q${i % 2 ? 22 : -22} 34 0 58" fill="none" stroke="#7E8F6A" stroke-width="4"/></g>`;
+    });
+    out += `<rect x="164" y="130" width="272" height="340" fill="none" stroke="${t.fonce}" stroke-width="1.5" stroke-dasharray="4 6" opacity="0.7"/>`;
+    return out;
+  },
+  tableau(t) {
+    const cadre = TEINTES.dore;
+    return (
+      _ombrePortee(300, 496, 180, 18) +
+      `<rect x="96" y="92" width="408" height="400" rx="4" fill="${cadre.base}" stroke="${cadre.trait}" stroke-width="3"/>` +
+      `<rect x="112" y="108" width="376" height="368" fill="none" stroke="${cadre.clair}" stroke-width="6"/>` +
+      `<rect x="136" y="132" width="328" height="320" fill="${cadre.fonce}" stroke="${cadre.trait}" stroke-width="2"/>` +
+      `<rect x="146" y="142" width="308" height="300" fill="${t.clair}"/>` +
+      /* ciel */
+      `<rect x="146" y="142" width="308" height="150" fill="${t.clair}"/>` +
+      `<ellipse cx="250" cy="196" rx="86" ry="26" fill="#FFFFFF" opacity="0.55"/>` +
+      `<ellipse cx="370" cy="176" rx="60" ry="18" fill="#FFFFFF" opacity="0.4"/>` +
+      /* rivière */
+      `<path d="M146 292 q154 -28 308 8 l0 142 l-308 0 Z" fill="${t.fonce}"/>` +
+      `<path d="M146 320 q154 -22 308 10 l0 112 l-308 0 Z" fill="${t.base}"/>` +
+      `<path d="M170 372 l90 0 M240 396 l120 0 M180 414 l70 0" stroke="#FFFFFF" stroke-width="4" opacity="0.45" stroke-linecap="round"/>` +
+      /* peupliers */
+      `<path d="M196 300 q-16 -84 8 -118 q24 34 8 118 Z" fill="${t.fonce}"/>` +
+      `<path d="M228 300 q-12 -66 6 -92 q18 26 6 92 Z" fill="${t.trait}" opacity="0.8"/>` +
+      `<path d="M398 302 q-18 -96 10 -134 q28 38 10 134 Z" fill="${t.fonce}"/>` +
+      `<path d="M146 292 q154 -26 308 6" fill="none" stroke="${t.trait}" stroke-width="3" opacity="0.7"/>` +
+      `<path d="M330 428 q-40 -18 -70 4" fill="none" stroke="${t.deco}" stroke-width="5" opacity="0.8"/>` +
+      `<text x="440" y="432" font-family="Georgia, serif" font-style="italic" font-size="15" fill="${t.trait}" text-anchor="end" opacity="0.7">…rd</text>`
+    );
+  },
+  miroir(t) {
+    return (
+      _ombrePortee(300, 486, 150, 18) +
+      `<circle cx="300" cy="292" r="200" fill="${t.base}" stroke="${t.trait}" stroke-width="3"/>` +
+      _perles(300, 292, 200, t.clair, t.trait) +
+      `<circle cx="300" cy="292" r="164" fill="${t.fonce}" stroke="${t.trait}" stroke-width="2"/>` +
+      `<circle cx="300" cy="292" r="150" fill="#CFD4CE"/>` +
+      `<circle cx="300" cy="292" r="150" fill="url(#bombe)"/>` +
+      `<path d="M186 214 a 150 150 0 0 1 122 -58 l-40 42 a 110 110 0 0 0 -60 34 Z" fill="#FFFFFF" opacity="0.5"/>` +
+      `<circle cx="256" cy="340" r="7" fill="#B9AE9C" opacity="0.7"/>` +
+      `<circle cx="344" cy="256" r="5" fill="#B9AE9C" opacity="0.6"/>` +
+      `<circle cx="318" cy="386" r="4" fill="#B9AE9C" opacity="0.6"/>`
+    );
+  },
+  boite(t) {
+    return (
+      _ombrePortee(300, 452, 190, 20) +
+      `<path d="M120 236 l180 -96 l180 96 l-180 96 Z" fill="${t.base}" stroke="${t.trait}" stroke-width="2.5"/>` +
+      _etoileMarqueterie(300, 236, 96, t) +
+      `<path d="M120 236 l0 84 l180 96 l0 -84 Z" fill="${t.fonce}" stroke="${t.trait}" stroke-width="2.5"/>` +
+      `<path d="M480 236 l0 84 l-180 96 l0 -84 Z" fill="${t.clair}" stroke="${t.trait}" stroke-width="2.5"/>` +
+      `<path d="M136 254 l0 62 M148 262 l0 62" stroke="${t.deco}" stroke-width="2" opacity="0.6"/>` +
+      `<path d="M464 254 l0 62 M452 262 l0 62" stroke="${t.deco}" stroke-width="2" opacity="0.5"/>` +
+      `<rect x="286" y="322" width="28" height="14" rx="3" fill="${TEINTES.laiton.base}" stroke="${t.trait}" stroke-width="1.5"/>`
+    );
+  },
+  cadre(t) {
+    let out = _ombrePortee(300, 470, 180, 20);
+    const pos = [
+      { x: 216, y: 300, r: -7, s: 0.96 },
+      { x: 388, y: 288, r: 6, s: 1 },
+    ];
+    pos.forEach((p) => {
+      out +=
+        `<g transform="translate(${p.x} ${p.y}) rotate(${p.r}) scale(${p.s})">` +
+        `<rect x="-104" y="-146" width="208" height="292" rx="6" fill="${t.base}" stroke="${t.trait}" stroke-width="2.5"/>` +
+        `<rect x="-86" y="-128" width="172" height="256" fill="${TEINTES.papier.clair}" stroke="${t.trait}" stroke-width="1.5"/>` +
+        `<rect x="-104" y="-146" width="208" height="292" rx="6" fill="none" stroke="${t.clair}" stroke-width="4" opacity="0.7"/>` +
+        _rinceaux(0, -146, 208, t.fonce) +
+        _rinceaux(0, 146, 208, t.fonce) +
+        `<ellipse cx="0" cy="-30" rx="42" ry="52" fill="${t.trait}" opacity="0.18"/>` +
+        `<path d="M-52 100 q52 -66 104 0 Z" fill="${t.trait}" opacity="0.18"/>` +
+        `<path d="M-92 -130 l0 250" stroke="#FFFFFF" stroke-width="7" opacity="0.5"/>` +
+        `</g>`;
+    });
+    return out;
+  },
+};
+
+/* --- motifs auxiliaires -------------------------------------------- */
+
+function _epis(cx, cy, r, c) {
+  let out = "";
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2;
+    const x = cx + Math.cos(a) * r * 0.78;
+    const y = cy + Math.sin(a) * r * 0.78;
+    out += `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${((a * 180) / Math.PI + 90).toFixed(0)})" stroke="${c}" stroke-width="2.5" fill="none" opacity="0.8">
+      <path d="M0 26 L0 -26"/>
+      <path d="M0 -18 q10 -8 6 -18 M0 -18 q-10 -8 -6 -18 M0 -4 q11 -8 7 -18 M0 -4 q-11 -8 -7 -18 M0 10 q11 -8 7 -18 M0 10 q-11 -8 -7 -18"/></g>`;
+  }
+  return out;
+}
+
+function _godrons(cx, cy, rx, ry, c) {
+  let out = "";
+  for (let i = 0; i < 20; i++) {
+    const a = (i / 20) * Math.PI * 2;
+    const x1 = cx + Math.cos(a) * rx * 0.42;
+    const y1 = cy + Math.sin(a) * ry * 0.42 + 8;
+    const x2 = cx + Math.cos(a) * rx * 0.97;
+    const y2 = cy + Math.sin(a) * ry * 0.97 + 26;
+    out += `<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} L${x2.toFixed(1)} ${y2.toFixed(1)}" stroke="${c}" stroke-width="2" opacity="0.45"/>`;
+  }
+  return out;
+}
+
+function _tailleDiamant(cx, cy, w, c) {
+  let out = "";
+  for (let i = -3; i <= 3; i++) {
+    out += `<path d="M${cx + i * 32} ${cy - 60} l0 120" stroke="${c}" stroke-width="1.6" opacity="0.5"/>`;
+  }
+  for (let i = 0; i < 6; i++) {
+    out += `<path d="M${cx - 100 + i * 34} ${cy - 46} l17 20 l-17 20 l-17 -20 Z" fill="none" stroke="${c}" stroke-width="1.6" opacity="0.55"/>`;
+  }
+  return out;
+}
+
+function _perforations(cx, cy, r, c) {
+  let out = "";
+  for (let ring = 1; ring <= 3; ring++) {
+    const rr = (r / 3.4) * ring;
+    const n = ring * 8;
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2;
+      out += `<circle cx="${(cx + Math.cos(a) * rr).toFixed(1)}" cy="${(cy + Math.sin(a) * rr).toFixed(1)}" r="3.2" fill="${c}" opacity="0.55"/>`;
+    }
+  }
+  return out;
+}
+
+function _vigne(cx, cy, c) {
+  return `<g transform="translate(${cx} ${cy})" stroke="${c}" fill="none" stroke-width="2.5" opacity="0.8">
+    <path d="M-46 30 q28 -40 46 -34 q20 -8 46 34"/>
+    <circle cx="-16" cy="6" r="7"/><circle cx="0" cy="18" r="7"/><circle cx="16" cy="6" r="7"/>
+    <circle cx="-8" cy="-8" r="7"/><circle cx="8" cy="-8" r="7"/>
+    <path d="M34 -12 q16 -18 30 -6 M-34 -12 q-16 -18 -30 -6"/></g>`;
+}
+
+function _trameLin(x, y, w, h, c) {
+  let out = `<g opacity="0.22" stroke="${c}" stroke-width="1">`;
+  for (let i = 10; i < w; i += 14) out += `<path d="M${x + i} ${y} l0 ${h}"/>`;
+  for (let j = 10; j < h; j += 14) out += `<path d="M${x} ${y + j} l${w} 0"/>`;
+  return out + "</g>";
+}
+
+function _damasse(x, y, w, h, c) {
+  let out = `<g opacity="0.5" fill="none" stroke="${c}" stroke-width="2.2">`;
+  for (let i = 0; i < 5; i++) {
+    for (let j = 0; j < 5; j++) {
+      const cx = x + 36 + i * (w / 5);
+      const cy = y + 30 + j * (h / 5);
+      out += `<g transform="translate(${cx.toFixed(0)} ${cy.toFixed(0)})">
+        <circle r="13"/><circle r="5"/>
+        <path d="M-13 0 q-16 -16 -2 -26 M13 0 q16 16 2 26 M0 -13 q16 -16 26 -2 M0 13 q-16 16 -26 2"/></g>`;
+    }
+  }
+  return out + "</g>";
+}
+
+function _filetBrode(x, y, w, h, c) {
+  let out = `<g opacity="0.55" stroke="${c}" stroke-width="1.6" fill="none">`;
+  for (let i = 0; i <= w; i += 20) out += `<path d="M${x + i} ${y} l0 ${h}"/>`;
+  for (let j = 0; j <= h; j += 20) out += `<path d="M${x} ${y + j} l${w} 0"/>`;
+  out += "</g>";
+  out += `<g opacity="0.8" stroke="${c}" stroke-width="3.5" fill="none">`;
+  for (let i = 0; i < 4; i++) {
+    const cx = x + 62 + i * 80;
+    const cy = y + 150;
+    out += `<path d="M${cx} ${cy - 40} l40 40 l-40 40 l-40 -40 Z"/>`;
+    out += `<path d="M${cx} ${cy + 130} l24 24 l-24 24 l-24 -24 Z"/>`;
+  }
+  return out + "</g>";
+}
+
+function _rousseurs(x, y, w, h) {
+  let s = 3;
+  const rnd = () => {
+    s = (s * 9301 + 49297) % 233280;
+    return s / 233280;
+  };
+  let out = `<g fill="#C6A87C" opacity="0.3">`;
+  for (let i = 0; i < 26; i++) {
+    out += `<circle cx="${(x + rnd() * w).toFixed(0)}" cy="${(y + rnd() * h).toFixed(0)}" r="${(1.5 + rnd() * 3.5).toFixed(1)}"/>`;
+  }
+  return out + "</g>";
+}
+
+function _iris(cx, cy, t) {
+  return `<g transform="translate(${cx} ${cy})">
+    <path d="M6 190 q-16 -140 -6 -190" fill="none" stroke="#7C8B62" stroke-width="7"/>
+    <path d="M0 90 q-56 22 -74 96" fill="none" stroke="#7C8B62" stroke-width="6"/>
+    <path d="M0 60 q52 30 62 110" fill="none" stroke="#7C8B62" stroke-width="6"/>
+    <path d="M-8 -20 q-70 26 -52 96 q34 26 60 -22 Z" fill="#8E7FAE" opacity="0.85" stroke="#6B5F8C" stroke-width="2"/>
+    <path d="M10 -20 q70 26 52 96 q-34 26 -60 -22 Z" fill="#8E7FAE" opacity="0.85" stroke="#6B5F8C" stroke-width="2"/>
+    <path d="M0 -10 q-30 60 0 96 q30 -36 0 -96 Z" fill="#A899C4" opacity="0.9" stroke="#6B5F8C" stroke-width="2"/>
+    <path d="M-4 -24 q-52 -40 -28 -96 q34 -18 42 42 Z" fill="#A899C4" opacity="0.8" stroke="#6B5F8C" stroke-width="2"/>
+    <path d="M6 -24 q52 -40 28 -96 q-34 -18 -42 42 Z" fill="#A899C4" opacity="0.8" stroke="#6B5F8C" stroke-width="2"/>
+    <path d="M0 -30 q-14 -70 2 -104 q18 34 4 104 Z" fill="#BFB2D6" opacity="0.9" stroke="#6B5F8C" stroke-width="2"/>
+    <path d="M-14 34 q14 12 28 0" fill="none" stroke="#D8B45C" stroke-width="5"/>
+  </g>`;
+}
+
+function _perles(cx, cy, r, clair, trait) {
+  let out = "";
+  for (let i = 0; i < 44; i++) {
+    const a = (i / 44) * Math.PI * 2;
+    out += `<circle cx="${(cx + Math.cos(a) * (r - 16)).toFixed(1)}" cy="${(cy + Math.sin(a) * (r - 16)).toFixed(1)}" r="9" fill="${clair}" stroke="${trait}" stroke-width="1.2"/>`;
+  }
+  return out;
+}
+
+function _etoileMarqueterie(cx, cy, r, t) {
+  let out = "";
+  for (let i = 0; i < 8; i++) {
+    const a1 = (i / 8) * Math.PI * 2;
+    const a2 = ((i + 0.5) / 8) * Math.PI * 2;
+    const x1 = cx + Math.cos(a1) * r;
+    const y1 = cy + (Math.sin(a1) * r) / 1.9;
+    const x2 = cx + Math.cos(a2) * (r * 0.42);
+    const y2 = cy + (Math.sin(a2) * (r * 0.42)) / 1.9;
+    out += `<path d="M${cx} ${cy} L${x1.toFixed(1)} ${y1.toFixed(1)} L${x2.toFixed(1)} ${y2.toFixed(1)} Z" fill="${i % 2 ? t.clair : t.fonce}" stroke="${t.trait}" stroke-width="1.2"/>`;
+  }
+  out += `<ellipse cx="${cx}" cy="${cy}" rx="14" ry="7" fill="${t.deco}" stroke="${t.trait}" stroke-width="1.2"/>`;
+  return out;
+}
+
+function _fleuron(cx, cy, c) {
+  return `<g transform="translate(${cx} ${cy})" fill="none" stroke="${c}" stroke-width="2.5" opacity="0.85">
+    <path d="M0 -18 q18 18 0 36 q-18 -18 0 -36"/>
+    <path d="M-18 0 q18 -18 36 0 q-18 18 -36 0"/>
+    <circle r="4"/></g>`;
+}
+
+function _rinceaux(cx, cy, w, c) {
+  let out = `<g stroke="${c}" fill="none" stroke-width="2" opacity="0.65">`;
+  for (let i = -2; i <= 2; i++) {
+    out += `<path d="M${cx + i * 36 - 14} ${cy} q14 -14 28 0 q-14 14 -28 0"/>`;
+  }
+  return out + "</g>";
+}
+
+/* --- assemblage ---------------------------------------------------- */
+
+/**
+ * Retourne une data-URI SVG représentant le produit.
+ * @param {object} produit
+ * @param {number} variante 0 = vue de face, 1 = vue trois-quarts, 2 = détail
+ */
+function imageProduit(produit, variante) {
+  const v = variante || 0;
+  const t = _teinte(produit.img.teinte);
+  const dessin = FORMES[produit.img.forme] || FORMES.assiette;
+  const corps = dessin(t, produit.img.motif);
+
+  const transforms = [
+    "translate(300 308) scale(1.05) translate(-300 -300)",
+    "translate(300 306) rotate(-5) scale(0.9) translate(-300 -300)",
+    "translate(300 300) scale(1.55) translate(-300 -318)",
+  ];
+
+  const lumiere =
+    v === 1
+      ? `<ellipse cx="180" cy="140" rx="300" ry="230" fill="#FFFFFF" opacity="0.3"/>`
+      : v === 2
+      ? `<ellipse cx="420" cy="460" rx="320" ry="260" fill="${FOND.ombre}" opacity="0.28"/>`
+      : "";
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600" role="img">
+  <defs>
+    <linearGradient id="fond" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0" stop-color="${FOND.haut}"/><stop offset="1" stop-color="${FOND.bas}"/>
+    </linearGradient>
+    <radialGradient id="ombre" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="${FOND.ombre}" stop-opacity="0.75"/>
+      <stop offset="1" stop-color="${FOND.ombre}" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="bombe" cx="0.36" cy="0.3" r="0.75">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.85"/>
+      <stop offset="0.55" stop-color="#E4E7E0" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#8E948A" stop-opacity="0.55"/>
+    </radialGradient>
+    <pattern id="toile" width="7" height="7" patternUnits="userSpaceOnUse">
+      <path d="M0 0 L0 7 M0 0 L7 0" stroke="#C9BCA4" stroke-width="0.6" opacity="0.35"/>
+    </pattern>
+  </defs>
+  <rect width="600" height="600" fill="url(#fond)"/>
+  <rect width="600" height="600" fill="url(#toile)"/>
+  ${lumiere}
+  <g transform="${transforms[v]}">${corps}</g>
+  <rect width="600" height="600" fill="none" stroke="#D9CDB8" stroke-width="1"/>
+</svg>`;
+
+  return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg.replace(/\s+/g, " "));
+}
+
+/** Trois vues par produit, comme une petite galerie photo. */
+function galerieProduit(produit) {
+  return [0, 1, 2].map((v) => imageProduit(produit, v));
+}
+
+</script>
+<script>
+
+/* ================= Routeur (mode fichier unique) =================== */
+const ROUTE = { chemin: "/", query: "" };
+const PAGES = {};
+const STATIQUES = {
+ "/a-propos": "\n\n  <section class=\"entete-page\">\n    <div class=\"enveloppe\">\n      <p class=\"surtitre\">L'atelier</p>\n      <h1>Chineuse le samedi, emballeuse le lundi</h1>\n      <p>Il n'y a pas de boutique à pousser, pas de vitrine sur une place de village. Il y a un atelier, une table de travail, du papier de soie — et cette boutique en ligne.</p>\n    </div>\n  </section>\n\n  <div data-reassurance=\"fin\"></div>\n\n  <section class=\"section\">\n    <div class=\"enveloppe\">\n      <div class=\"apropos\">\n        <div class=\"apropos__images\">\n          <img data-img=\"AT-104:0\" alt=\"Faïence ancienne\" width=\"600\" height=\"600\">\n          <img data-img=\"AR-042:2\" alt=\"Métal argenté\" width=\"600\" height=\"600\">\n          <img data-img=\"TI-033:0\" alt=\"Linge ancien monogrammé\" width=\"600\" height=\"600\">\n          <img data-img=\"PA-018:1\" alt=\"Gravure ancienne\" width=\"600\" height=\"600\">\n        </div>\n        <div>\n          <p class=\"surtitre\">Comment tout a commencé</p>\n          <h2>Quinze ans à me lever avant le jour</h2>\n          <hr class=\"filet gauche\">\n          <p>Je m'appelle Émilie. J'ai commencé à chiner pour meubler un premier appartement sans budget, et je ne me suis jamais arrêtée. Les déballages de campagne à cinq heures du matin, la lampe frontale dans les cartons d'une vente de succession, la conversation avec la dame qui vide la maison de sa mère et qui raconte, pendant qu'on emballe, à quelles occasions on sortait ce service : voilà ce que j'aime dans ce métier.</p>\n          <p>Au bout d'un moment, la maison était pleine. Il a bien fallu que les objets repartent — d'où cette boutique. J'y mets ce que j'aurais gardé pour moi si j'avais eu la place : de la faïence dépareillée, du linge brodé aux initiales d'une aïeule, un peu d'argenterie de table, des gravures oubliées dans un carton humide.</p>\n          <p class=\"apropos__signature\">« Un objet qui repart chez quelqu'un, c'est un objet sauvé. »</p>\n        </div>\n      </div>\n    </div>\n  </section>\n\n  <section class=\"section section--papier\">\n    <div class=\"enveloppe\">\n      <div class=\"section__entete centre\">\n        <p class=\"surtitre\">Acheter en ligne, sereinement</p>\n        <h2>Ce que je m'engage à faire avant chaque expédition</h2>\n        <hr class=\"filet\">\n        <p>Acheter un objet ancien sans le tenir en main demande de la confiance. Voici comment j'essaie de la mériter, pièce après pièce.</p>\n      </div>\n\n      <div class=\"reassurance__grille\" style=\"padding-top:8px\">\n        <div class=\"reassurance__item\">\n          <svg viewBox=\"0 0 24 24\" style=\"stroke:var(--sauge);fill:none;stroke-width:1.3\"><circle cx=\"11\" cy=\"11\" r=\"6\"/><path d=\"M15.5 15.5L20 20\"/></svg>\n          <div><strong>Vérification à la main</strong><span>Je passe le doigt sur chaque bord, je tiens les verres devant une lampe, je compte les pièces des services et des lots. Rien ne part sans être passé entre mes mains.</span></div>\n        </div>\n        <div class=\"reassurance__item\">\n          <svg viewBox=\"0 0 24 24\" style=\"stroke:var(--sauge);fill:none;stroke-width:1.3\"><rect x=\"3\" y=\"6\" width=\"18\" height=\"13\" rx=\"2\"/><circle cx=\"12\" cy=\"12.5\" r=\"3.5\"/><path d=\"M8 6l1.5-2h5L16 6\"/></svg>\n          <div><strong>Photos de l'objet réel</strong><span>Trois vues au minimum, sur fond neutre et à la lumière du jour : ensemble, trois quarts, détail. Les défauts sont photographiés, jamais cachés par un cadrage habile.</span></div>\n        </div>\n        <div class=\"reassurance__item\">\n          <svg viewBox=\"0 0 24 24\" style=\"stroke:var(--sauge);fill:none;stroke-width:1.3\"><path d=\"M5 4h14v16H5z\"/><path d=\"M8 9h8M8 13h8M8 17h5\"/></svg>\n          <div><strong>Description honnête de l'état</strong><span>Éclat, fêle, usure d'émail, reprise ancienne, dorure estompée : c'est écrit noir sur blanc. Sur un objet centenaire, l'usure fait partie de l'histoire, pas du mensonge.</span></div>\n        </div>\n        <div class=\"reassurance__item\">\n          <svg viewBox=\"0 0 24 24\" style=\"stroke:var(--sauge);fill:none;stroke-width:1.3\"><path d=\"M4 5h16v12H9l-5 4V5z\"/></svg>\n          <div><strong>Contact facile avant achat</strong><span>Une dimension, un poinçon, une photo supplémentaire d'un angle précis : écrivez-moi, je réponds sous 24 h du lundi au samedi. C'est toujours mieux que la mauvaise surprise à l'ouverture.</span></div>\n        </div>\n        <div class=\"reassurance__item\">\n          <svg viewBox=\"0 0 24 24\" style=\"stroke:var(--sauge);fill:none;stroke-width:1.3\"><path d=\"M3 8l9-4 9 4v9l-9 4-9-4V8z\"/><path d=\"M3 8l9 4 9-4M12 12v9\"/></svg>\n          <div><strong>Emballage pensé pour le fragile</strong><span>Papier de soie, calage mousse, double cannelure, verres emballés un par un. Un colis de brocante bien fait pèse toujours plus lourd qu'on ne croit.</span></div>\n        </div>\n        <div class=\"reassurance__item\">\n          <svg viewBox=\"0 0 24 24\" style=\"stroke:var(--sauge);fill:none;stroke-width:1.3\"><path d=\"M4 9h11a5 5 0 0 1 0 10h-4\"/><path d=\"M8 5L4 9l4 4\"/></svg>\n          <div><strong>Retour possible sous 14 jours</strong><span>Si la pièce ne vous plaît pas, elle repart et vous êtes remboursé·e. Si elle arrive cassée malgré tout, je rembourse intégralement, transport compris.</span></div>\n        </div>\n      </div>\n    </div>\n  </section>\n\n  <section class=\"section\">\n    <div class=\"enveloppe\">\n      <div class=\"section__entete centre\">\n        <p class=\"surtitre\">Une question fréquente</p>\n        <h2>« Vous avez une boutique où l'on peut venir voir ? »</h2>\n      </div>\n      <div style=\"max-width:720px;margin:0 auto\">\n        <p style=\"color:var(--encre-2)\">Non, et c'est assumé. Tout se passe en ligne : cela me permet de passer mes samedis à chiner plutôt qu'à tenir une caisse, et de proposer des prix qui ne portent pas le poids d'un local commercial. En contrepartie, je mets un soin particulier à ce qui remplace la visite en boutique — les photos, la description de l'état, la réponse rapide à vos questions, et un emballage qui fait arriver l'objet comme il est parti.</p>\n        <p style=\"color:var(--encre-2)\">Les pièces sont expédiées depuis la France. Je les prépare le lundi et le jeudi, et vous recevez un numéro de suivi le jour même de l'envoi.</p>\n        <p style=\"margin-top:26px\"><a class=\"btn\" href=\"#/contact\">Me poser une question</a> <a class=\"btn btn--fantome\" href=\"#/boutique\">Voir les pièces disponibles</a></p>\n      </div>\n    </div>\n  </section>\n\n  <section class=\"section section--papier\">\n    <div class=\"enveloppe\">\n      <div class=\"section__entete centre\">\n        <p class=\"surtitre\">Fraîchement arrivées</p>\n        <h2>Quelques pièces à découvrir</h2>\n        <hr class=\"filet\">\n      </div>\n      <div class=\"grille-produits\" data-pieces=\"4\"></div>\n    </div>\n  </section>\n\n  <div data-reassurance=\"riche\"></div>\n",
+ "/contact": "\n\n  <section class=\"entete-page\">\n    <div class=\"enveloppe\">\n      <p class=\"surtitre\">Contact</p>\n      <h1>Posez votre question avant d'acheter</h1>\n      <p>C'est le meilleur réflexe quand on achète un objet ancien à distance. Je réponds sous 24 h, du lundi au samedi — et je peux vous envoyer une photo supplémentaire de n'importe quel détail.</p>\n    </div>\n  </section>\n\n  <div class=\"enveloppe\">\n    <div style=\"display:grid;grid-template-columns:1.15fr .85fr;gap:48px;padding:50px 0 70px\" class=\"contact-grille\">\n      <div>\n        <form id=\"form-contact\" novalidate>\n          <label class=\"champ\"><span>Votre prénom</span><input name=\"prenom\" required placeholder=\"Camille\"></label>\n          <label class=\"champ\"><span>Votre e-mail</span><input type=\"email\" name=\"email\" required placeholder=\"prenom@exemple.fr\"></label>\n          <label class=\"champ\"><span>Référence de la pièce (facultatif)</span><input name=\"ref\" id=\"champ-ref\" placeholder=\"AT-104\"></label>\n          <label class=\"champ\"><span>Votre message</span><textarea name=\"message\" rows=\"6\" required placeholder=\"Bonjour, pourriez-vous me confirmer le diamètre exact et m'envoyer une photo du revers ?\"></textarea></label>\n          <button class=\"btn\" type=\"submit\">Envoyer ma question</button>\n          <div id=\"contact-retour\"></div>\n        </form>\n      </div>\n      <aside>\n        <div style=\"background:var(--blanc);border:1px solid var(--ligne);border-radius:3px;padding:26px\">\n          <h2 style=\"font-size:1.15rem\">En direct</h2>\n          <p style=\"font-size:.92rem;color:var(--encre-2)\">Écrivez-moi directement, ou passez par le formulaire si vous préférez.</p>\n          <p style=\"font-size:.95rem\"><strong>E-mail</strong><br><a class=\"lien-souligne\" href=\"mailto:bonjour@lamalledautomne.fr\">bonjour@lamalledautomne.fr</a></p>\n          <p style=\"font-size:.95rem\"><strong>Téléphone</strong><br>06 12 34 56 78 — du mardi au samedi, 10 h – 18 h</p>\n          <hr style=\"border:0;border-top:1px solid var(--ligne);margin:22px 0\">\n          <h3 style=\"font-size:.98rem\">Les questions les plus utiles</h3>\n          <ul style=\"padding-left:1.1em;font-size:.9rem;color:var(--encre-2)\">\n            <li>Une photo d'un détail précis (revers, poinçon, éclat signalé)</li>\n            <li>Les dimensions exactes, si vous avez une étagère à mesurer</li>\n            <li>Le poids approximatif pour estimer le port hors de France</li>\n            <li>La possibilité de grouper plusieurs pièces dans un même colis</li>\n          </ul>\n          <p style=\"font-size:.86rem;color:var(--encre-3);margin-bottom:0\">Il n'y a pas de boutique physique à visiter : tout se passe ici, et je fais mon possible pour que les photos et les descriptions remplacent la mise en main.</p>\n        </div>\n      </aside>\n    </div>\n  </div>\n\n  <div data-reassurance=\"riche\"></div>\n",
+ "/livraison": "\n\n  <section class=\"entete-page\">\n    <div class=\"enveloppe\">\n      <p class=\"surtitre\">Informations pratiques</p>\n      <h1>Livraison &amp; retours</h1>\n      <p>Des objets anciens et fragiles voyagent bien quand ils sont emballés sérieusement. Voici exactement comment je procède.</p>\n    </div>\n  </section>\n\n  <div data-reassurance=\"fin\"></div>\n\n  <div class=\"enveloppe\">\n    <div class=\"page-texte\">\n      <h2>Trois zones de livraison, c'est tout</h2>\n      <p>Plutôt qu'une liste interminable de pays, la boutique fonctionne avec trois zones. Vous choisissez la vôtre en haut de page ; le tarif et le délai s'affichent aussitôt dans le panier et sur les fiches produit.</p>\n      <ul>\n        <li><strong>France</strong> — Colissimo suivi, 6,90 €, 2 à 4 jours ouvrés. Port offert dès 150 € d'achat.</li>\n        <li><strong>Union européenne</strong> — envoi suivi, 14,90 €, 4 à 8 jours ouvrés. Port offert dès 250 € d'achat.</li>\n        <li><strong>Reste du monde</strong> — envoi suivi, 29,90 €, 8 à 15 jours ouvrés. Pour les pièces lourdes ou encombrantes, écrivez-moi avant de commander : je calcule le port réel et je vous fais un devis.</li>\n      </ul>\n      <p>Les envois partent de France. Hors Union européenne, des droits de douane peuvent s'ajouter à la charge du destinataire ; ils ne dépendent pas de moi.</p>\n\n      <h2>Comment j'emballe</h2>\n      <p>Chaque pièce est enveloppée dans du papier de soie, puis calée à la mousse ou au papier froissé dans un carton double cannelure. Les verres, les cristaux et les faïences fines sont emballés individuellement, jamais en vrac. Les tableaux voyagent entre deux plaques de carton rigide. Le linge ancien part repassé et plié dans du papier de soie.</p>\n      <p>Je prépare les colis le lundi et le jeudi. Vous recevez le numéro de suivi par e-mail le jour même de l'expédition, au plus tard 48 h ouvrées après votre commande.</p>\n\n      <h2>Si un objet arrive cassé</h2>\n      <p>Cela reste rare, mais cela arrive. Envoyez-moi une photo de la pièce et du colis dans les 72 h suivant la réception : je vous rembourse intégralement, frais de transport compris, sans vous demander de renvoyer l'objet.</p>\n\n      <h2>Changer d'avis : 14 jours</h2>\n      <p>Vous disposez de 14 jours à compter de la réception pour me signaler que vous souhaitez retourner la pièce, sans avoir à vous justifier. Vous avez ensuite 14 jours pour me la réexpédier, dans son emballage d'origine et dans l'état où elle vous a été livrée.</p>\n      <p>Les frais de retour sont à votre charge, sauf en cas d'erreur de ma part ou de description inexacte — auquel cas je les prends en charge intégralement. Le remboursement intervient sous 5 jours ouvrés après réception du retour, sur le moyen de paiement utilisé.</p>\n\n      <h2>Regrouper plusieurs pièces</h2>\n      <p>Si vous achetez plusieurs objets, ils partent dans le même colis quand c'est possible et vous ne payez qu'un seul port. Si le regroupement fait baisser le tarif d'expédition, je vous rembourse la différence de ma propre initiative.</p>\n\n      <p style=\"margin-top:36px\"><a class=\"btn\" href=\"#/contact\">Une question sur un envoi ?</a></p>\n    </div>\n  </div>\n\n  <div data-reassurance=\"riche\"></div>\n",
+ "/cgv": "\n\n  <section class=\"entete-page\">\n    <div class=\"enveloppe\">\n      <p class=\"surtitre\">Mentions contractuelles</p>\n      <h1>Conditions générales de vente</h1>\n      <p>Texte d'exemple fourni avec cette maquette. À faire relire et adapter par un professionnel avant toute mise en vente réelle.</p>\n    </div>\n  </section>\n\n  <div class=\"enveloppe\">\n    <div class=\"page-texte\">\n      <h2>1. Objet</h2>\n      <p>Les présentes conditions régissent les ventes conclues sur ce site entre la vendeuse, particulière passionnée de brocante, et tout acheteur. Toute commande implique l'acceptation sans réserve de ces conditions.</p>\n\n      <h2>2. Produits</h2>\n      <p>Les objets proposés sont des pièces anciennes ou d'occasion, vendues en un seul exemplaire. Leur état est décrit avec précision sur chaque fiche produit et illustré par plusieurs photographies de l'objet réel. Les traces d'usage, usures d'émail, rayures, patines et restaurations anciennes sont inhérentes à des objets anciens et ne constituent pas des défauts cachés dès lors qu'elles sont signalées.</p>\n      <p>Chaque pièce étant unique, elle disparaît de la vente dès qu'elle est commandée. Aucun réassort n'est possible.</p>\n\n      <h2>3. Prix</h2>\n      <p>Les prix sont indiqués en euros, toutes taxes comprises. Les frais de livraison s'ajoutent au moment de la commande selon la zone choisie (France, Union européenne, reste du monde). Les éventuels droits de douane hors Union européenne restent à la charge du destinataire.</p>\n\n      <h2>4. Commande et paiement</h2>\n      <p>La commande est ferme dès la validation du paiement. Les moyens acceptés sont la carte bancaire, le virement et PayPal. Les transactions sont chiffrées ; aucune donnée bancaire n'est conservée par la boutique.</p>\n\n      <h2>5. Livraison</h2>\n      <p>Les colis sont expédiés sous 48 heures ouvrées après réception du paiement, en envoi suivi. Les modalités détaillées figurent sur la page <a class=\"lien-souligne\" href=\"#/livraison\">Livraison &amp; retours</a>. En cas de retard imputable au transporteur, la vendeuse ouvre une enquête et tient l'acheteur informé.</p>\n\n      <h2>6. Droit de rétractation</h2>\n      <p>Conformément au droit de la consommation, l'acheteur dispose de 14 jours à compter de la réception pour exercer son droit de rétractation, sans motif. Le retour s'effectue dans l'emballage d'origine, les frais de renvoi étant à la charge de l'acheteur sauf erreur ou description inexacte. Le remboursement intervient sous 5 jours ouvrés après réception du retour.</p>\n\n      <h2>7. Casse pendant le transport</h2>\n      <p>En cas de casse constatée à la réception, l'acheteur en informe la vendeuse sous 72 heures, photographies du colis et de l'objet à l'appui. Le remboursement est alors intégral, frais de port compris.</p>\n\n      <h2>8. Garanties</h2>\n      <p>Les objets anciens vendus d'occasion ne bénéficient pas de la garantie commerciale des produits neufs. Les garanties légales de conformité et des vices cachés s'appliquent dans les conditions prévues par la loi. Les datations et attributions indiquées reposent sur l'expérience de la vendeuse et sur les marques présentes sur les pièces ; elles sont données de bonne foi et ne constituent pas une expertise certifiée.</p>\n\n      <h2>9. Litiges</h2>\n      <p>En cas de désaccord, une solution amiable sera recherchée en priorité. À défaut, le litige relève des tribunaux compétents du lieu de résidence de la vendeuse ou, pour un acheteur consommateur, de son propre lieu de résidence.</p>\n    </div>\n  </div>\n\n  <div data-reassurance=\"riche\"></div>\n",
+ "/mentions": "\n\n  <section class=\"entete-page\">\n    <div class=\"enveloppe\">\n      <p class=\"surtitre\">Informations légales</p>\n      <h1>Mentions légales</h1>\n      <p>Texte d'exemple fourni avec cette maquette : remplacez les informations d'identification par les vôtres avant toute mise en ligne réelle.</p>\n    </div>\n  </section>\n\n  <div class=\"enveloppe\">\n    <div class=\"page-texte\">\n      <h2>Éditeur du site</h2>\n      <p>La Malle d'Automne — vente en ligne d'objets de brocante.<br>\n      Activité exercée à titre individuel. Aucune boutique ouverte au public.<br>\n      Adresse de correspondance : à compléter.<br>\n      Numéro SIREN : à compléter.<br>\n      Contact : bonjour@lamalledautomne.fr — 06 12 34 56 78.</p>\n\n      <h2>Directrice de la publication</h2>\n      <p>Émilie — à compléter par l'identité complète de l'éditrice.</p>\n\n      <h2>Hébergement</h2>\n      <p>À compléter : nom de l'hébergeur, adresse postale et téléphone. Dans sa version de démonstration, ce site est un ensemble de fichiers statiques pouvant être ouverts localement, sans serveur.</p>\n\n      <h2>Propriété intellectuelle</h2>\n      <p>Les textes, descriptions et illustrations présents sur ce site sont la propriété de l'éditrice. Toute reproduction, même partielle, est soumise à autorisation écrite préalable.</p>\n\n      <h2>Nature des objets vendus</h2>\n      <p>Les objets proposés sont anciens ou d'occasion et vendus en un exemplaire unique. Les datations et attributions sont données de bonne foi sur la base de l'expérience de la vendeuse et des marques présentes sur les pièces ; elles ne constituent pas une expertise certifiée.</p>\n\n      <h2>Signalement</h2>\n      <p>Pour signaler un contenu inexact ou faire valoir un droit sur une image ou un texte, écrivez à bonjour@lamalledautomne.fr. Toute demande fondée est traitée sous 72 heures.</p>\n    </div>\n  </div>\n\n  <div data-reassurance=\"riche\"></div>\n",
+ "/confidentialite": "\n\n  <section class=\"entete-page\">\n    <div class=\"enveloppe\">\n      <p class=\"surtitre\">Vie privée</p>\n      <h1>Données personnelles</h1>\n      <p>Le minimum nécessaire, rien de plus : ni revente de fichier, ni traceur publicitaire.</p>\n    </div>\n  </section>\n\n  <div class=\"enveloppe\">\n    <div class=\"page-texte\">\n      <h2>Ce que cette maquette stocke réellement</h2>\n      <p>Dans cette version de démonstration, aucune donnée ne quitte votre appareil. Le panier, la zone de livraison choisie, les demandes d'alerte de disponibilité et les avis que vous rédigez sont enregistrés dans le stockage local de votre navigateur (<em>localStorage</em>). Vider les données du site dans les réglages de votre navigateur les efface définitivement.</p>\n\n      <h2>Données collectées en exploitation réelle</h2>\n      <ul>\n        <li>Commande : prénom, nom, adresse postale, e-mail, téléphone — pour préparer et expédier le colis.</li>\n        <li>Question avant achat : prénom et e-mail — pour vous répondre.</li>\n        <li>Alerte de disponibilité : e-mail seul — pour vous prévenir si une pièce comparable arrive.</li>\n        <li>Avis client : prénom, ville et commentaire — publiés sur la fiche produit concernée.</li>\n      </ul>\n\n      <h2>Durée de conservation</h2>\n      <p>Les données de commande sont conservées le temps légal des obligations comptables. Les e-mails d'alerte de disponibilité sont supprimés dès que l'alerte a été envoyée, ou sur simple demande. Les questions avant achat sont effacées au bout d'un an.</p>\n\n      <h2>Paiement</h2>\n      <p>Les paiements sont traités par un prestataire spécialisé. Aucune donnée de carte bancaire ne transite ni n'est conservée par la boutique.</p>\n\n      <h2>Traceurs</h2>\n      <p>Aucun cookie publicitaire, aucun outil de mesure d'audience tiers, aucun partage de données à des fins commerciales.</p>\n\n      <h2>Vos droits</h2>\n      <p>Vous pouvez demander à tout moment l'accès, la rectification, la suppression ou la portabilité de vos données en écrivant à bonjour@lamalledautomne.fr. La demande est traitée sous 30 jours au plus tard.</p>\n    </div>\n  </div>\n\n  <div data-reassurance=\"riche\"></div>\n"
+};
+
+const INITS = {
+  "/contact": function () {
+    const params = new URLSearchParams(ROUTE.query);
+    const ref = params.get("ref");
+    const champ = document.getElementById("champ-ref");
+    if (ref && champ) {
+      champ.value = ref;
+      const p = produitParRef(ref);
+      if (p) {
+        document.querySelector('#form-contact [name="message"]').placeholder =
+          "Bonjour, j'ai une question sur « " + p.nom + " » (réf. " + p.ref + ")…";
+      }
+    }
+    document.getElementById("form-contact").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const f = e.target;
+      const retour = document.getElementById("contact-retour");
+      if (!f.prenom.value.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(f.email.value) || f.message.value.trim().length < 10) {
+        retour.innerHTML = '<div class="message-succes" style="background:#f6e7dd;border-color:#e6cdbc;color:#8a4a2c">Merci de renseigner votre prénom, un e-mail valide et un message d\'au moins dix caractères.</div>';
+        return;
+      }
+      retour.innerHTML = '<div class="message-succes">Merci ! Votre message est bien noté — je vous réponds sous 24 h. (Maquette : aucun message n\'est réellement envoyé.)</div>';
+      f.reset();
+    });
+  },
+};
+
+function majNavActive() {
+  const page = "#" + ROUTE.chemin;
+  document.querySelectorAll(".nav-principale a").forEach((a) => {
+    const h = a.getAttribute("href") || "";
+    if (ROUTE.chemin !== "/" && h.startsWith(page)) a.setAttribute("aria-current", "page");
+    else a.removeAttribute("aria-current");
+  });
+}
+
+let dejaRendu = false;
+
+function routerRendre() {
+  const brut = location.hash.replace(/^#/, "");
+  const ancre = Boolean(brut) && !brut.startsWith("/");
+  /* une ancre interne (#univers, #avis…) ne change pas de page —
+     sauf au chargement, où il faut tout de même rendre l'accueil */
+  if (ancre && dejaRendu) return;
+  dejaRendu = true;
+
+  const cible = ancre ? "" : brut;
+  const i = cible.indexOf("?");
+  ROUTE.chemin = (i === -1 ? cible : cible.slice(0, i)) || "/";
+  ROUTE.query = i === -1 ? "" : cible.slice(i);
+
+  const menu = document.getElementById("menu-mobile");
+  if (menu) { menu.classList.remove("ouvert"); menu.setAttribute("aria-hidden", "true"); }
+  document.body.style.overflow = "";
+  if (document.getElementById("tiroir-panier")) fermerPanier();
+
+  if (ROUTE.chemin === "/boutique") PAGES.boutique();
+  else if (ROUTE.chemin === "/produit") PAGES.produit();
+  else if (STATIQUES[ROUTE.chemin]) {
+    document.getElementById("page").innerHTML = STATIQUES[ROUTE.chemin];
+    if (INITS[ROUTE.chemin]) INITS[ROUTE.chemin]();
+  } else PAGES.accueil();
+
+  finaliserRendu();
+  majNavActive();
+  requestAnimationFrame(() => {
+    const vise = ancre ? document.getElementById(brut) : null;
+    if (vise) vise.scrollIntoView();
+    else window.scrollTo(0, 0);
+  });
+}
+
+window.addEventListener("hashchange", routerRendre);
+document.addEventListener("DOMContentLoaded", routerRendre);
+
+</script>
+<script>
+/* ------------------------------------------------------------------
+   Socle commun : en-tête, pied de page, région, panier, alertes,
+   cartes produit, carrousels. Chargé sur toutes les pages.
+   ------------------------------------------------------------------ */
+
+const $ = (sel, ctx) => (ctx || document).querySelector(sel);
+const $$ = (sel, ctx) => Array.from((ctx || document).querySelectorAll(sel));
+
+const prix = (n) =>
+  n.toLocaleString("fr-FR", {
+    style: "currency",
+    currency: "EUR",
+    minimumFractionDigits: Number.isInteger(n) ? 0 : 2,
+    maximumFractionDigits: 2,
+  });
+
+/* ================= Icônes (SVG inline, aucun fichier externe) ====== */
+const ICONES = {
+  panier: '<svg viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>',
+  menu: '<svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
+  croix: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  gauche: '<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>',
+  droite: '<svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>',
+  chevron: '<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>',
+  plus: '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+  check: '<svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg>',
+  cadenas: '<svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>',
+  colis: '<svg viewBox="0 0 24 24"><path d="M3 8l9-4 9 4v9l-9 4-9-4V8z"/><path d="M3 8l9 4 9-4M12 12v9"/></svg>',
+  retour: '<svg viewBox="0 0 24 24"><path d="M4 9h11a5 5 0 0 1 0 10h-4"/><path d="M8 5L4 9l4 4"/></svg>',
+  message: '<svg viewBox="0 0 24 24"><path d="M4 5h16v12H9l-5 4V5z"/></svg>',
+  perle: '<svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.6L20 10l-4 4.2.9 6-4.9-2.8L7.1 20 8 14.2 4 10l5.4-1.4L12 3z"/></svg>',
+  loupe: '<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M15.5 15.5L20 20"/></svg>',
+  camion: '<svg viewBox="0 0 24 24"><path d="M3 7h11v9H3V7z"/><path d="M14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>',
+};
+
+/* ================= Stockage tolérant ===============================
+   Safari sur iPhone interdit localStorage aux pages ouvertes en
+   file:// et lève une exception à la simple lecture. On bascule alors
+   sur une mémoire de session : le site reste utilisable, seules les
+   préférences ne survivent pas à la fermeture de l'onglet.          */
+const Stockage = (function () {
+  let disponible = false;
+  try {
+    localStorage.setItem("__test", "1");
+    localStorage.removeItem("__test");
+    disponible = true;
+  } catch (e) {
+    disponible = false;
+  }
+  const memoire = {};
+  return {
+    persistant: disponible,
+    lire(cle) {
+      try {
+        if (disponible) return localStorage.getItem(cle);
+      } catch (e) {
+        /* ignoré : on retombe sur la mémoire */
+      }
+      return memoire[cle] !== undefined ? memoire[cle] : null;
+    },
+    ecrire(cle, valeur) {
+      memoire[cle] = valeur;
+      try {
+        if (disponible) localStorage.setItem(cle, valeur);
+      } catch (e) {
+        /* ignoré */
+      }
+    },
+  };
+})();
+
+/* ================= Régions ========================================= */
+const REGIONS = {
+  fr: {
+    id: "fr",
+    nom: "France",
+    detail: "Colissimo suivi — 6,90 €",
+    port: 6.9,
+    delai: "2 à 4 jours ouvrés",
+    franco: 150,
+  },
+  ue: {
+    id: "ue",
+    nom: "Union européenne",
+    detail: "Envoi suivi — 14,90 €",
+    port: 14.9,
+    delai: "4 à 8 jours ouvrés",
+    franco: 250,
+  },
+  monde: {
+    id: "monde",
+    nom: "Reste du monde",
+    detail: "Envoi suivi — 29,90 €",
+    port: 29.9,
+    delai: "8 à 15 jours ouvrés",
+    franco: null,
+  },
+};
+
+const Region = {
+  cle: "malle_region",
+  actuelle() {
+    return REGIONS[Stockage.lire(this.cle)] || REGIONS.fr;
+  },
+  definir(id) {
+    if (!REGIONS[id]) return;
+    Stockage.ecrire(this.cle, id);
+    document.dispatchEvent(new CustomEvent("region:changee", { detail: REGIONS[id] }));
+  },
+};
+
+/* ================= Panier ========================================== */
+const Panier = {
+  cle: "malle_panier",
+  lire() {
+    try {
+      return JSON.parse(Stockage.lire(this.cle)) || [];
+    } catch (e) {
+      return [];
+    }
+  },
+  ecrire(refs) {
+    Stockage.ecrire(this.cle, JSON.stringify(refs));
+    document.dispatchEvent(new Event("panier:change"));
+  },
+  contient(ref) {
+    return this.lire().includes(ref);
+  },
+  ajouter(ref) {
+    const refs = this.lire();
+    if (refs.includes(ref)) return false; // pièce unique : jamais deux fois
+    refs.push(ref);
+    this.ecrire(refs);
+    return true;
+  },
+  retirer(ref) {
+    this.ecrire(this.lire().filter((r) => r !== ref));
+  },
+  produits() {
+    return this.lire().map(produitParRef).filter(Boolean);
+  },
+  total() {
+    return this.produits().reduce((t, p) => t + p.prix, 0);
+  },
+};
+
+/* ================= Alertes « m'alerter si disponible » ============= */
+const Alertes = {
+  cle: "malle_alertes",
+  lire() {
+    try {
+      return JSON.parse(Stockage.lire(this.cle)) || {};
+    } catch (e) {
+      return {};
+    }
+  },
+  enregistrer(ref, email) {
+    const a = this.lire();
+    a[ref] = email;
+    Stockage.ecrire(this.cle, JSON.stringify(a));
+  },
+  aDejaDemande(ref) {
+    return Boolean(this.lire()[ref]);
+  },
+};
+
+/* ================= Petits composants =============================== */
+function etoiles(note, compte, grand) {
+  if (note === null || note === undefined) return "";
+  const pleines = Math.round(note);
+  const glyphes = "★★★★★".slice(0, pleines) + "☆☆☆☆☆".slice(0, 5 - pleines);
+  return `<span class="etoiles${grand ? " etoiles--grand" : ""}" aria-label="Note ${note} sur 5">
+    <span class="etoiles__glyphes" aria-hidden="true">${glyphes}</span>
+    ${compte !== undefined ? `<span class="etoiles__compte">${compte} avis</span>` : ""}
+  </span>`;
+}
+
+function toast(texte) {
+  let el = $(".toast");
+  if (!el) {
+    el = document.createElement("div");
+    el.className = "toast";
+    el.setAttribute("role", "status");
+    document.body.appendChild(el);
+  }
+  el.textContent = texte;
+  requestAnimationFrame(() => el.classList.add("visible"));
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove("visible"), 3200);
+}
+
+/* Badge de rareté — jamais agressif, seulement informatif */
+function badgesProduit(p) {
+  const out = [];
+  if (p.stock > 0) {
+    out.push(
+      `<span class="badge badge--unique">${ICONES.perle} Pièce unique — 1 seul exemplaire</span>`
+    );
+    if (p.coupDeCoeur) out.push(`<span class="badge badge--coup">Coup de cœur</span>`);
+  } else {
+    out.push(`<span class="badge badge--epuise">Pièce partie</span>`);
+  }
+  return out.join("");
+}
+
+function badgesCarte(p) {
+  if (p.stock === 0) return `<span class="badge badge--epuise">Pièce partie</span>`;
+  const b = [`<span class="badge badge--unique">${ICONES.perle} Pièce unique</span>`];
+  if (p.coupDeCoeur) b.push(`<span class="badge badge--coup">Coup de cœur</span>`);
+  return b.join("");
+}
+
+/** Carte produit réutilisée partout (grille, carrousels, résultats). */
+function carteProduit(p) {
+  const vues = galerieProduit(p);
+  const note = noteMoyenne(p.ref);
+  const nb = avisDuProduit(p.ref).length;
+  const epuise = p.stock === 0;
+  return `
+  <article class="carte${epuise ? " carte--epuise" : ""}" data-ref="${p.ref}">
+    <a class="carte__media" href="#/produit?ref=${p.ref}" aria-label="${p.nom}">
+      <div class="badges">${badgesCarte(p)}</div>
+      <img src="${vues[0]}" alt="${p.nom}" loading="lazy" width="600" height="600">
+      <img class="carte__survol" src="${vues[1]}" alt="" aria-hidden="true" loading="lazy" width="600" height="600">
+    </a>
+    <div class="carte__corps">
+      <span class="carte__ref">${p.ref} · ${universParSlug(p.univers).nom}</span>
+      <a href="#/produit?ref=${p.ref}"><h3 class="carte__nom">${p.nom}</h3></a>
+      ${note ? etoiles(note, nb) : ""}
+      <div class="carte__prix">${prix(p.prix)}${epuise ? "" : ' <small>— frais de port à part</small>'}</div>
+      ${
+        epuise
+          ? `<button class="btn btn--fantome btn--petit btn--bloc carte__alerte" data-alerte="${p.ref}">M'alerter si disponible</button>`
+          : ""
+      }
+    </div>
+  </article>`;
+}
+
+/* ================= En-tête et pied de page ========================= */
+function pageCourante() {
+  return "#" + ROUTE.chemin;
+}
+
+function construireEntete() {
+  const region = Region.actuelle();
+  const liensUnivers = UNIVERS.map(
+    (u) => `<li><a href="#/boutique?univers=${u.slug}">${u.nom}</a></li>`
+  ).join("");
+
+  const html = `
+  <div class="annonce">
+    <div class="enveloppe">
+      <span class="annonce__texte">Chaque pièce est unique — emballage soigné et réponse sous 24 h avant achat</span>
+      <div class="region">
+        <button class="region__btn" id="region-btn" aria-haspopup="true" aria-expanded="false">
+          <span id="region-nom">${region.nom}</span>${ICONES.chevron}
+        </button>
+        <div class="region__menu" id="region-menu" role="menu">
+          ${Object.values(REGIONS)
+            .map(
+              (r) => `<button role="menuitemradio" data-region="${r.id}" aria-checked="${
+                r.id === region.id
+              }">${r.nom}<small>${r.detail} · ${r.delai}</small></button>`
+            )
+            .join("")}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <header class="entete">
+    <div class="enveloppe">
+      <div class="entete__haut">
+        <div class="entete__gauche">
+          <button class="icone-btn burger" id="burger" aria-label="Ouvrir le menu">${ICONES.menu}</button>
+          <a class="icone-btn" href="#/boutique">${ICONES.loupe}<span>Boutique</span></a>
+        </div>
+        <a class="marque" href="#/">
+          <span class="marque__nom">${BOUTIQUE.nom}</span>
+          <span class="marque__sous">Brocante en ligne</span>
+        </a>
+        <div class="entete__actions">
+          <a class="icone-btn" href="#/a-propos"><span>À propos</span></a>
+          <button class="icone-btn" id="ouvrir-panier" aria-label="Ouvrir le panier">
+            ${ICONES.panier}<span class="pastille" id="pastille-panier">0</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <nav class="nav-principale" aria-label="Univers">
+      <div class="enveloppe">
+        <ul>
+          <li><a href="#/boutique">Tout chiner</a></li>
+          ${liensUnivers}
+          <li><a href="#/a-propos">L'atelier</a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <div class="menu-mobile" id="menu-mobile" aria-hidden="true">
+    <div class="menu-mobile__haut">
+      <span class="marque__nom" style="font-size:1.1rem">${BOUTIQUE.nom}</span>
+      <button class="icone-btn" id="fermer-menu" aria-label="Fermer le menu">${ICONES.croix}</button>
+    </div>
+    <ul>
+      <li><a href="#/boutique">Tout chiner</a></li>
+      ${liensUnivers}
+      <li><a href="#/a-propos">L'atelier — à propos</a></li>
+      <li><a href="#/contact">Contact</a></li>
+      <li><a href="#/livraison">Livraison &amp; retours</a></li>
+    </ul>
+    <div class="menu-mobile__bas">
+      <p>Une question avant d'acheter ?<br><a class="lien-souligne" href="#/contact">${BOUTIQUE.email}</a></p>
+    </div>
+  </div>`;
+
+  const hote = document.createElement("div");
+  hote.innerHTML = html;
+  document.body.prepend(hote);
+
+  /* liens actifs */
+  const page = pageCourante();
+  $$(".nav-principale a").forEach((a) => {
+    if (a.getAttribute("href").startsWith(page) && page !== "#/") {
+      a.setAttribute("aria-current", "page");
+    }
+  });
+
+  /* menu mobile */
+  const menu = $("#menu-mobile");
+  $("#burger").addEventListener("click", () => {
+    menu.classList.add("ouvert");
+    menu.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+  });
+  $("#fermer-menu").addEventListener("click", () => {
+    menu.classList.remove("ouvert");
+    menu.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+  });
+
+  /* sélecteur de région */
+  const btnRegion = $("#region-btn");
+  const menuRegion = $("#region-menu");
+  btnRegion.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const ouvert = menuRegion.classList.toggle("ouvert");
+    btnRegion.setAttribute("aria-expanded", String(ouvert));
+  });
+  document.addEventListener("click", () => {
+    menuRegion.classList.remove("ouvert");
+    btnRegion.setAttribute("aria-expanded", "false");
+  });
+  menuRegion.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-region]");
+    if (!b) return;
+    Region.definir(b.dataset.region);
+    $$("#region-menu [data-region]").forEach((x) =>
+      x.setAttribute("aria-checked", String(x === b))
+    );
+    $("#region-nom").textContent = REGIONS[b.dataset.region].nom;
+    toast("Livraison : " + REGIONS[b.dataset.region].nom + " — " + REGIONS[b.dataset.region].detail);
+  });
+
+  $("#ouvrir-panier").addEventListener("click", ouvrirPanier);
+}
+
+function construirePied() {
+  const region = Region.actuelle();
+  const html = `
+  <footer class="pied">
+    <div class="enveloppe">
+      <div class="pied__grille">
+        <div>
+          <span class="pied__marque">${BOUTIQUE.nom}</span>
+          <p>Brocante en ligne, sans boutique physique. Je chine, je nettoie, je vérifie et je photographie chaque pièce moi-même avant de la proposer ici.</p>
+          <p><a class="lien-souligne" href="#/contact">${BOUTIQUE.email}</a></p>
+        </div>
+        <div>
+          <h3>Les univers</h3>
+          <ul>${UNIVERS.map(
+            (u) => `<li><a href="#/boutique?univers=${u.slug}">${u.nom}</a></li>`
+          ).join("")}</ul>
+        </div>
+        <div>
+          <h3>La maison</h3>
+          <ul>
+            <li><a href="#/a-propos">À propos</a></li>
+            <li><a href="#/contact">Contact</a></li>
+            <li><a href="#/livraison">Livraison &amp; retours</a></li>
+            <li><a href="#/cgv">Conditions générales de vente</a></li>
+            <li><a href="#/mentions">Mentions légales</a></li>
+            <li><a href="#/confidentialite">Données personnelles</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Avant d'acheter</h3>
+          <p>Une question sur l'état, les dimensions ou une photo supplémentaire ? Écrivez-moi : je réponds sous 24 h, du lundi au samedi.</p>
+          <p style="margin-top:14px"><strong style="color:var(--blanc)">Livraison ${region.nom}</strong><br>${region.detail} · ${region.delai}</p>
+        </div>
+      </div>
+      <div class="pied__bas">
+        <span>© ${new Date().getFullYear()} ${BOUTIQUE.nom} — vente d'objets anciens entre particulier et amateurs.</span>
+        <div class="pied__paiement">
+          <span>Carte bancaire</span><span>Virement</span><span>PayPal</span><span>Paiement sécurisé SSL</span>
+        </div>
+      </div>
+    </div>
+  </footer>`;
+  const hote = document.createElement("div");
+  hote.innerHTML = html;
+  document.body.appendChild(hote);
+}
+
+/* ================= Panier : tiroir ================================= */
+function construirePanier() {
+  const html = `
+  <div class="voile" id="voile"></div>
+  <aside class="tiroir" id="tiroir-panier" aria-hidden="true" aria-label="Panier">
+    <div class="tiroir__haut">
+      <h2>Mon panier</h2>
+      <button class="icone-btn" id="fermer-panier" aria-label="Fermer le panier">${ICONES.croix}</button>
+    </div>
+    <div class="tiroir__corps" id="panier-corps"></div>
+    <div class="tiroir__bas" id="panier-bas"></div>
+  </aside>`;
+  const hote = document.createElement("div");
+  hote.innerHTML = html;
+  document.body.appendChild(hote);
+
+  $("#voile").addEventListener("click", fermerPanier);
+  $("#fermer-panier").addEventListener("click", fermerPanier);
+  document.addEventListener("panier:change", rendrePanier);
+  document.addEventListener("region:changee", rendrePanier);
+  rendrePanier();
+}
+
+function ouvrirPanier() {
+  $("#tiroir-panier").classList.add("ouvert");
+  $("#tiroir-panier").setAttribute("aria-hidden", "false");
+  $("#voile").classList.add("visible");
+  document.body.style.overflow = "hidden";
+}
+function fermerPanier() {
+  $("#tiroir-panier").classList.remove("ouvert");
+  $("#tiroir-panier").setAttribute("aria-hidden", "true");
+  $("#voile").classList.remove("visible");
+  document.body.style.overflow = "";
+}
+
+function rendrePanier() {
+  const corps = $("#panier-corps");
+  const bas = $("#panier-bas");
+  if (!corps) return;
+  const articles = Panier.produits();
+  const pastille = $("#pastille-panier");
+  if (pastille) {
+    pastille.textContent = articles.length;
+    pastille.classList.toggle("visible", articles.length > 0);
+  }
+
+  if (!articles.length) {
+    corps.innerHTML = `<p style="color:var(--encre-2)">Votre panier est vide.</p>
+      <p><a class="lien-souligne" href="#/boutique">Venez flâner entre mes pages →</a></p>`;
+    bas.innerHTML = "";
+    return;
+  }
+
+  corps.innerHTML = articles
+    .map(
+      (p) => `<div class="ligne-panier">
+      <img src="${imageProduit(p, 0)}" alt="${p.nom}">
+      <div>
+        <span class="ligne-panier__ref">${p.ref}</span>
+        <div class="ligne-panier__nom">${p.nom}</div>
+        <div class="ligne-panier__prix">${prix(p.prix)}</div>
+        <button class="ligne-panier__retirer" data-retirer="${p.ref}">Retirer</button>
+      </div>
+    </div>`
+    )
+    .join("");
+
+  const region = Region.actuelle();
+  const sousTotal = Panier.total();
+  const franco = region.franco !== null && sousTotal >= region.franco;
+  const port = franco ? 0 : region.port;
+
+  bas.innerHTML = `
+    <div class="total-ligne"><span>Sous-total (${articles.length} pièce${articles.length > 1 ? "s" : ""})</span><span>${prix(sousTotal)}</span></div>
+    <div class="total-ligne"><span>Livraison ${region.nom}</span><span>${franco ? "Offerte" : prix(port)}</span></div>
+    ${
+      region.franco !== null && !franco
+        ? `<div class="total-ligne" style="color:var(--or)"><span>Plus que ${prix(region.franco - sousTotal)} pour le port offert</span></div>`
+        : ""
+    }
+    <div class="total-ligne total-ligne--fort"><span>Total</span><span>${prix(sousTotal + port)}</span></div>
+    <button class="btn btn--bloc" id="commander">Passer commande</button>
+    <p style="font-size:.76rem;color:var(--encre-3);margin:12px 0 0;text-align:center">Paiement sécurisé · Emballage renforcé pour les pièces fragiles</p>`;
+
+  $("#commander").addEventListener("click", () => {
+    toast("Boutique de démonstration : le paiement en ligne n'est pas branché.");
+  });
+  $$("[data-retirer]", corps).forEach((b) =>
+    b.addEventListener("click", () => Panier.retirer(b.dataset.retirer))
+  );
+}
+
+/* ================= Modale d'alerte de disponibilité ================ */
+function construireModaleAlerte() {
+  const html = `
+  <div class="modale" id="modale-alerte" role="dialog" aria-modal="true" aria-labelledby="titre-alerte">
+    <div class="modale__fond" data-fermer-modale></div>
+    <div class="modale__boite">
+      <button class="modale__fermer" data-fermer-modale aria-label="Fermer">×</button>
+      <p class="surtitre">Disponibilité</p>
+      <h2 id="titre-alerte" style="font-size:1.3rem">M'alerter si cette pièce revient</h2>
+      <p style="font-size:.9rem;color:var(--encre-2)" id="alerte-objet"></p>
+      <p style="font-size:.86rem;color:var(--encre-2)">Chaque objet est unique : celui-ci est parti. Il m'arrive toutefois de retrouver une pièce très proche en chinant — laissez-moi votre adresse, je vous préviens en premier.</p>
+      <form id="form-alerte" novalidate>
+        <label class="champ"><span>Votre adresse e-mail</span>
+          <input type="email" name="email" required placeholder="prenom@exemple.fr" autocomplete="email"></label>
+        <button class="btn btn--bloc" type="submit">Me prévenir</button>
+      </form>
+      <div id="alerte-succes"></div>
+    </div>
+  </div>`;
+  const hote = document.createElement("div");
+  hote.innerHTML = html;
+  document.body.appendChild(hote);
+
+  const modale = $("#modale-alerte");
+  $$("[data-fermer-modale]", modale).forEach((b) =>
+    b.addEventListener("click", () => modale.classList.remove("ouverte"))
+  );
+  $("#form-alerte").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const email = e.target.email.value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+      $("#alerte-succes").innerHTML =
+        `<div class="message-succes" style="background:#f6e7dd;border-color:#e6cdbc;color:#8a4a2c">Merci de saisir une adresse e-mail valide.</div>`;
+      return;
+    }
+    Alertes.enregistrer(modale.dataset.ref, email);
+    $("#alerte-succes").innerHTML =
+      `<div class="message-succes">${ICONES.check} C'est noté. Je vous écris dès qu'une pièce comparable rejoint la boutique.</div>`;
+    e.target.reset();
+    setTimeout(() => {
+      modale.classList.remove("ouverte");
+      $("#alerte-succes").innerHTML = "";
+    }, 2600);
+  });
+
+  /* délégation : tous les boutons « m'alerter » de la page */
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-alerte]");
+    if (!b) return;
+    e.preventDefault();
+    const p = produitParRef(b.dataset.alerte);
+    modale.dataset.ref = b.dataset.alerte;
+    $("#alerte-objet").innerHTML = p ? `<strong>${p.nom}</strong> — réf. ${p.ref}` : "";
+    $("#alerte-succes").innerHTML = Alertes.aDejaDemande(b.dataset.alerte)
+      ? `<div class="message-succes">Vous êtes déjà inscrit·e à l'alerte pour cette pièce.</div>`
+      : "";
+    modale.classList.add("ouverte");
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      modale.classList.remove("ouverte");
+      fermerPanier();
+    }
+  });
+}
+
+/* ================= Carrousel ======================================= */
+function activerCarrousels(ctx) {
+  $$(".carrousel", ctx).forEach((car) => {
+    const piste = $(".carrousel__piste", car);
+    const prec = $("[data-prec]", car);
+    const suiv = $("[data-suiv]", car);
+    if (!piste || !prec || !suiv) return;
+
+    const pas = () => piste.clientWidth * 0.8;
+    prec.addEventListener("click", () => piste.scrollBy({ left: -pas(), behavior: "smooth" }));
+    suiv.addEventListener("click", () => piste.scrollBy({ left: pas(), behavior: "smooth" }));
+
+    const majEtat = () => {
+      const max = piste.scrollWidth - piste.clientWidth - 4;
+      prec.disabled = piste.scrollLeft <= 4;
+      suiv.disabled = piste.scrollLeft >= max;
+    };
+    piste.addEventListener("scroll", majEtat, { passive: true });
+    window.addEventListener("resize", majEtat);
+    majEtat();
+  });
+}
+
+/* Squelette HTML d'un carrousel */
+function carrousel(cartesHtml) {
+  return `<div class="carrousel">
+    <div class="carrousel__piste">${cartesHtml}</div>
+  </div>`;
+}
+
+function flechesCarrousel() {
+  return `<div class="carrousel__fleches">
+    <button class="carrousel__fleche" data-prec aria-label="Voir les pièces précédentes">${ICONES.gauche}</button>
+    <button class="carrousel__fleche" data-suiv aria-label="Voir les pièces suivantes">${ICONES.droite}</button>
+  </div>`;
+}
+
+/* ================= Accordéons ====================================== */
+function activerAccordeons(ctx) {
+  $$(".accordeon__titre", ctx).forEach((t) =>
+    t.addEventListener("click", () => {
+      const item = t.closest(".accordeon__item");
+      const ouvert = item.classList.toggle("ouvert");
+      t.setAttribute("aria-expanded", String(ouvert));
+    })
+  );
+}
+
+/* ================= Bandeau de réassurance ========================== */
+function blocReassurance(riche) {
+  const items = [
+    [ICONES.cadenas, "Paiement sécurisé", "Transaction chiffrée, aucune donnée bancaire conservée."],
+    [ICONES.colis, "Emballage renforcé", "Papier de soie, calage mousse et double cannelure pour le fragile."],
+    [ICONES.retour, "Retour sous 14 jours", "Si la pièce ne vous plaît pas, elle repart et vous êtes remboursé·e."],
+    [ICONES.message, "Réponse sous 24 h", "Une question, une photo en plus ? Écrivez-moi avant d'acheter."],
+  ];
+  return `<section class="reassurance${riche ? " reassurance--riche" : ""}">
+    <div class="enveloppe">
+      <div class="reassurance__grille">
+        ${items
+          .map(
+            ([ic, t, d]) =>
+              `<div class="reassurance__item">${ic}<div><strong>${t}</strong><span>${d}</span></div></div>`
+          )
+          .join("")}
+      </div>
+    </div>
+  </section>`;
+}
+
+/* ================= Finalisation du rendu ============================
+   Appelée après chaque rendu de page : remplit les emplacements
+   déclarés en HTML et branche les composants interactifs.            */
+function finaliserRendu(ctx) {
+  /* Le bandeau réassurance est injecté là où la page l'a demandé */
+  $$("[data-reassurance]", ctx).forEach((el) => {
+    el.outerHTML = blocReassurance(el.dataset.reassurance === "riche");
+  });
+
+  /* Images illustratives sur les pages statiques : data-img="REF:vue" */
+  $$("img[data-img]", ctx).forEach((img) => {
+    const [ref, vue] = img.dataset.img.split(":");
+    const p = produitParRef(ref);
+    if (p) img.src = imageProduit(p, Number(vue) || 0);
+  });
+
+  /* Sélection de pièces sur les pages statiques : data-pieces="4" */
+  $$("[data-pieces]", ctx).forEach((el) => {
+    const n = Number(el.dataset.pieces) || 4;
+    el.innerHTML = PRODUITS.filter((p) => p.stock > 0).slice(0, n).map(carteProduit).join("");
+  });
+
+  activerCarrousels(ctx);
+  activerAccordeons(ctx);
+}
+
+/* ================= Démarrage ======================================= */
+document.addEventListener("DOMContentLoaded", () => {
+  try {
+    construireEntete();
+    if (typeof window.rendrePage === "function") window.rendrePage();
+    construirePied();
+    construirePanier();
+    construireModaleAlerte();
+    finaliserRendu();
+  } catch (e) {
+    /* plutôt qu'une page blanche muette, on dit ce qui s'est passé */
+    const zone = document.getElementById("page") || document.body;
+    zone.innerHTML =
+      '<div style="max-width:640px;margin:60px auto;padding:0 22px;font-family:Georgia,serif">' +
+      "<h1>Le site n'a pas pu s'afficher</h1>" +
+      "<p>Une erreur est survenue au chargement de cette page :</p>" +
+      '<p style="font-family:monospace;font-size:.85rem;background:#f4eee3;padding:14px;border-radius:3px">' +
+      String(e && e.message ? e.message : e) +
+      "</p></div>";
+    throw e;
+  }
+});
+
+</script>
+<script>
+/* ------------------------------------------------------------------
+   Page d'accueil : un aperçu de chaque univers, jamais de pièce
+   épuisée en avant, avis clients et bloc « à propos ».
+   ------------------------------------------------------------------ */
+
+PAGES.accueil = function () {
+  const cible = document.getElementById("page");
+  const dispo = PRODUITS.filter((p) => p.stock > 0);
+
+  /* --- Hero ---------------------------------------------------- */
+  const vitrine = [
+    produitParRef("AT-104"),
+    produitParRef("VE-058"),
+    produitParRef("TI-033"),
+    produitParRef("DE-012"),
+  ].filter(Boolean);
+
+  const hero = `
+  <section class="hero">
+    <div class="enveloppe">
+      <div class="hero__grille">
+        <div class="hero__texte">
+          <p class="surtitre">Brocante en ligne · pièces uniques</p>
+          <h1>Venez flâner <em>entre mes pages</em></h1>
+          <p>Des faïences dépareillées, du linge monogrammé, un peu d'argenterie et quelques gravures : tout ce que je rapporte des déballages du dimanche, nettoyé, vérifié et photographié pièce par pièce.</p>
+          <div class="hero__actions">
+            <a class="btn" href="#/boutique">Découvrir les pièces du moment</a>
+            <a class="btn btn--fantome" href="#univers">Parcourir les univers</a>
+          </div>
+          <div class="hero__note">
+            ${etoiles(noteMoyenneBoutique(), AVIS.length)}
+            <span>· ${dispo.length} pièces disponibles aujourd'hui</span>
+          </div>
+        </div>
+        <div class="hero__collage">
+          ${vitrine
+            .map(
+              (p) =>
+                `<a href="#/produit?ref=${p.ref}"><img src="${imageProduit(p, 0)}" alt="${p.nom}" width="600" height="600"></a>`
+            )
+            .join("")}
+        </div>
+      </div>
+    </div>
+  </section>`;
+
+  /* --- Coups de cœur (uniquement des pièces disponibles) -------- */
+  const coups = coupsDeCoeur();
+  const sectionCoups = `
+  <section class="section section--serre">
+    <div class="enveloppe">
+      <div class="section__entete section__entete--ligne">
+        <div>
+          <p class="surtitre">Mes coups de cœur</p>
+          <h2>Les pièces que j'ai eu du mal à mettre en vente</h2>
+          <p>Toutes disponibles à l'instant où vous lisez ces lignes : je retire aussitôt ce qui est parti.</p>
+        </div>
+        ${flechesCarrousel()}
+      </div>
+      ${carrousel(coups.map(carteProduit).join(""))}
+    </div>
+  </section>`;
+
+  /* --- Mosaïque : un aperçu de chaque univers ------------------- */
+  const mosaique = `
+  <section class="section section--papier" id="univers">
+    <div class="enveloppe">
+      <div class="section__entete centre">
+        <p class="surtitre">Six univers</p>
+        <h2>De la table au grenier</h2>
+        <hr class="filet">
+        <p>Je ne me limite pas à une seule famille d'objets : chaque semaine, la boutique mélange vaisselle, verrerie, argenterie, linge ancien, papiers et petite décoration.</p>
+      </div>
+      <div class="mosaique-univers">
+        ${UNIVERS.map((u) => {
+          const p = misEnAvantPourUnivers(u.slug, 1)[0];
+          const nb = produitsDeLUnivers(u.slug, { disponiblesSeulement: true }).length;
+          return `<a class="tuile" href="#/boutique?univers=${u.slug}">
+            <img src="${imageProduit(p, 1)}" alt="${u.nom}" loading="lazy" width="600" height="600">
+            <div class="tuile__legende">
+              <strong>${u.nom}</strong>
+              <span>${nb} pièce${nb > 1 ? "s" : ""} disponible${nb > 1 ? "s" : ""}</span>
+            </div>
+          </a>`;
+        }).join("")}
+      </div>
+    </div>
+  </section>`;
+
+  /* --- Un carrousel par univers -------------------------------- */
+  const blocsUnivers = UNIVERS.map((u, i) => {
+    const liste = misEnAvantPourUnivers(u.slug, 8);
+    return `
+    <section class="section ${i % 2 ? "section--blanc" : ""} univers-bloc">
+      <div class="enveloppe">
+        <div class="section__entete section__entete--ligne">
+          <div>
+            <p class="surtitre">${u.nom}</p>
+            <div class="univers-titre"><h2>${u.accroche}</h2></div>
+            <p style="max-width:56ch;margin-top:8px">${u.intro}</p>
+          </div>
+          ${flechesCarrousel()}
+        </div>
+        ${carrousel(liste.map(carteProduit).join(""))}
+        <p style="margin-top:6px"><a class="section__lien" href="#/boutique?univers=${u.slug}">Voir tout l'univers ${u.nom} →</a></p>
+      </div>
+    </section>`;
+  }).join("");
+
+  /* --- Avis clients -------------------------------------------- */
+  const selection = AVIS.slice(0, 6);
+  const sectionAvis = `
+  <section class="section section--papier">
+    <div class="enveloppe">
+      <div class="section__entete centre">
+        <p class="surtitre">Avis vérifiés</p>
+        <h2>Ce qu'en disent nos clients</h2>
+        <hr class="filet">
+        <div class="avis-resume">
+          <span class="avis-resume__note">${noteMoyenneBoutique().toString().replace(".", ",")}/5</span>
+          <div class="avis-resume__detail">
+            ${etoiles(noteMoyenneBoutique(), undefined, true)}<br>
+            Moyenne sur ${AVIS.length} avis d'acheteurs, tous rattachés à une commande expédiée.
+          </div>
+        </div>
+      </div>
+      <div class="avis-grille">
+        ${selection
+          .map((a) => {
+            const p = produitParRef(a.refProduit);
+            return `<article class="avis-carte">
+              ${etoiles(a.note)}
+              <p class="avis-carte__texte">${a.texte}</p>
+              <div class="avis-carte__pied">
+                <strong>${a.prenom}</strong> · ${a.ville} · ${a.date}
+                ${p ? `<a class="avis-carte__objet" href="#/produit?ref=${p.ref}">À propos de : ${p.nom}</a>` : ""}
+              </div>
+            </article>`;
+          })
+          .join("")}
+      </div>
+    </div>
+  </section>`;
+
+  /* --- À propos ------------------------------------------------ */
+  const photosAtelier = [
+    produitParRef("AR-042"),
+    produitParRef("PA-018"),
+    produitParRef("AT-112"),
+    produitParRef("DE-019"),
+  ].filter(Boolean);
+
+  const sectionApropos = `
+  <section class="section">
+    <div class="enveloppe">
+      <div class="apropos">
+        <div class="apropos__images">
+          ${photosAtelier.map((p, i) => `<img src="${imageProduit(p, i % 2 ? 2 : 0)}" alt="" loading="lazy" width="600" height="600">`).join("")}
+        </div>
+        <div>
+          <p class="surtitre">À propos</p>
+          <h2>Chineuse le samedi, emballeuse le lundi</h2>
+          <hr class="filet gauche">
+          <p>Je m'appelle Émilie. Je chine depuis quinze ans, d'abord pour ma propre maison, puis pour le plaisir de trouver à ces objets quelqu'un qui les regardera. Déballages de campagne à l'aube, ventes de succession, greniers vidés à la hâte : c'est là que je trouve les faïences dépareillées, le linge brodé au prénom d'une aïeule et les gravures oubliées dans un carton.</p>
+          <p>Il n'y a pas de boutique à pousser : tout se passe ici, en ligne. C'est pour cela que je m'astreins à une règle simple — vous devez pouvoir acheter aussi sereinement que si vous teniez l'objet en main.</p>
+          <ul class="liste-verif">
+            <li>${ICONES.check}<span><strong>Chaque pièce est vérifiée à la main</strong> avant d'être mise en ligne : je passe le doigt sur les bords, je tiens les verres à la lumière, je compte les pièces des services.</span></li>
+            <li>${ICONES.check}<span><strong>Les photos montrent l'objet réel</strong>, sous plusieurs angles, y compris les défauts — un éclat, une usure d'émail, une reprise ancienne.</span></li>
+            <li>${ICONES.check}<span><strong>La description dit l'état honnêtement.</strong> Vous ne trouverez jamais « parfait état » sur une pièce qui a cent ans et qui a servi.</span></li>
+            <li>${ICONES.check}<span><strong>Vous pouvez me demander une photo de plus</strong> avant d'acheter. Je réponds sous 24 h, du lundi au samedi.</span></li>
+            <li>${ICONES.check}<span><strong>L'emballage est fait pour le fragile :</strong> papier de soie, calage, double cannelure, et le tout expédié en suivi.</span></li>
+          </ul>
+          <p class="apropos__signature">« Un objet qui repart chez quelqu'un, c'est un objet sauvé. »</p>
+          <a class="btn btn--fantome" href="#/a-propos">Lire toute l'histoire</a>
+        </div>
+      </div>
+    </div>
+  </section>`;
+
+  /* --- Réassurance finale -------------------------------------- */
+  const finale = `
+  <section class="section section--papier centre">
+    <div class="enveloppe">
+      <p class="surtitre">Une question avant d'acheter ?</p>
+      <h2>Écrivez-moi, je réponds sous 24 h</h2>
+      <hr class="filet">
+      <p style="max-width:52ch;margin:0 auto 24px;color:var(--encre-2)">Dimensions exactes, photo d'un détail, précision sur un poinçon ou sur une usure : posez la question avant de commander, c'est toujours mieux que de découvrir en ouvrant le colis.</p>
+      <a class="btn" href="#/contact">Poser ma question</a>
+    </div>
+  </section>`;
+
+  cible.innerHTML =
+    hero +
+    `<div data-reassurance="fin"></div>` +
+    sectionCoups +
+    mosaique +
+    blocsUnivers +
+    sectionAvis +
+    sectionApropos +
+    finale +
+    `<div data-reassurance="riche"></div>`;
+};
+
+</script>
+<script>
+/* ------------------------------------------------------------------
+   Page boutique : filtres par univers, tri, grille de pièces.
+   Les pièces parties restent consultables mais toujours en fin de
+   liste, grisées, avec une alerte de disponibilité.
+   ------------------------------------------------------------------ */
+
+PAGES.boutique = function () {
+  const cible = document.getElementById("page");
+  const params = new URLSearchParams(ROUTE.query);
+  let universActif = params.get("univers") || "tout";
+  if (universActif !== "tout" && !universParSlug(universActif)) universActif = "tout";
+  let tri = "defaut";
+  let masquerParties = false;
+
+  const u = universParSlug(universActif);
+
+  cible.innerHTML = `
+  <section class="entete-page">
+    <div class="enveloppe">
+      <p class="surtitre">La boutique</p>
+      <h1 id="titre-boutique">${u ? u.nom : "Toutes les pièces"}</h1>
+      <p id="intro-boutique">${u ? u.intro : "Chaque objet présenté ici existe en un seul exemplaire. Quand il est parti, il ne revient pas — mais il m'arrive d'en retrouver un cousin."}</p>
+    </div>
+  </section>
+
+  <div class="enveloppe">
+    <div class="barre-filtres">
+      <div class="puces" id="puces">
+        <button class="puce" data-univers="tout" aria-pressed="${universActif === "tout"}">Tout chiner</button>
+        ${UNIVERS.map(
+          (x) =>
+            `<button class="puce" data-univers="${x.slug}" aria-pressed="${x.slug === universActif}">${x.nom}</button>`
+        ).join("")}
+      </div>
+      <div class="tri">
+        <label style="display:flex;align-items:center;gap:7px;white-space:nowrap">
+          <input type="checkbox" id="masquer-parties"> Masquer les pièces parties
+        </label>
+        <label for="tri-select">Trier</label>
+        <select id="tri-select">
+          <option value="defaut">Sélection de la maison</option>
+          <option value="prix-croissant">Prix croissant</option>
+          <option value="prix-decroissant">Prix décroissant</option>
+          <option value="note">Les mieux notées</option>
+        </select>
+      </div>
+    </div>
+    <p class="compteur" id="compteur"></p>
+    <div class="grille-produits" id="grille"></div>
+    <div class="vide" id="vide" hidden>
+      <p>Aucune pièce ne correspond à cette recherche pour l'instant.</p>
+      <a class="btn btn--fantome" href="#/boutique">Voir toutes les pièces</a>
+    </div>
+  </div>
+
+  <div style="height:60px"></div>
+  <div data-reassurance="riche"></div>`;
+
+  const grille = document.getElementById("grille");
+  const compteur = document.getElementById("compteur");
+  const vide = document.getElementById("vide");
+
+  function liste() {
+    let l = universActif === "tout" ? PRODUITS.slice() : PRODUITS.filter((p) => p.univers === universActif);
+    if (masquerParties) l = l.filter((p) => p.stock > 0);
+
+    if (tri === "prix-croissant") l.sort((a, b) => a.prix - b.prix);
+    else if (tri === "prix-decroissant") l.sort((a, b) => b.prix - a.prix);
+    else if (tri === "note") l.sort((a, b) => (noteMoyenne(b.ref) || 0) - (noteMoyenne(a.ref) || 0));
+    else l.sort((a, b) => (b.coupDeCoeur ? 1 : 0) - (a.coupDeCoeur ? 1 : 0));
+
+    /* règle constante : le disponible d'abord, l'épuisé en fin de liste */
+    l.sort((a, b) => (b.stock > 0 ? 1 : 0) - (a.stock > 0 ? 1 : 0));
+    return l;
+  }
+
+  function dessiner() {
+    const l = liste();
+    grille.innerHTML = l.map(carteProduit).join("");
+    const nbDispo = l.filter((p) => p.stock > 0).length;
+    const nbPartis = l.length - nbDispo;
+    compteur.textContent =
+      `${nbDispo} pièce${nbDispo > 1 ? "s" : ""} disponible${nbDispo > 1 ? "s" : ""}` +
+      (nbPartis ? ` · ${nbPartis} déjà partie${nbPartis > 1 ? "s" : ""}` : "");
+    vide.hidden = l.length > 0;
+    grille.hidden = l.length === 0;
+
+    const titre = document.getElementById("titre-boutique");
+    const intro = document.getElementById("intro-boutique");
+    const uu = universParSlug(universActif);
+    titre.textContent = uu ? uu.nom : "Toutes les pièces";
+    intro.textContent = uu
+      ? uu.intro
+      : "Chaque objet présenté ici existe en un seul exemplaire. Quand il est parti, il ne revient pas — mais il m'arrive d'en retrouver un cousin.";
+  }
+
+  document.getElementById("puces").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-univers]");
+    if (!b) return;
+    universActif = b.dataset.univers;
+    $$("#puces .puce").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    ROUTE.query = universActif === "tout" ? "" : "?univers=" + universActif;
+    dessiner();
+  });
+
+  document.getElementById("tri-select").addEventListener("change", (e) => {
+    tri = e.target.value;
+    dessiner();
+  });
+
+  document.getElementById("masquer-parties").addEventListener("change", (e) => {
+    masquerParties = e.target.checked;
+    dessiner();
+  });
+
+  dessiner();
+};
+
+</script>
+<script>
+/* ------------------------------------------------------------------
+   Fiche produit : galerie, badge « pièce unique », accroche puis
+   détail historique, avis clients et pièces du même univers.
+   ------------------------------------------------------------------ */
+
+/* Avis laissés depuis le navigateur (démonstration, stockage local) */
+const AvisLocaux = {
+  cle: "malle_avis",
+  tous() {
+    try {
+      return JSON.parse(Stockage.lire(this.cle)) || [];
+    } catch (e) {
+      return [];
+    }
+  },
+  pour(ref) {
+    return this.tous().filter((a) => a.refProduit === ref);
+  },
+  ajouter(avis) {
+    const l = this.tous();
+    l.unshift(avis);
+    Stockage.ecrire(this.cle, JSON.stringify(l));
+  },
+};
+
+function avisComplets(ref) {
+  return AvisLocaux.pour(ref).concat(avisDuProduit(ref));
+}
+
+function moyenneComplete(ref) {
+  const l = avisComplets(ref);
+  if (!l.length) return null;
+  return Math.round((l.reduce((t, a) => t + a.note, 0) / l.length) * 10) / 10;
+}
+
+PAGES.produit = function () {
+  const cible = document.getElementById("page");
+  const ref = new URLSearchParams(ROUTE.query).get("ref");
+  const p = ref ? produitParRef(ref) : null;
+
+  if (!p) {
+    cible.innerHTML = `<div class="enveloppe"><div class="vide">
+      <h1>Cette pièce n'existe pas (ou plus)</h1>
+      <p>Le lien est peut-être ancien. Toutes les pièces disponibles sont dans la boutique.</p>
+      <a class="btn" href="#/boutique">Retour à la boutique</a>
+    </div></div>`;
+    return;
+  }
+
+  document.title = `${p.nom} — ${BOUTIQUE.nom}`;
+  const univers = universParSlug(p.univers);
+  const vues = galerieProduit(p);
+  const epuise = p.stock === 0;
+  const note = moyenneComplete(p.ref);
+  const region = Region.actuelle();
+
+  const memeUnivers = produitsDeLUnivers(p.univers, { disponiblesSeulement: true })
+    .filter((x) => x.ref !== p.ref)
+    .slice(0, 8);
+  const ailleurs = PRODUITS.filter((x) => x.stock > 0 && x.univers !== p.univers && x.coupDeCoeur).slice(0, 8);
+
+  cible.innerHTML = `
+  <div class="enveloppe">
+    <nav class="fil-ariane" aria-label="Fil d'Ariane">
+      <a href="#/">Accueil</a><span>/</span>
+      <a href="#/boutique?univers=${univers.slug}">${univers.nom}</a><span>/</span>
+      ${p.nom}
+    </nav>
+
+    <div class="produit">
+      <div>
+        <div class="galerie__principale${epuise ? " galerie--epuise" : ""}">
+          <img id="photo-principale" src="${vues[0]}" alt="${p.nom} — vue d'ensemble" width="600" height="600">
+        </div>
+        <div class="galerie__vignettes" id="vignettes">
+          ${vues
+            .map(
+              (v, i) =>
+                `<button data-vue="${i}" aria-current="${i === 0}" aria-label="Vue ${i + 1}"><img src="${v}" alt="" width="600" height="600"></button>`
+            )
+            .join("")}
+        </div>
+        <p style="font-size:.78rem;color:var(--encre-3);margin-top:10px">Trois vues de l'objet réel : vue d'ensemble, vue de trois quarts et détail. Besoin d'un autre angle ? <a class="lien-souligne" href="#/contact">Demandez-le-moi</a>.</p>
+      </div>
+
+      <div>
+        <div class="produit__badges">${badgesProduit(p)}</div>
+        <span class="produit__ref">Référence ${p.ref} · ${univers.nom}</span>
+        <h1>${p.nom}</h1>
+        ${note ? `<a href="#avis" style="display:inline-block">${etoiles(note, avisComplets(p.ref).length)}</a>` : ""}
+        <div class="produit__prix">${prix(p.prix)}</div>
+        <div class="produit__tva">Prix TTC — frais de port calculés selon votre région (${region.nom})</div>
+
+        <p class="produit__accroche">${p.accroche}</p>
+        <p class="produit__histoire">${p.histoire}</p>
+
+        <div class="produit__achat">
+          ${
+            epuise
+              ? `<div class="produit__epuise">
+                   <strong>Cette pièce est partie.</strong>
+                   <p>Elle n'existait qu'en un exemplaire et a trouvé preneur. Laissez-moi votre adresse : je vous préviens en premier si j'en retrouve une comparable en chinant.</p>
+                   <button class="btn btn--bloc" data-alerte="${p.ref}">M'alerter si disponible</button>
+                 </div>`
+              : `<p class="produit__urgence"><span class="badge badge--dernier">${ICONES.perle} Dernier exemplaire disponible</span>
+                   <span>Une fois parti, il ne revient pas : je ne vends que ce que je chine.</span></p>
+                 <button class="btn btn--bloc" id="ajouter">Ajouter au panier — ${prix(p.prix)}</button>
+                 <a class="btn btn--fantome btn--bloc" href="#/contact?ref=${p.ref}">Poser une question sur cette pièce</a>`
+          }
+        </div>
+
+        <div class="livraison-note" id="note-livraison"></div>
+
+        <div class="fiche-tech">
+          <dl>
+            <dt>Fabricant</dt><dd>${p.fabricant}</dd>
+            <dt>Époque</dt><dd>${p.epoque}</dd>
+            <dt>Matière</dt><dd>${p.matiere}</dd>
+            <dt>Dimensions</dt><dd>${p.dimensions}</dd>
+            <dt>État</dt><dd>${p.etat}</dd>
+            <dt>Disponibilité</dt><dd>${epuise ? "Pièce partie — exemplaire unique" : "Disponible — 1 seul exemplaire"}</dd>
+          </dl>
+        </div>
+
+        <div class="accordeon" style="margin-top:26px">
+          <div class="accordeon__item">
+            <button class="accordeon__titre" aria-expanded="false">Vérification et entretien ${ICONES.plus}</button>
+            <div class="accordeon__contenu">
+              <p>Chaque pièce est examinée à la main avant sa mise en ligne : bords passés au doigt, transparence contrôlée à la lumière, comptage des éléments pour les lots et les services. Les défauts constatés sont décrits ci-dessus et visibles sur les photos.</p>
+              <p>Pour les faïences et porcelaines anciennes, préférez un lavage à la main à l'eau tiède. Le métal argenté se ravive au chiffon doux ; évitez les produits abrasifs qui useraient l'argenture.</p>
+            </div>
+          </div>
+          <div class="accordeon__item">
+            <button class="accordeon__titre" aria-expanded="false">Emballage et expédition ${ICONES.plus}</button>
+            <div class="accordeon__contenu">
+              <p>Papier de soie, calage mousse et carton double cannelure pour tout ce qui est fragile. Les verres et les cristaux partent emballés individuellement. Expédition en colis suivi sous 48 h ouvrées après commande, depuis la France.</p>
+              <p>Livraison ${region.nom} : ${region.detail}, ${region.delai}.</p>
+            </div>
+          </div>
+          <div class="accordeon__item">
+            <button class="accordeon__titre" aria-expanded="false">Retours et remboursement ${ICONES.plus}</button>
+            <div class="accordeon__contenu">
+              <p>Vous disposez de 14 jours après réception pour changer d'avis, sans avoir à vous justifier. La pièce doit repartir dans son emballage d'origine. Le remboursement intervient sous 5 jours après réception du retour.</p>
+              <p>Si un objet arrivait cassé malgré le soin de l'emballage, envoyez-moi une photo : je rembourse intégralement, transport compris.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div data-reassurance="fin"></div>
+
+  <section class="section" id="avis">
+    <div class="enveloppe">
+      <div class="section__entete section__entete--ligne">
+        <div>
+          <p class="surtitre">Avis clients</p>
+          <h2>Ce qu'en disent les acheteurs</h2>
+        </div>
+        ${note ? `<div>${etoiles(note, avisComplets(p.ref).length, true)}</div>` : ""}
+      </div>
+      <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:44px" class="avis-zone">
+        <div class="avis-liste" id="avis-liste"></div>
+        <div>
+          <div style="background:var(--blanc);border:1px solid var(--ligne);border-radius:3px;padding:24px">
+            <h3 style="font-size:1.05rem">Vous avez acheté cette pièce ?</h3>
+            <p style="font-size:.86rem;color:var(--encre-2)">Votre retour aide les prochains acheteurs à se décider — surtout quand on achète un objet ancien sans pouvoir le toucher.</p>
+            <form id="form-avis" novalidate>
+              <label class="champ"><span>Votre prénom</span><input name="prenom" required maxlength="30" placeholder="Camille"></label>
+              <label class="champ"><span>Votre note</span>
+                <select name="note">
+                  <option value="5">★★★★★ — Parfait</option>
+                  <option value="4">★★★★☆ — Très bien</option>
+                  <option value="3">★★★☆☆ — Correct</option>
+                  <option value="2">★★☆☆☆ — Décevant</option>
+                  <option value="1">★☆☆☆☆ — Mauvais</option>
+                </select></label>
+              <label class="champ"><span>Votre commentaire</span><textarea name="texte" rows="4" required maxlength="600" placeholder="L'objet correspond-il à la description ? L'emballage était-il soigné ?"></textarea></label>
+              <button class="btn btn--bloc" type="submit">Publier mon avis</button>
+            </form>
+            <div id="avis-retour"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  ${
+    memeUnivers.length
+      ? `<section class="section section--papier">
+          <div class="enveloppe">
+            <div class="section__entete section__entete--ligne">
+              <div>
+                <p class="surtitre">Dans le même univers</p>
+                <h2>${univers.nom}</h2>
+              </div>
+              ${flechesCarrousel()}
+            </div>
+            ${carrousel(memeUnivers.map(carteProduit).join(""))}
+          </div>
+        </section>`
+      : ""
+  }
+
+  ${
+    ailleurs.length
+      ? `<section class="section">
+          <div class="enveloppe">
+            <div class="section__entete section__entete--ligne">
+              <div>
+                <p class="surtitre">Ailleurs dans la boutique</p>
+                <h2>Mes coups de cœur du moment</h2>
+              </div>
+              ${flechesCarrousel()}
+            </div>
+            ${carrousel(ailleurs.map(carteProduit).join(""))}
+          </div>
+        </section>`
+      : ""
+  }
+
+  <div data-reassurance="riche"></div>`;
+
+  /* --- galerie --------------------------------------------------- */
+  const photo = document.getElementById("photo-principale");
+  document.getElementById("vignettes").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-vue]");
+    if (!b) return;
+    const i = Number(b.dataset.vue);
+    photo.src = vues[i];
+    photo.alt = `${p.nom} — vue ${i + 1}`;
+    $$("#vignettes button").forEach((x) => x.setAttribute("aria-current", String(x === b)));
+  });
+
+  /* --- panier ---------------------------------------------------- */
+  const btn = document.getElementById("ajouter");
+  if (btn) {
+    const maj = () => {
+      if (Panier.contient(p.ref)) {
+        btn.textContent = "Déjà dans votre panier";
+        btn.disabled = true;
+      }
+    };
+    btn.addEventListener("click", () => {
+      if (Panier.ajouter(p.ref)) {
+        toast(`« ${p.nom} » a rejoint votre panier.`);
+        ouvrirPanier();
+      }
+      maj();
+    });
+    document.addEventListener("panier:change", maj);
+    maj();
+  }
+
+  /* --- note de livraison, suit la région choisie ------------------ */
+  function majLivraison() {
+    const r = Region.actuelle();
+    const el = document.getElementById("note-livraison");
+    if (!el) return;
+    el.innerHTML = `${ICONES.camion}<div><strong>Livraison ${r.nom} — ${r.detail}</strong><br>
+      Expédition sous 48 h ouvrées, ${r.delai}. Emballage renforcé pour les pièces fragiles.
+      ${r.franco !== null ? `Port offert à partir de ${prix(r.franco)} d'achat.` : ""}</div>`;
+  }
+  document.addEventListener("region:changee", majLivraison);
+  majLivraison();
+
+  /* --- avis ------------------------------------------------------ */
+  function dessinerAvis() {
+    const l = avisComplets(p.ref);
+    const zone = document.getElementById("avis-liste");
+    if (!l.length) {
+      zone.innerHTML = `<p style="color:var(--encre-2)">Aucun avis pour cette pièce — soyez la première personne à en laisser un.</p>`;
+      return;
+    }
+    zone.innerHTML = l
+      .map(
+        (a) => `<article class="avis-ligne">
+        <div class="avis-ligne__haut">
+          ${etoiles(a.note)}
+          <span class="avis-ligne__nom">${a.prenom}</span>
+          ${a.ville ? `<span class="avis-ligne__date">${a.ville}</span>` : ""}
+          <span class="avis-ligne__date">${a.date}</span>
+          ${a.local ? "" : `<span class="avis-ligne__verifie">Achat vérifié</span>`}
+        </div>
+        <p>${a.texte}</p>
+      </article>`
+      )
+      .join("");
+  }
+
+  document.getElementById("form-avis").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const f = e.target;
+    const prenom = f.prenom.value.trim();
+    const texte = f.texte.value.trim();
+    const retour = document.getElementById("avis-retour");
+    if (prenom.length < 2 || texte.length < 10) {
+      retour.innerHTML = `<div class="message-succes" style="background:#f6e7dd;border-color:#e6cdbc;color:#8a4a2c">Merci d'indiquer un prénom et un commentaire d'au moins dix caractères.</div>`;
+      return;
+    }
+    AvisLocaux.ajouter({
+      prenom: prenom.replace(/[<>]/g, ""),
+      note: Number(f.note.value),
+      texte: texte.replace(/[<>]/g, ""),
+      date: new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }),
+      refProduit: p.ref,
+      local: true,
+    });
+    f.reset();
+    retour.innerHTML = `<div class="message-succes">${ICONES.check} Merci ! Votre avis est publié ci-contre.</div>`;
+    dessinerAvis();
+    setTimeout(() => (retour.innerHTML = ""), 4000);
+  });
+
+  dessinerAvis();
+};
+
+</script>

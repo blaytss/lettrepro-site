@@ -231,3 +231,28 @@ fs.writeFileSync(cible, sortie);
 console.log(
   "Écrit : " + cible + " (" + (Buffer.byteLength(sortie) / 1024).toFixed(0) + " Ko)"
 );
+
+/* --- variante « page hébergée » ------------------------------------
+   Même contenu, sans l'ossature <html>/<head>/<body> ni le mode
+   d'emploi de téléchargement : destinée à être servie telle quelle.  */
+const heberge = sortie
+  .replace(/^[\s\S]*?<style>/, "<title>La Malle d'Automne — brocante en ligne</title>\n<style>")
+  .replace(/<\/head>\s*<body>/, "")
+  .replace(/<\/body>\s*<\/html>\s*$/, "")
+  .replace(
+    REPLI,
+    `
+    <section class="entete-page" style="min-height:70vh;display:flex;align-items:center">
+      <div class="enveloppe">
+        <p class="surtitre">La Malle d'Automne</p>
+        <h1>Chargement de la boutique…</h1>
+        <p>Si rien n'apparaît, c'est que le JavaScript est désactivé dans ce navigateur.</p>
+      </div>
+    </section>`
+  );
+
+const cible2 = path.join(racine, "page-hebergee.html");
+fs.writeFileSync(cible2, heberge);
+console.log(
+  "Écrit : " + cible2 + " (" + (Buffer.byteLength(heberge) / 1024).toFixed(0) + " Ko)"
+);
