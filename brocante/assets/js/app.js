@@ -609,6 +609,32 @@ function blocReassurance(riche) {
   </section>`;
 }
 
+/* ================= Finalisation du rendu ============================
+   Appelée après chaque rendu de page : remplit les emplacements
+   déclarés en HTML et branche les composants interactifs.            */
+function finaliserRendu(ctx) {
+  /* Le bandeau réassurance est injecté là où la page l'a demandé */
+  $$("[data-reassurance]", ctx).forEach((el) => {
+    el.outerHTML = blocReassurance(el.dataset.reassurance === "riche");
+  });
+
+  /* Images illustratives sur les pages statiques : data-img="REF:vue" */
+  $$("img[data-img]", ctx).forEach((img) => {
+    const [ref, vue] = img.dataset.img.split(":");
+    const p = produitParRef(ref);
+    if (p) img.src = imageProduit(p, Number(vue) || 0);
+  });
+
+  /* Sélection de pièces sur les pages statiques : data-pieces="4" */
+  $$("[data-pieces]", ctx).forEach((el) => {
+    const n = Number(el.dataset.pieces) || 4;
+    el.innerHTML = PRODUITS.filter((p) => p.stock > 0).slice(0, n).map(carteProduit).join("");
+  });
+
+  activerCarrousels(ctx);
+  activerAccordeons(ctx);
+}
+
 /* ================= Démarrage ======================================= */
 document.addEventListener("DOMContentLoaded", () => {
   construireEntete();
@@ -616,25 +642,5 @@ document.addEventListener("DOMContentLoaded", () => {
   construirePied();
   construirePanier();
   construireModaleAlerte();
-  activerCarrousels();
-  activerAccordeons();
-
-  /* Le bandeau réassurance est injecté là où la page l'a demandé */
-  $$("[data-reassurance]").forEach((el) => {
-    el.outerHTML = blocReassurance(el.dataset.reassurance === "riche");
-  });
-
-  /* Images illustratives sur les pages statiques : data-img="REF" */
-  $$("img[data-img]").forEach((img) => {
-    const [ref, vue] = img.dataset.img.split(":");
-    const p = produitParRef(ref);
-    if (p) img.src = imageProduit(p, Number(vue) || 0);
-  });
-
-  /* Carrousel de pièces sur les pages statiques : data-pieces="4" */
-  $$("[data-pieces]").forEach((el) => {
-    const n = Number(el.dataset.pieces) || 4;
-    const liste = PRODUITS.filter((p) => p.stock > 0).slice(0, n);
-    el.innerHTML = liste.map(carteProduit).join("");
-  });
+  finaliserRendu();
 });

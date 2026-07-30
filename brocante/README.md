@@ -12,14 +12,19 @@ Double-cliquez sur `index.html`. C'est tout.
 
 ### Sur votre téléphone
 
-**Option 1 — copier le dossier sur le téléphone**
-1. Transférez le dossier `brocante/` complet sur le téléphone (AirDrop, câble,
-   Google Drive, Fichiers…).
-2. Ouvrez `index.html` depuis l'application Fichiers.
-   Sur iPhone, passez par « Fichiers » puis appuyez sur `index.html` ; si Safari
-   refuse de l'ouvrir directement, utilisez l'option 2, plus fiable.
+**Option 1 — le fichier unique (le plus simple)**
+`la-malle-dautomne.html` contient tout le site : les neuf pages, le style, le
+catalogue et les visuels, dans un seul fichier de 180 Ko. Envoyez-le-vous par
+mail ou AirDrop, enregistrez-le, puis ouvrez-le. Aucun dossier à conserver à
+côté, aucune connexion nécessaire.
 
-**Option 2 — servir le dossier depuis l'ordinateur (recommandé)**
+Ce fichier est reconstruit à partir des sources avec :
+
+```bash
+node build-fichier-unique.js
+```
+
+**Option 2 — servir le dossier depuis l'ordinateur**
 L'ordinateur et le téléphone doivent être sur le même Wi-Fi.
 
 ```bash
@@ -42,6 +47,8 @@ ou n'importe quel hébergement, et il fonctionne sans configuration.
 
 ```
 brocante/
+├── la-malle-dautomne.html     TOUT le site en un seul fichier (généré)
+├── build-fichier-unique.js    script qui régénère le fichier ci-dessus
 ├── index.html                 page d'accueil (hero, réassurance, un carrousel
 │                              par univers, avis clients, à propos)
 ├── boutique.html              grille filtrable par univers, avec tri
