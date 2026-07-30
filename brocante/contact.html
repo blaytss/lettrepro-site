@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact — La Malle d'Automne</title>
+<meta name="description" content="Une question sur l'état, les dimensions ou une photo supplémentaire avant d'acheter ? Réponse sous 24 h, du lundi au samedi.">
+<meta name="theme-color" content="#fbf8f2">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%232c2822'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='19' fill='%23f4eee3' text-anchor='middle'%3EM%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+<main id="page">
+
+  <section class="entete-page">
+    <div class="enveloppe">
+      <p class="surtitre">Contact</p>
+      <h1>Posez votre question avant d'acheter</h1>
+      <p>C'est le meilleur réflexe quand on achète un objet ancien à distance. Je réponds sous 24 h, du lundi au samedi — et je peux vous envoyer une photo supplémentaire de n'importe quel détail.</p>
+    </div>
+  </section>
+
+  <div class="enveloppe">
+    <div style="display:grid;grid-template-columns:1.15fr .85fr;gap:48px;padding:50px 0 70px" class="contact-grille">
+      <div>
+        <form id="form-contact" novalidate>
+          <label class="champ"><span>Votre prénom</span><input name="prenom" required placeholder="Camille"></label>
+          <label class="champ"><span>Votre e-mail</span><input type="email" name="email" required placeholder="prenom@exemple.fr"></label>
+          <label class="champ"><span>Référence de la pièce (facultatif)</span><input name="ref" id="champ-ref" placeholder="AT-104"></label>
+          <label class="champ"><span>Votre message</span><textarea name="message" rows="6" required placeholder="Bonjour, pourriez-vous me confirmer le diamètre exact et m'envoyer une photo du revers ?"></textarea></label>
+          <button class="btn" type="submit">Envoyer ma question</button>
+          <div id="contact-retour"></div>
+        </form>
+      </div>
+      <aside>
+        <div style="background:var(--blanc);border:1px solid var(--ligne);border-radius:3px;padding:26px">
+          <h2 style="font-size:1.15rem">En direct</h2>
+          <p style="font-size:.92rem;color:var(--encre-2)">Écrivez-moi directement, ou passez par le formulaire si vous préférez.</p>
+          <p style="font-size:.95rem"><strong>E-mail</strong><br><a class="lien-souligne" href="mailto:bonjour@lamalledautomne.fr">bonjour@lamalledautomne.fr</a></p>
+          <p style="font-size:.95rem"><strong>Téléphone</strong><br>06 12 34 56 78 — du mardi au samedi, 10 h – 18 h</p>
+          <hr style="border:0;border-top:1px solid var(--ligne);margin:22px 0">
+          <h3 style="font-size:.98rem">Les questions les plus utiles</h3>
+          <ul style="padding-left:1.1em;font-size:.9rem;color:var(--encre-2)">
+            <li>Une photo d'un détail précis (revers, poinçon, éclat signalé)</li>
+            <li>Les dimensions exactes, si vous avez une étagère à mesurer</li>
+            <li>Le poids approximatif pour estimer le port hors de France</li>
+            <li>La possibilité de grouper plusieurs pièces dans un même colis</li>
+          </ul>
+          <p style="font-size:.86rem;color:var(--encre-3);margin-bottom:0">Il n'y a pas de boutique physique à visiter : tout se passe ici, et je fais mon possible pour que les photos et les descriptions remplacent la mise en main.</p>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <div data-reassurance="riche"></div>
+</main>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/images.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  var ref = new URLSearchParams(location.search).get("ref");
+  var champ = document.getElementById("champ-ref");
+  if (ref && champ) {
+    champ.value = ref;
+    var p = produitParRef(ref);
+    if (p) {
+      document.querySelector('#form-contact [name="message"]').placeholder =
+        "Bonjour, j'ai une question sur « " + p.nom + " » (réf. " + p.ref + ")…";
+    }
+  }
+  document.getElementById("form-contact").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var f = e.target;
+    var retour = document.getElementById("contact-retour");
+    if (!f.prenom.value.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(f.email.value) || f.message.value.trim().length < 10) {
+      retour.innerHTML = '<div class="message-succes" style="background:#f6e7dd;border-color:#e6cdbc;color:#8a4a2c">Merci de renseigner votre prénom, un e-mail valide et un message d\'au moins dix caractères.</div>';
+      return;
+    }
+    retour.innerHTML = '<div class="message-succes">Merci ! Votre message est bien noté — je vous réponds sous 24 h. (Boutique de démonstration : aucun message n\'est réellement envoyé.)</div>';
+    f.reset();
+  });
+});
+</script>
+</body>
+</html>
