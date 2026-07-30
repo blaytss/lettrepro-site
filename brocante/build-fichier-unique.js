@@ -125,12 +125,15 @@ function majNavActive() {
   });
 }
 
+let dejaRendu = false;
+
 function routerRendre() {
   const brut = location.hash.replace(/^#/, "");
   const ancre = Boolean(brut) && !brut.startsWith("/");
   /* une ancre interne (#univers, #avis…) ne change pas de page —
      sauf au chargement, où il faut tout de même rendre l'accueil */
-  if (ancre && document.getElementById("page").children.length) return;
+  if (ancre && dejaRendu) return;
+  dejaRendu = true;
 
   const cible = ancre ? "" : brut;
   const i = cible.indexOf("?");
@@ -162,6 +165,26 @@ window.addEventListener("hashchange", routerRendre);
 document.addEventListener("DOMContentLoaded", routerRendre);
 `;
 
+/* --- repli si le JavaScript ne s'exécute pas -----------------------
+   Certains aperçus intégrés (messageries, visionneuses de fichiers sur
+   téléphone) ouvrent le HTML sans exécuter les scripts. Plutôt qu'une
+   page blanche, on affiche la marche à suivre. Ce bloc est remplacé
+   dès le premier rendu.                                              */
+const REPLI = `
+    <section class="entete-page" style="min-height:100vh;display:flex;align-items:center">
+      <div class="enveloppe">
+        <p class="surtitre">La Malle d'Automne</p>
+        <h1>Cet aperçu n'exécute pas le JavaScript</h1>
+        <p style="margin-bottom:26px">Le site s'affiche entièrement une fois le fichier ouvert dans un vrai navigateur. C'est l'affaire de quelques secondes :</p>
+        <ol style="text-align:left;max-width:34em;margin:0 auto 26px;color:var(--encre-2);line-height:1.9">
+          <li><strong>Enregistrez le fichier</strong> (le bouton de téléchargement, en haut à droite de cet aperçu).</li>
+          <li>Ouvrez l'application <strong>Fichiers</strong> et allez dans <em>Téléchargements</em>.</li>
+          <li>Appuyez sur <strong>la-malle-dautomne.html</strong> : il s'ouvre dans le navigateur, et tout apparaît.</li>
+        </ol>
+        <p style="font-size:.88rem;color:var(--encre-3)">Aucune connexion n'est nécessaire : le catalogue, les visuels et le style sont tous à l'intérieur du fichier.</p>
+      </div>
+    </section>`;
+
 /* --- assemblage ---------------------------------------------------- */
 const sortie = `<!DOCTYPE html>
 <html lang="fr">
@@ -177,7 +200,7 @@ ${css}
 </style>
 </head>
 <body>
-<main id="page"></main>
+<main id="page">${REPLI}</main>
 <script>
 ${data}
 </script>

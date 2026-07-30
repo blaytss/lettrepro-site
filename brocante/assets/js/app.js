@@ -33,6 +33,42 @@ const ICONES = {
   camion: '<svg viewBox="0 0 24 24"><path d="M3 7h11v9H3V7z"/><path d="M14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>',
 };
 
+/* ================= Stockage tolérant ===============================
+   Safari sur iPhone interdit localStorage aux pages ouvertes en
+   file:// et lève une exception à la simple lecture. On bascule alors
+   sur une mémoire de session : le site reste utilisable, seules les
+   préférences ne survivent pas à la fermeture de l'onglet.          */
+const Stockage = (function () {
+  let disponible = false;
+  try {
+    localStorage.setItem("__test", "1");
+    localStorage.removeItem("__test");
+    disponible = true;
+  } catch (e) {
+    disponible = false;
+  }
+  const memoire = {};
+  return {
+    persistant: disponible,
+    lire(cle) {
+      try {
+        if (disponible) return localStorage.getItem(cle);
+      } catch (e) {
+        /* ignoré : on retombe sur la mémoire */
+      }
+      return memoire[cle] !== undefined ? memoire[cle] : null;
+    },
+    ecrire(cle, valeur) {
+      memoire[cle] = valeur;
+      try {
+        if (disponible) localStorage.setItem(cle, valeur);
+      } catch (e) {
+        /* ignoré */
+      }
+    },
+  };
+})();
+
 /* ================= Régions ========================================= */
 const REGIONS = {
   fr: {
@@ -64,11 +100,11 @@ const REGIONS = {
 const Region = {
   cle: "malle_region",
   actuelle() {
-    return REGIONS[localStorage.getItem(this.cle)] || REGIONS.fr;
+    return REGIONS[Stockage.lire(this.cle)] || REGIONS.fr;
   },
   definir(id) {
     if (!REGIONS[id]) return;
-    localStorage.setItem(this.cle, id);
+    Stockage.ecrire(this.cle, id);
     document.dispatchEvent(new CustomEvent("region:changee", { detail: REGIONS[id] }));
   },
 };
@@ -78,13 +114,13 @@ const Panier = {
   cle: "malle_panier",
   lire() {
     try {
-      return JSON.parse(localStorage.getItem(this.cle)) || [];
+      return JSON.parse(Stockage.lire(this.cle)) || [];
     } catch (e) {
       return [];
     }
   },
   ecrire(refs) {
-    localStorage.setItem(this.cle, JSON.stringify(refs));
+    Stockage.ecrire(this.cle, JSON.stringify(refs));
     document.dispatchEvent(new Event("panier:change"));
   },
   contient(ref) {
@@ -113,7 +149,7 @@ const Alertes = {
   cle: "malle_alertes",
   lire() {
     try {
-      return JSON.parse(localStorage.getItem(this.cle)) || {};
+      return JSON.parse(Stockage.lire(this.cle)) || {};
     } catch (e) {
       return {};
     }
@@ -121,7 +157,7 @@ const Alertes = {
   enregistrer(ref, email) {
     const a = this.lire();
     a[ref] = email;
-    localStorage.setItem(this.cle, JSON.stringify(a));
+    Stockage.ecrire(this.cle, JSON.stringify(a));
   },
   aDejaDemande(ref) {
     return Boolean(this.lire()[ref]);
@@ -637,10 +673,23 @@ function finaliserRendu(ctx) {
 
 /* ================= Démarrage ======================================= */
 document.addEventListener("DOMContentLoaded", () => {
-  construireEntete();
-  if (typeof window.rendrePage === "function") window.rendrePage();
-  construirePied();
-  construirePanier();
-  construireModaleAlerte();
-  finaliserRendu();
+  try {
+    construireEntete();
+    if (typeof window.rendrePage === "function") window.rendrePage();
+    construirePied();
+    construirePanier();
+    construireModaleAlerte();
+    finaliserRendu();
+  } catch (e) {
+    /* plutôt qu'une page blanche muette, on dit ce qui s'est passé */
+    const zone = document.getElementById("page") || document.body;
+    zone.innerHTML =
+      '<div style="max-width:640px;margin:60px auto;padding:0 22px;font-family:Georgia,serif">' +
+      "<h1>Le site n'a pas pu s'afficher</h1>" +
+      "<p>Une erreur est survenue au chargement de cette page :</p>" +
+      '<p style="font-family:monospace;font-size:.85rem;background:#f4eee3;padding:14px;border-radius:3px">' +
+      String(e && e.message ? e.message : e) +
+      "</p></div>";
+    throw e;
+  }
 });

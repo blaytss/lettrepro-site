@@ -8,7 +8,7 @@ const AvisLocaux = {
   cle: "malle_avis",
   tous() {
     try {
-      return JSON.parse(localStorage.getItem(this.cle)) || [];
+      return JSON.parse(Stockage.lire(this.cle)) || [];
     } catch (e) {
       return [];
     }
@@ -19,7 +19,7 @@ const AvisLocaux = {
   ajouter(avis) {
     const l = this.tous();
     l.unshift(avis);
-    localStorage.setItem(this.cle, JSON.stringify(l));
+    Stockage.ecrire(this.cle, JSON.stringify(l));
   },
 };
 
