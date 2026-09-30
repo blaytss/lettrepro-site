@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<script src="config.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <!-- PWA -->
@@ -575,12 +574,12 @@
 
     /* ─────────── MOBILE / RESPONSIVE ─────────── */
     @media (max-width: 768px) {
-      /* En-tête mobile épuré : une seule ligne = ☰ + logo + actions compactes. */
+      /* En-tête mobile épuré : une seule ligne = ☰ + logo + actions compactes.
+         padding-top intègre la safe-area iOS pour passer sous l'heure/batterie. */
       nav { padding: calc(0.6rem + env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) 0.6rem max(1rem, env(safe-area-inset-left)); }
       .menu-toggle { display: block; }
       .nav-logo { font-size: 1.05rem; margin-right: auto; }
       .nav-right { gap: 0.5rem; }
-      #mode-switch { display: none !important; } /* remplacé par le lien du menu déroulant */
       .credit-badge { padding: 0.32rem 0.6rem; font-size: 0.74rem; }
       /* Déconnexion → simple icône sur mobile pour libérer de la place */
       .logout-btn { font-size: 0; padding: 0.4rem 0.55rem; line-height: 1; }
@@ -605,7 +604,7 @@
       .drawer-head { display: flex; align-items: center; justify-content: space-between; padding: 0.2rem 0.35rem 0.6rem; margin-bottom: 0.3rem; border-bottom: 1px solid var(--border); }
       .drawer-title { font-family: 'Sora', sans-serif; font-weight: 800; font-size: 1.05rem; }
       .drawer-close { background: none; border: none; color: var(--muted); font-size: 1.25rem; cursor: pointer; line-height: 1; padding: 0.2rem 0.4rem; }
-      .nav-group-label { display: block; }
+      .nav-group-label { display: block; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); padding: 0.55rem 0.85rem 0.3rem; }
       .sidebar-sep { display: none; }
       .sidebar-credits { margin-top: 1rem; }
 
@@ -647,10 +646,6 @@
 <nav>
   <button class="menu-toggle" onclick="toggleDrawer()" aria-label="Ouvrir le menu">☰</button>
   <a href="index.html" class="nav-logo">Lettre<span>Pro</span></a>
-  <div id="mode-switch" style="display:none;align-items:center;gap:.25rem;background:var(--card);border:1px solid var(--border);border-radius:999px;padding:.25rem">
-    <span style="padding:.42rem 1.05rem;border-radius:999px;font-size:.86rem;font-weight:700;background:var(--orange);color:#fff;white-space:nowrap">💼 Travail</span>
-    <a href="#" id="ms-etab" onclick="gotoEtab();return false;" style="padding:.42rem 1.05rem;border-radius:999px;font-size:.86rem;font-weight:600;color:var(--muted);text-decoration:none;white-space:nowrap">🏫 Vie scolaire</a>
-  </div>
   <div class="nav-right">
     <span class="plan-chip free" id="nav-plan">Gratuit</span>
     <button class="credit-badge" onclick="showPage('credits', document.querySelector('[data-page=credits]'))">
@@ -673,7 +668,6 @@
 
     <div class="nav-group-label">Travail</div>
     <button class="sidebar-item active" data-page="generate" onclick="showPage('generate', this)"><span class="icon">✦</span> Générer une lettre</button>
-    <a class="sidebar-item" href="cv.html"><span class="icon">📄</span> Créer un CV</a>
     <button class="sidebar-item" data-page="improve" onclick="showPage('improve', this)"><span class="icon">✏️</span> Améliorer</button>
     <button class="sidebar-item" data-page="study" onclick="showPage('study', this)"><span class="icon">📚</span> Cours & Révisions</button>
 
@@ -682,16 +676,11 @@
     <button class="sidebar-item" data-page="myprofs" onclick="showPage('myprofs', this)"><span class="icon">👨‍🏫</span> Mes profs</button>
     <button class="sidebar-item" data-page="classes" onclick="showPage('classes', this)"><span class="icon">🎓</span> Mes classes</button>
 
-    <div class="nav-group-label" id="grp-etab" style="display:none">Établissement</div>
-    <a class="sidebar-item" id="etab-link" href="#" style="display:none" onclick="gotoEtab();return false;"><span class="icon">🏫</span> Espace établissement</a>
-
     <div class="nav-group-label">Organisation</div>
     <button class="sidebar-item" data-page="planning" onclick="showPage('planning', this)"><span class="icon">📅</span> Mon planning</button>
     <button class="sidebar-item" data-page="quete" onclick="showPage('quete', this)"><span class="icon">🎯</span> Quête du jour</button>
     <button class="sidebar-item" data-page="cahiers" onclick="showPage('cahiers', this)"><span class="icon">🏖️</span> Cahier de vacances</button>
-    <a class="sidebar-item" id="salles-link" href="salles.html"><span class="icon">🧑‍🤝‍🧑</span> Salles de travail</a>
     <button class="sidebar-item" data-page="history" onclick="showPage('history', this)"><span class="icon">📄</span> Mes lettres</button>
-    <a class="sidebar-item" href="ambassadeur.html"><span class="icon">👑</span> Ambassadeur</a>
 
     <div class="sidebar-sep"></div>
     <div class="nav-group-label">Mon compte</div>
@@ -1202,13 +1191,7 @@
     <div class="page" id="page-account">
       <div class="page-header"><h1>Mon compte</h1><p>Gère tes informations et la sécurité de ton compte.</p></div>
 
-      <div class="account-card" style="display:none">
-        <h3>📁 Mes fichiers (mes devoirs)</h3>
-        <p style="color:var(--muted);font-size:0.9rem;margin:0.4rem 0 1rem">Ton espace de stockage personnel : crée des documents PDF, importe des fichiers, et rends-les ensuite comme devoirs. L'espace grandit avec ton abonnement.</p>
-        <a href="mes-fichiers.html" style="display:inline-block;background:var(--orange);color:#fff;text-decoration:none;font-weight:700;padding:0.6rem 1.2rem;border-radius:10px;font-size:0.9rem">Ouvrir mon espace de stockage →</a>
-      </div>
-
-      <div class="account-card" style="margin-top:1.5rem">
+      <div class="account-card">
         <h3>Informations personnelles</h3>
         <div id="account-info"></div>
       </div>
@@ -1371,7 +1354,7 @@
   // ══════════════════════════════════════════
   //  CONFIG & STATE
   // ══════════════════════════════════════════
-  const API_BASE = window.API_BASE;
+  const API_BASE = 'https://lettrepro-production.up.railway.app';
   const PLANS = {
     free:    { name: 'Gratuit',  monthlyCredits: 5,   canImprove: false, langs: ['fr'],                                    color: 'free' },
     starter: { name: 'Starter',  monthlyCredits: 15,  canImprove: true,  langs: ['fr','en','es','de','it'],                color: 'starter' },
@@ -2526,8 +2509,7 @@ async function subscribePlan(plan) {
       answers: {},
       validated: {},
       selected: null,
-      score: 0,
-      startedAt: Date.now()
+      score: 0
     };
     window._quizData = questions;
 
@@ -2773,12 +2755,7 @@ async function subscribePlan(plan) {
     let reward = 0;
     if (activeQuiz.quizId) {
       try {
-        // Notions ratées (P4) : le texte des questions échouées, pour le rapport parent.
-        const notions_ratees = activeQuiz.questions
-          .filter((q, i) => activeQuiz.answers[i] !== getCorrectIndex(q))
-          .map(q => q.q).filter(Boolean);
-        const duree_secondes = Math.max(0, Math.round((Date.now() - (activeQuiz.startedAt || Date.now())) / 1000));
-        const res = await api('PUT', `/api/study/quiz/${activeQuiz.quizId}/score`, { score, total, notions_ratees, duree_secondes });
+        const res = await api('PUT', `/api/study/quiz/${activeQuiz.quizId}/score`, { score });
         reward = res.reward || 0;
         if (typeof res.creditsLeft === 'number') { currentUser.credits = res.creditsLeft; refreshUI(); }
       } catch {}
@@ -3924,18 +3901,12 @@ async function subscribePlan(plan) {
     const el = document.getElementById('myprofs-content');
     el.innerHTML = '<div class="empty"><div class="icon">👨‍🏫</div><p>Chargement…</p></div>';
     try {
-      const [subs, cred] = await Promise.all([
-        api('GET', '/api/subscriptions'),
-        api('GET', '/api/abonnement-credits').catch(() => null)
-      ]);
-      const creditBanner = cred ? `<div class="fiche-card" style="background:var(--orange-glow);border-color:rgba(232,105,42,.3);margin-bottom:1rem">
-          <div><div class="fc-title" style="color:var(--orange)">🎟️ ${cred.available}/${cred.max} crédits d'abonnement</div>
-          <div class="fc-date">S'abonner à un prof coûte 1 crédit. En te désabonnant, il revient le mois suivant.</div></div></div>` : '';
+      const subs = await api('GET', '/api/subscriptions');
       if (!subs.length) {
-        el.innerHTML = creditBanner + `<div class="empty"><div class="icon">👨‍🏫</div><p>Tu n'es abonné à aucun prof.<br><a href="explorer.html" style="color:var(--orange)">Explorer les profs →</a></p></div>`;
+        el.innerHTML = `<div class="empty"><div class="icon">👨‍🏫</div><p>Tu n'es abonné à aucun prof.<br><a href="explorer.html" style="color:var(--orange)">Explorer les profs →</a></p></div>`;
         return;
       }
-      el.innerHTML = creditBanner + subs.map(s => {
+      el.innerHTML = subs.map(s => {
         const nom = ((s.prenom||'') + ' ' + (s.nom||'')).trim();
         const matieres = Array.isArray(s.subjects) ? s.subjects.join(', ') : '';
         return `<div class="fiche-card" style="align-items:flex-start">
@@ -3944,8 +3915,8 @@ async function subscribePlan(plan) {
             <div class="fc-date">${escapeHtml(matieres || 'Professeur')}</div>
           </div>
           <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
-            <a class="hist-btn" href="eleve-visios.html?prof=${s.prof_id}" style="text-decoration:none">🎥 Ses visios</a>
-            <button class="hist-btn" style="border-color:rgba(220,50,50,0.4);color:#FF6B6B" onclick="unsubscribeProf(${s.id})">Se désabonner</button>
+            <button class="hist-btn" onclick="openVisioRequest(${s.prof_id}, '${escapeHtml(nom).replace(/'/g,"\\'")}')">📹 Demander une visio</button>
+            <button class="hist-btn" style="border-color:rgba(220,50,50,0.4);color:#FF6B6B" onclick="unsubscribeProf(${s.id})">Résilier</button>
           </div>
         </div>`;
       }).join('');
@@ -3955,10 +3926,10 @@ async function subscribePlan(plan) {
   }
 
   async function unsubscribeProf(subId) {
-    if (!confirm('Te désabonner de ce prof ? Le crédit d\'abonnement reviendra le mois prochain (pas tout de suite).')) return;
+    if (!confirm('Résilier cet abonnement ? Tu perdras l\'accès aux cours payants de ce prof.')) return;
     try {
-      const r = await api('DELETE', '/api/subscriptions/' + subId);
-      showToast(r && r.message ? r.message : 'Désabonné', 'success');
+      await api('DELETE', '/api/subscriptions/' + subId);
+      showToast('Abonnement résilié', 'success');
       loadMyProfs();
     } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
   }
@@ -4782,96 +4753,17 @@ async function subscribePlan(plan) {
   })();
 </script>
 
-<!-- Espace établissement : affiche le lien du menu si l'utilisateur est membre, et route selon son rôle -->
-<script>
-(function () {
-  var API = window.API_BASE;
-  var t = localStorage.getItem('lp_token');
-  window.gotoEtab = function () {
-    var me = window.__etabMe;
-    if (!me) { window.location.href = 'vie-scolaire.html'; return; }
-    var perms = me.permissions || [];
-    var adminStaff = (me.role && me.role.est_proviseur) || ['gerer_roles','gerer_membres','gerer_classes'].some(function (p) { return perms.indexOf(p) >= 0; });
-    var isProf = ['creer_devoirs','corriger_devoirs'].some(function (p) { return perms.indexOf(p) >= 0; });
-    if (adminStaff) { window.location.href = 'proviseur-dashboard.html'; return; }
-    if (isProf) { window.location.href = 'prof-classes.html'; return; }
-    window.location.href = 'vie-scolaire.html';
-  };
-  if (!t) return;
-  fetch(API + '/api/etablissement/me', { headers: { 'Authorization': 'Bearer ' + t } })
-    .then(function (r) { if (r.ok) return r.json(); throw 0; })
-    .then(function (me) {
-      window.__etabMe = me;
-      var isProv = me.role && me.role.est_proviseur;
-      var perms = me.permissions || [];
-      var staff = isProv || ['gerer_roles','gerer_membres','gerer_classes','creer_devoirs','corriger_devoirs'].some(function (p) { return perms.indexOf(p) >= 0; });
-      var label = staff ? 'Espace établissement' : 'Vie scolaire';
-      // Lien dans le menu de gauche (+ son intitulé de section)
-      var link = document.getElementById('etab-link');
-      if (link) { link.style.display = ''; link.innerHTML = '<span class="icon">🏫</span> ' + label; }
-      var grp = document.getElementById('grp-etab');
-      if (grp) { grp.style.display = ''; }
-      // Sélecteur "Travail / Vie scolaire" en haut
-      var sw = document.getElementById('mode-switch');
-      if (sw) { sw.style.display = 'flex'; }
-      var msEtab = document.getElementById('ms-etab');
-      if (msEtab) { msEtab.textContent = '🏫 ' + label; }
-    })
-    .catch(function () {});
-})();
-</script>
-
 <!-- Menu mobile (drawer ☰) : ouverture/fermeture + fermeture auto quand on choisit une entrée -->
 <script>
 (function () {
   window.toggleDrawer = function () { document.body.classList.toggle('drawer-open'); };
   window.closeDrawer  = function () { document.body.classList.remove('drawer-open'); };
-  // Fermer le tiroir dès qu'on tape une entrée du menu
   document.querySelectorAll('#sidebar .sidebar-item').forEach(function (el) {
     el.addEventListener('click', window.closeDrawer);
   });
-  // Fermer avec la touche Échap
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') window.closeDrawer(); });
 })();
 </script>
 
-<!-- Salles de travail : masquer le lien si la fonctionnalité "contact" est désactivée -->
-<script>
-(function(){
-  fetch(window.API_BASE+'/api/auth/config').then(r=>r.json()).then(function(c){
-    if(c && c.salles_enabled===false){ var el=document.getElementById('salles-link'); if(el) el.style.display='none'; }
-  }).catch(function(){});
-})();
-</script>
-<script src="prof-switch.js"></script>
-<script src="visio-guard.js"></script>
-<script>
-// Transparence mineurs (P4) : si un parent suit l'élève, expliquer ce qu'il voit / ne voit pas.
-(async function(){
-  try{
-    const tok=localStorage.getItem('lp_token'); if(!tok) return;
-    const d=await (await fetch(window.API_BASE+'/api/me/consent',{headers:{Authorization:'Bearer '+tok}})).json();
-    const hasParent=(d.liens_parent||[]).some(l=>l.statut==='actif') || d.consent_status==='accorde';
-    if(!hasParent) return;
-    const modal=document.createElement('div'); modal.id='parent-info-modal';
-    modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:9999;padding:1rem';
-    modal.onclick=e=>{if(e.target===modal)modal.style.display='none';};
-    modal.innerHTML='<div style="background:var(--surface,#1A1612);color:var(--text,#F5F0E8);border:1px solid var(--border,#3A2F22);border-radius:16px;max-width:440px;width:100%;padding:1.6rem;font-family:Inter,sans-serif">'
-      +'<h2 style="font-family:Sora,sans-serif;font-weight:800;font-size:1.2rem;margin-bottom:.8rem">👪 Ce que ton parent voit</h2>'
-      +'<p style="color:#22A06B;font-weight:700;margin-bottom:.4rem">✅ Il VOIT :</p>'
-      +'<ul style="margin:0 0 1rem 1.2rem;line-height:1.7;font-size:.92rem"><li>Ton temps de révision</li><li>Les matières et chapitres révisés</li><li>Tes scores de quiz</li><li>Les notions où tu bloques encore</li></ul>'
-      +'<p style="color:#E5484D;font-weight:700;margin-bottom:.4rem">❌ Il NE VOIT PAS :</p>'
-      +'<ul style="margin:0 0 1.2rem 1.2rem;line-height:1.7;font-size:.92rem"><li>Le contenu de tes cours</li><li>Tes réponses détaillées</li><li>Tes lettres de motivation</li></ul>'
-      +'<button onclick="document.getElementById(\'parent-info-modal\').style.display=\'none\'" style="width:100%;background:#E8692A;color:#fff;border:none;border-radius:10px;padding:.7rem;font-weight:700;cursor:pointer;font-family:Inter">J\'ai compris</button></div>';
-    document.body.appendChild(modal);
-    const banner=document.createElement('div');
-    banner.style.cssText='background:rgba(232,105,42,.12);border-bottom:1px solid rgba(232,105,42,.3);color:var(--text,#F5F0E8);padding:.55rem 1rem;text-align:center;font-size:.84rem;font-family:Inter,sans-serif';
-    banner.innerHTML='👪 Un parent suit ta progression. <a href="#" style="color:#E8692A;font-weight:700" id="see-parent">Vois ce qu\'il voit</a>';
-    document.body.insertBefore(banner, document.body.firstChild);
-    banner.querySelector('#see-parent').onclick=e=>{e.preventDefault();document.getElementById('parent-info-modal').style.display='flex';};
-  }catch(e){}
-})();
-</script>
-<script src="legal-footer.js"></script>
 </body>
 </html>

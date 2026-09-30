@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<script src="config.js"></script>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>LettrePro — Explorer les cours</title>
@@ -220,7 +219,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  const API_BASE = window.API_BASE;
+  const API_BASE = 'https://lettrepro-production.up.railway.app';
 
   function toggleMobileNav() {
     document.getElementById('nav-links').classList.toggle('open');
@@ -314,14 +313,12 @@
       const isSubbed = mySubProfIds.includes(p.id);
       return `<div class="prof-card" onclick="openProfModal(${p.id})">
         <div class="prof-avatar">${(p.prenom||'?')[0]}</div>
-        <div class="prof-name">${p.prenom} ${p.nom}${p.verifie_le?' <span title="Prof vérifié le '+String(p.verifie_le).slice(0,10)+'" style="color:#22A06B;font-size:.85em">✅</span>':''}</div>
-        ${p.verifie_le?`<div style="font-size:.7rem;color:#22A06B;font-weight:700;margin-bottom:.2rem">✅ Prof vérifié${p.verifie_le?' · '+String(p.verifie_le).slice(0,10):''}</div>`:''}
+        <div class="prof-name">${p.prenom} ${p.nom}</div>
         <div class="prof-etablissement">${p.etablissement || 'Enseignant indépendant'}</div>
-        <div style="font-size:.75rem;color:var(--muted);margin:.15rem 0 .1rem">👥 ${p.nb_abonnes || 0} abonné${(p.nb_abonnes||0) > 1 ? 's' : ''}</div>
         <div class="prof-subjects">${(p.subjects||[]).slice(0,3).map(s=>`<span class="subject-tag">${s}</span>`).join('')}</div>
         <div class="prof-bio">${p.bio || 'Aucune description.'}</div>
         <div class="prof-footer">
-          <div class="prof-price"><strong style="color:#10B981">Gratuit</strong> <span style="color:var(--muted);font-size:.72rem">· 1 crédit d'abo</span></div>
+          <div class="prof-price">${p.subscription_price > 0 ? `<strong>${p.subscription_price}€</strong>/mois` : '<strong style="color:#10B981">Gratuit</strong>'}</div>
           <button class="sub-btn ${isSubbed?'subscribed':''}" onclick="event.stopPropagation();subscribeTo(${p.id},${p.subscription_price})">
             ${isSubbed ? '✓ Abonné' : "S'abonner"}
           </button>
@@ -394,13 +391,14 @@
         </div>
         <div style="display:flex;align-items:center;justify-content:space-between;background:var(--card);border-radius:10px;padding:1rem;margin-bottom:1.5rem">
           <div>
-            <p style="font-size:0.78rem;color:var(--muted);margin-bottom:0.2rem">Abonnement</p>
-            <p style="font-family:'Sora',sans-serif;font-weight:800;font-size:1.2rem;color:#10B981">Gratuit</p>
-            <p style="font-size:0.72rem;color:var(--muted)">coûte 1 crédit d'abonnement</p>
+            <p style="font-size:0.78rem;color:var(--muted);margin-bottom:0.2rem">Abonnement mensuel</p>
+            <p style="font-family:'Sora',sans-serif;font-weight:800;font-size:1.2rem;color:${prof.subscription_price>0?'var(--orange)':'#10B981'}">
+              ${prof.subscription_price > 0 ? prof.subscription_price+' crédits/mois' : 'Gratuit'}
+            </p>
           </div>
           <div>
-            <p style="font-size:0.78rem;color:var(--muted);margin-bottom:0.2rem">Visios</p>
-            <a href="eleve-visios.html?prof=${profId}" style="font-family:'Sora',sans-serif;font-weight:800;font-size:1rem;color:var(--orange);text-decoration:none">Voir ses créneaux →</a>
+            <p style="font-size:0.78rem;color:var(--muted);margin-bottom:0.2rem">Tarif visio</p>
+            <p style="font-family:'Sora',sans-serif;font-weight:800;font-size:1.2rem;color:var(--orange)">${prof.hourly_rate} crédits/h</p>
           </div>
           <button class="sub-btn ${isSubbed?'subscribed':''}" onclick="subscribeTo(${profId},${prof.subscription_price})" style="padding:0.7rem 1.5rem">
             ${isSubbed ? '✓ Abonné' : "S'abonner"}
@@ -492,13 +490,15 @@
     if (!localStorage.getItem('lp_token')) { window.location.href = 'login.html'; return; }
     try {
       const data = await api('POST', '/api/subscriptions', { profId });
+      if (data.requiresPayment) {
+        showToast(`Abonnement à ${data.price} crédits/mois — Paiement en crédits à intégrer`, 'success');
+        return;
+      }
       mySubscriptions = await api('GET', '/api/subscriptions');
       loadProfs();
-      const c = data.credits;
-      showToast(c ? `✓ Abonné ! Il te reste ${c.available}/${c.max} crédits d'abonnement.` : '✓ Abonné avec succès !', 'success');
+      showToast('✓ Abonné avec succès !', 'success');
     } catch(e) {
       if (e.message.includes('Déjà abonné')) showToast('Tu es déjà abonné à ce prof.', 'error');
-      else if (e.message.includes('atteint')) showToast(e.message, 'error');
       else showToast('Erreur : ' + e.message, 'error');
     }
   }
@@ -546,7 +546,5 @@
 
   init();
 </script>
-<script src="visio-guard.js"></script>
-<script src="legal-footer.js"></script>
 </body>
 </html>

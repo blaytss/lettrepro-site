@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<script src="config.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LettrePro — Connexion</title>
@@ -120,8 +119,6 @@
     </div>
     <button class="btn-submit" onclick="handleLogin()">Se connecter</button>
 
-    <div id="social-auth"></div>
-
     <div class="auth-footer">
       Pas encore de compte ? <a href="inscription.html">Créer un compte gratuit</a>
     </div>
@@ -129,7 +126,7 @@
 </div>
 
 <script>
-  const API_BASE = window.API_BASE;
+  const API_BASE = 'https://lettrepro-production.up.railway.app';
 
   async function handleLogin() {
     const email    = document.getElementById('email').value.trim().toLowerCase();
@@ -149,61 +146,22 @@
       });
       const data = await res.json();
 
-      if (!res.ok) {
-        if (data.need_verification) {
-          msg.className = 'msg error';
-          msg.innerHTML = '📧 Ton compte n\'est pas encore activé. Clique sur le lien reçu par email.<br>' +
-            '<a href="#" id="resend-link" style="color:#E8692A;font-weight:700">Renvoyer l\'email d\'activation</a>';
-          const rl = document.getElementById('resend-link');
-          if (rl) rl.onclick = async (ev) => { ev.preventDefault();
-            try { await fetch(`${API_BASE}/api/resend-verification`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email }) }); rl.textContent = '✓ Email renvoyé — vérifie ta boîte mail'; } catch(e){}
-          };
-          btn.disabled = false; btn.textContent = 'Se connecter';
-          return;
-        }
-        msg.className = 'msg error'; msg.textContent = data.error || 'Email ou mot de passe incorrect.'; return;
-      }
+      if (!res.ok) { msg.className = 'msg error'; msg.textContent = data.error || 'Email ou mot de passe incorrect.'; return; }
 
       localStorage.setItem('lp_token', data.token);
-      await routeAfterLogin(data.token);
+      window.location.href = 'dashboard.html';
 
     } catch {
       msg.className = 'msg error';
-      msg.textContent = 'Impossible de contacter le serveur. Vérifie qu\'il est lancé sur le port 5099.';
+      msg.textContent = 'Impossible de contacter le serveur. Vérifie qu\'il est lancé sur le port 5000.';
+    } finally {
       btn.disabled = false; btn.textContent = 'Se connecter';
     }
   }
 
-  // Redirige selon le rôle établissement : proviseur/staff -> espace proviseur,
-  // prof -> ses classes, élève/membre simple -> Vie scolaire, sinon app normale.
-  async function routeAfterLogin(token) {
-    // 1. Prof « marketplace » (profil professeur) -> espace Travail (dashboard prof)
-    try {
-      const pr = await fetch(`${API_BASE}/api/prof/me`, { headers: { 'Authorization': 'Bearer ' + token } });
-      if (pr.ok) { const p = await pr.json(); if (p && p.id) { window.location.href = 'prof-dashboard.html'; return; } }
-    } catch {}
-    // 2. Membre d'un établissement -> espace établissement
-    try {
-      const res = await fetch(`${API_BASE}/api/etablissement/me`, { headers: { 'Authorization': 'Bearer ' + token } });
-      if (res.ok) {
-        const d = await res.json();
-        const perms = d.permissions || [];
-        const isAdminStaff = (d.role && d.role.est_proviseur) || ['gerer_roles','gerer_membres','gerer_classes'].some(p => perms.includes(p));
-        const isProf = ['creer_devoirs','corriger_devoirs'].some(p => perms.includes(p));
-        if (isAdminStaff) { window.location.href = 'proviseur-dashboard.html'; return; }
-        if (isProf)       { window.location.href = 'prof-classes.html'; return; }
-        window.location.href = 'vie-scolaire.html'; return;   // membre d'un établissement (élève)
-      }
-    } catch {}
-    window.location.href = 'dashboard.html';   // utilisateur LettrePro normal
-  }
-
   document.addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
 
-  // Déjà connecté : on route directement au bon espace
-  if (localStorage.getItem('lp_token')) routeAfterLogin(localStorage.getItem('lp_token'));
+  if (localStorage.getItem('lp_token')) window.location.href = 'dashboard.html';
 </script>
-<script src="social-auth.js"></script>
-<script src="legal-footer.js"></script>
 </body>
 </html>

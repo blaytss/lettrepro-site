@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<script src="config.js"></script>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>LettrePro — Espace Professeur</title>
@@ -154,19 +153,17 @@
 
 <div class="layout">
   <aside class="sidebar">
-    <button class="sidebar-item active" data-page="overview" onclick="showPage('overview',this)"><span class="icon">📊</span> Vue d'ensemble</button>
-    <button class="sidebar-item" data-page="stats" onclick="showPage('stats',this)"><span class="icon">📈</span> Stats</button>
-    <button class="sidebar-item" data-page="notifications" onclick="showPage('notifications',this)"><span class="icon">🔔</span> Notifications <span class="nav-notif-badge" id="notif-badge" style="display:none">0</span></button>
-    <button class="sidebar-item" data-page="courses" onclick="showPage('courses',this)"><span class="icon">📚</span> Mes cours</button>
-    <button class="sidebar-item" data-visio data-page="sessions" onclick="showPage('sessions',this)"><span class="icon">📹</span> Visios (crédits)</button>
-    <a class="sidebar-item" href="prof-visios.html"><span class="icon">📅</span> Planning ✨</a>
-    <a class="sidebar-item" href="prof-verification.html"><span class="icon">🪪</span> Vérification</a>
-    <a class="sidebar-item" href="async.html"><span class="icon">🎥</span> Questions vidéo</a>
-    <button class="sidebar-item" data-page="subscribers" onclick="showPage('subscribers',this)"><span class="icon">👥</span> Mes abonnés</button>
+    <button class="sidebar-item active" onclick="showPage('overview',this)"><span class="icon">📊</span> Vue d'ensemble</button>
+    <button class="sidebar-item" onclick="showPage('notifications',this)"><span class="icon">🔔</span> Notifications <span class="nav-notif-badge" id="notif-badge" style="display:none">0</span></button>
+    <button class="sidebar-item" onclick="showPage('courses',this)"><span class="icon">📚</span> Mes cours</button>
+    <button class="sidebar-item" onclick="showPage('sessions',this)"><span class="icon">📹</span> Visios</button>
+    <button class="sidebar-item" onclick="showPage('subscribers',this)"><span class="icon">👥</span> Mes abonnés</button>
+    <button class="sidebar-item" onclick="showPage('earnings',this)"><span class="icon">💰</span> Mes gains</button>
     <div class="sidebar-sep"></div>
-    <button class="sidebar-item" data-page="verification" onclick="showPage('verification',this)"><span class="icon">🔐</span> Vérification</button>
-    <button class="sidebar-item" data-page="profile" onclick="showPage('profile',this)"><span class="icon">👤</span> Mon profil</button>
-    <button class="sidebar-item" data-page="classes" onclick="showPage('classes',this)"><span class="icon">🎓</span> Mes classes</button>
+    <button class="sidebar-item" onclick="showPage('verification',this)"><span class="icon">🔐</span> Vérification</button>
+    <button class="sidebar-item" onclick="showPage('profile',this)"><span class="icon">👤</span> Mon profil</button>
+    <a class="sidebar-item" href="explorer.html"><span class="icon">🔍</span> Explorer</a>
+    <button class="sidebar-item" onclick="showPage('classes',this)"><span class="icon">🎓</span> Mes classes</button>
     <div class="sidebar-sep"></div>
     <div class="sidebar-stats">
       <div class="ss-row"><span>Abonnés</span><span class="ss-val" id="ss-subs">—</span></div>
@@ -187,7 +184,7 @@
       <div id="overview-warn" style="display:none" class="warn-box">
         <strong style="color:#F59E0B">⚠ Compte non vérifié</strong>
         <p style="color:var(--muted);font-size:.88rem;margin-top:.35rem">Vérifie ton statut enseignant pour publier des cours.</p>
-        <button class="btn-primary" style="margin-top:.75rem;padding:.55rem 1.25rem;font-size:.85rem" onclick="showPage('verification')">Vérifier →</button>
+        <button class="btn-primary" style="margin-top:.75rem;padding:.55rem 1.25rem;font-size:.85rem" onclick="showPage('verification',document.querySelectorAll('.sidebar-item')[5])">Vérifier →</button>
       </div>
       <div class="stats-row">
         <div class="stat-card"><div class="lbl">Abonnés</div><div class="val" id="stat-subs">—</div><div class="sub">élèves abonnés</div></div>
@@ -200,24 +197,8 @@
         <div style="display:flex;gap:.75rem;flex-wrap:wrap">
           <button class="btn-primary" onclick="openCourseModal()">+ Nouveau cours</button>
           <button class="btn-outline" onclick="openSessionModal()">+ Créneau visio</button>
-          <button class="btn-outline" onclick="showPage('subscribers')">Voir mes abonnés</button>
+          <button class="btn-outline" onclick="showPage('subscribers',document.querySelectorAll('.sidebar-item')[3])">Voir mes abonnés</button>
         </div>
-      </div>
-    </div>
-
-    <!-- STATS -->
-    <div class="page" id="page-stats">
-      <div class="page-header"><h1>Statistiques</h1><p>Ta visibilité et ton activité sur LettrePro.</p></div>
-      <div class="stats-row">
-        <div class="stat-card"><div class="lbl">Abonnés</div><div class="val" id="st-subs">—</div><div class="sub">élèves abonnés (améliore ton référencement)</div></div>
-        <div class="stat-card"><div class="lbl">Visios à venir</div><div class="val" id="st-upcoming">—</div><div class="sub">créneaux en vente / complets</div></div>
-        <div class="stat-card"><div class="lbl">Élèves inscrits en visio</div><div class="val" id="st-booked">—</div><div class="sub">réservations payées</div></div>
-        <div class="stat-card"><div class="lbl">Cours publiés</div><div class="val" id="st-courses">—</div><div class="sub">texte, vidéo, PDF</div></div>
-      </div>
-      <div class="card">
-        <h3>📈 Référencement dans l'explorateur</h3>
-        <p style="color:var(--muted);font-size:.9rem;line-height:1.55">Plus tu as d'<b style="color:var(--text)">abonnés</b>, plus tu remontes dans l'explorateur des profs. Chaque élève qui s'abonne à toi améliore ta position — donne envie de s'abonner avec de bons cours et des visios utiles&nbsp;!</p>
-        <div id="st-rank" style="margin-top:.8rem;color:var(--muted);font-size:.9rem"></div>
       </div>
     </div>
 
@@ -525,7 +506,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  const API_BASE=window.API_BASE;
+  const API_BASE='https://lettrepro-production.up.railway.app';
   const SUBJECTS=['Mathématiques','Physique-Chimie','SVT','Histoire-Géo','Français',
                   'Philosophie','NSI','Anglais','Espagnol','Économie','SES','Arts','EPS','Autre'];
   const MATIERE_EMOJIS={
@@ -953,38 +934,13 @@ function renderRequests(requests){
     document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
     document.querySelectorAll('.sidebar-item').forEach(s=>s.classList.remove('active'));
     document.getElementById('page-'+name).classList.add('active');
-    const item = btn || document.querySelector('.sidebar-item[data-page="'+name+'"]');
-    if(item) item.classList.add('active');
-    if(name==='stats') loadStats();
+    if(btn) btn.classList.add('active');
     if(name==='courses') loadCourses();
     if(name==='sessions') loadSessions();
     if(name==='subscribers') loadSubscribers();
     if(name==='earnings') { loadEarnings(); loadWithdrawals(); }
     if(name==='notifications') loadNotifications();
     if(name==='classes') { loadMyClasses(); startClassPolling(); }
-  }
-
-  async function loadStats(){
-    try{
-      const subs = await api('GET','/api/prof/subscribers');
-      document.getElementById('st-subs').textContent = subs.length;
-      document.getElementById('st-rank').innerHTML = subs.length
-        ? `Tu as <b style="color:var(--orange)">${subs.length}</b> abonné${subs.length>1?'s':''} — c'est ton score de référencement actuel dans l'explorateur.`
-        : `Tu n'as pas encore d'abonné. Dès qu'un élève s'abonne à toi, tu montes dans l'explorateur.`;
-    }catch(e){ document.getElementById('st-subs').textContent='0'; }
-    try{
-      const courses = await api('GET','/api/prof/courses');
-      document.getElementById('st-courses').textContent = courses.length;
-    }catch(e){ document.getElementById('st-courses').textContent='0'; }
-    try{
-      const data = await api('GET','/api/visio2/offres/mine');
-      const offres = data.offres||[];
-      const now = new Date();
-      const upcoming = offres.filter(o=>{ try{ return new Date(o.scheduled_at.replace(' ','T'))>=now && (o.statut==='en_vente'||o.statut==='complet'); }catch(_){ return false; } }).length;
-      const booked = offres.reduce((s,o)=>s+(o.places_prises||0),0);
-      document.getElementById('st-upcoming').textContent = upcoming;
-      document.getElementById('st-booked').textContent = booked;
-    }catch(e){ document.getElementById('st-upcoming').textContent='0'; document.getElementById('st-booked').textContent='0'; }
   }
 
   function logout(silent=false){
@@ -1279,8 +1235,5 @@ function renderRequests(requests){
 </script>
 <!-- ===== FIN CLASSES & NOTIFICATIONS (PROF) ===== -->
 
-<script src="prof-switch.js"></script>
-<script src="visio-guard.js"></script>
-<script src="legal-footer.js"></script>
 </body>
 </html>

@@ -3,11 +3,3 @@ backend/
 *.db
 azert
 dashboard-backup.html
-lettrepro-test/
-.claude/
-carwash-by-student/
-carwash-by-student-v1/
-carwash-by-student-v2/
-crushy-site/
-lettrepro-site/
-

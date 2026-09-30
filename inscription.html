@@ -1,7 +1,6 @@
 ﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
-<script src="config.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#E8692A" />
@@ -112,23 +111,14 @@
 
     <div id="msg" class="msg"></div>
 
-    <div id="signup-form">
     <div class="fields-row">
       <div class="field"><label>Prénom</label><input type="text" id="prenom" placeholder="Léa" /></div>
       <div class="field"><label>Nom</label><input type="text" id="nom" placeholder="Martin" /></div>
     </div>
     <div class="field"><label>Adresse email</label><input type="email" id="email" placeholder="toi@email.com" autocomplete="email" /></div>
-    <div class="field"><label>Date de naissance</label><input type="date" id="date_naissance" onchange="checkAge()" /></div>
-    <div class="field" id="parent-field" style="display:none">
-      <label>Email d'un parent <span style="color:#E8692A">(obligatoire — tu as moins de 15 ans)</span></label>
-      <input type="email" id="parent_email" placeholder="parent@email.com" autocomplete="off" />
-      <p style="font-size:.78rem;color:var(--muted,#8B6E5A);margin-top:.3rem">Un email d'autorisation lui sera envoyé. Ton compte pourra générer des fiches une fois qu'il aura confirmé.</p>
-    </div>
     <div class="field"><label>Mot de passe</label><input type="password" id="password" placeholder="8 caractères minimum" /></div>
 
     <button class="btn-submit" id="submit-btn" onclick="handleSignup()">Créer mon compte gratuit</button>
-    <div id="social-auth"></div>
-    </div>
     <p class="cgu">En créant un compte tu acceptes nos <a href="legal.html">CGV</a> et notre <a href="legal.html#confidentialite">politique de confidentialité</a>.</p>
     <div class="auth-footer">Déjà un compte ? <a href="login.html">Se connecter</a></div>
   </div>
@@ -136,7 +126,7 @@
 
 <script>
   // ====== URL DU BACKEND — Railway ======
-  const API_BASE = window.API_BASE;
+  const API_BASE = 'https://lettrepro-production.up.railway.app';
   let selectedPlan = 'free';
 
   function selectRole(role) {
@@ -164,19 +154,6 @@
     document.getElementById('perks').innerHTML = cfg.perks.map(p => `<div class="perk">${p}</div>`).join('');
   }
 
-  function ageFromDate(v){
-    if(!v) return null;
-    const d = new Date(v); if(isNaN(d)) return null;
-    const t = new Date();
-    let a = t.getFullYear() - d.getFullYear();
-    if (t.getMonth() < d.getMonth() || (t.getMonth() === d.getMonth() && t.getDate() < d.getDate())) a--;
-    return a;
-  }
-  function checkAge(){
-    const a = ageFromDate(document.getElementById('date_naissance').value);
-    document.getElementById('parent-field').style.display = (a !== null && a < 15) ? 'block' : 'none';
-  }
-
   async function handleSignup() {
     const prenom   = document.getElementById('prenom').value.trim();
     const nom      = document.getElementById('nom').value.trim();
@@ -186,20 +163,11 @@
     const btn      = document.getElementById('submit-btn');
     msg.className  = 'msg';
 
-    const date_naissance = document.getElementById('date_naissance').value;
-    const parent_email = document.getElementById('parent_email').value.trim().toLowerCase();
     if (!prenom || !nom || !email || !password) {
       msg.className = 'msg error'; msg.textContent = 'Remplis tous les champs.'; return;
     }
     if (!email.includes('@') || !email.includes('.')) {
       msg.className = 'msg error'; msg.textContent = 'Adresse email invalide.'; return;
-    }
-    if (!date_naissance) {
-      msg.className = 'msg error'; msg.textContent = 'Indique ta date de naissance.'; return;
-    }
-    const age = ageFromDate(date_naissance);
-    if (age !== null && age < 15 && (!parent_email.includes('@'))) {
-      msg.className = 'msg error'; msg.textContent = 'Tu as moins de 15 ans : l\'email d\'un parent est obligatoire.'; return;
     }
     if (password.length < 8) {
       msg.className = 'msg error'; msg.textContent = 'Mot de passe trop court (8 caractères min).'; return;
@@ -212,7 +180,7 @@
       const res  = await fetch(API_BASE + '/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prenom, nom, email, password, plan: selectedPlan, date_naissance, parent_email, ref: (window.getRefCode ? window.getRefCode() : '') })
+        body: JSON.stringify({ prenom, nom, email, password, plan: selectedPlan })
       });
       const data = await res.json();
 
@@ -221,22 +189,6 @@
         return;
       }
 
-      if (data.need_verification) {
-        // Compte créé mais pas encore activé : on n'entre PAS dans l'app.
-        document.getElementById('signup-form') && (document.getElementById('signup-form').style.display = 'none');
-        msg.className = 'msg success';
-        var parentNote = (data.consent_status === 'attente_parent')
-          ? '<br>👪 <b>On a aussi envoyé une demande d\'autorisation à ton parent</b> — ton compte pourra générer des fiches une fois qu\'il aura confirmé.'
-          : '';
-        msg.innerHTML = '📧 <b>Compte créé !</b> On vient d\'envoyer un lien d\'activation à <b>' + email + '</b>.<br>Clique dessus pour activer ton compte, puis connecte-toi.' + parentNote + '<br><br>' +
-          '<a href="login.html" style="color:#E8692A;font-weight:700">Aller à la connexion →</a><br>' +
-          '<a href="#" id="resend-link" style="color:#8B6E5A;font-size:.85rem">Je n\'ai pas reçu l\'email — renvoyer</a>';
-        const rl = document.getElementById('resend-link');
-        if (rl) rl.onclick = async (ev) => { ev.preventDefault();
-          try { await fetch(API_BASE + '/api/resend-verification', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email }) }); rl.textContent = '✓ Email renvoyé'; } catch(e){}
-        };
-        return;
-      }
       localStorage.setItem('lp_token', data.token);
       msg.className = 'msg success'; msg.textContent = '✓ Compte créé ! Redirection…';
       setTimeout(() => window.location.href = 'dashboard.html', 1000);
@@ -263,7 +215,5 @@
     }
   }
 </script>
-<script src="social-auth.js"></script>
-<script src="legal-footer.js"></script>
 </body>
 </html>
