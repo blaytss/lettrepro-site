@@ -885,6 +885,15 @@
             <input type="text" id="study-titre" placeholder="Ex: Chapitre 3 — Les fonctions dérivées" />
           </div>
 
+          <div class="field" style="margin-bottom:1rem">
+            <label>Dossier (optionnel)</label>
+            <select id="study-dossier" onchange="onStudyDossierChange()">
+              <option value="">📂 Aucun dossier</option>
+              <option value="__new__">➕ Nouveau dossier…</option>
+            </select>
+            <input type="text" id="study-dossier-new" placeholder="Nom du nouveau dossier (ex : Bac de français)" style="display:none;margin-top:.5rem" />
+          </div>
+
           <div class="field" style="margin-bottom:1.25rem">
             <label>Ton cours <span style="font-weight:400;color:var(--muted)">(texte ou photos)</span></label>
             <div style="margin-bottom:0.6rem">
@@ -1202,7 +1211,7 @@
     <div class="page" id="page-account">
       <div class="page-header"><h1>Mon compte</h1><p>Gère tes informations et la sécurité de ton compte.</p></div>
 
-      <div class="account-card" style="display:none">
+      <div class="account-card">
         <h3>📁 Mes fichiers (mes devoirs)</h3>
         <p style="color:var(--muted);font-size:0.9rem;margin:0.4rem 0 1rem">Ton espace de stockage personnel : crée des documents PDF, importe des fichiers, et rends-les ensuite comme devoirs. L'espace grandit avec ton abonnement.</p>
         <a href="mes-fichiers.html" style="display:inline-block;background:var(--orange);color:#fff;text-decoration:none;font-weight:700;padding:0.6rem 1.2rem;border-radius:10px;font-size:0.9rem">Ouvrir mon espace de stockage →</a>
@@ -2266,7 +2275,7 @@ async function subscribePlan(plan) {
     if (name === 'account')    { renderAccount(); }
     if (name === 'credits') { renderCreditsPage(); renderVisioPacks(); document.getElementById('visio-balance').textContent = (currentUser.visio_credits||0) + ' crédits'; }
     if (name === 'abonnement') { renderAbonnement(); }
-    if (name === 'study')      { updateCostPreview(); }
+    if (name === 'study')      { updateCostPreview(); loadStudyDossiers(); }
     if (name === 'apparence')  { initThemePage(); }
     if (name === 'classes')    { loadMyClasses(); startChatPolling(); }
     if (name === 'myprofs')    { loadMyProfs(); }
@@ -2422,7 +2431,11 @@ async function subscribePlan(plan) {
     }, 2000);
 
     try {
-      const data = await api('POST', '/api/study/generate', { cours, titre, mode, difficulty: quizDifficulty, images: studyImages.map(im => ({ media_type: im.media_type, data: im.data })) });
+      const _dosSel = document.getElementById('study-dossier');
+      const _dosNew = document.getElementById('study-dossier-new');
+      const _dossierId = (_dosSel && _dosSel.value && _dosSel.value !== '__new__') ? _dosSel.value : null;
+      const _nouveauDossier = (_dosSel && _dosSel.value === '__new__' && _dosNew) ? _dosNew.value.trim() : null;
+      const data = await api('POST', '/api/study/generate', { cours, titre, mode, difficulty: quizDifficulty, dossier_id: _dossierId, nouveau_dossier: _nouveauDossier, images: studyImages.map(im => ({ media_type: im.media_type, data: im.data })) });
       clearInterval(interval);
 
       currentUser.credits = data.creditsLeft;
@@ -2436,6 +2449,8 @@ async function subscribePlan(plan) {
       document.getElementById('study-result-card').classList.add('visible');
       document.getElementById('study-result-card').scrollIntoView({ behavior:'smooth', block:'nearest' });
       refreshUI();
+      loadStudyDossiers(data.dossierId);   // rafraîchit la liste (nouveau dossier éventuel) + resélectionne
+      const _dn = document.getElementById('study-dossier-new'); if (_dn) _dn.value = '';
       showToast(`📚 Généré ! ${cost} crédit${cost>1?'s':''} déduit${cost>1?'s':''}`, 'success');
 
     } catch(e) {
@@ -2907,7 +2922,68 @@ async function subscribePlan(plan) {
   }
 
   // ── BIBLIOTHÈQUE FICHES ──
+  // ── DOSSIERS ──
+  window._dossiers = [];
+  async function loadStudyDossiers(selectedId) {
+    try {
+      const d = await api('GET', '/api/dossiers');
+      window._dossiers = d.dossiers || [];
+    } catch(e) { window._dossiers = []; }
+    const sel = document.getElementById('study-dossier');
+    if (sel) {
+      const cur = selectedId != null ? String(selectedId) : sel.value;
+      sel.innerHTML = '<option value="">📂 Aucun dossier</option>'
+        + window._dossiers.map(x => `<option value="${x.id}">${escapeHtml(x.nom)}</option>`).join('')
+        + '<option value="__new__">➕ Nouveau dossier…</option>';
+      if (cur && cur !== '__new__') sel.value = cur;
+      onStudyDossierChange();
+    }
+  }
+  function onStudyDossierChange() {
+    const sel = document.getElementById('study-dossier');
+    const inp = document.getElementById('study-dossier-new');
+    if (inp) inp.style.display = (sel && sel.value === '__new__') ? 'block' : 'none';
+  }
+
+  function dossierOptions(currentId) {
+    return '<option value="">— Aucun —</option>'
+      + (window._dossiers||[]).map(x => `<option value="${x.id}" ${String(x.id)===String(currentId)?'selected':''}>${escapeHtml(x.nom)}</option>`).join('')
+      + '<option value="__new__">➕ Nouveau…</option>';
+  }
+  async function _moveContent(kind, id, val) {
+    let body;
+    if (val === '__new__') { const nom = prompt('Nom du nouveau dossier :'); if (!nom) { loadCours(); return; } body = { nouveau_dossier: nom }; }
+    else body = { dossier_id: val || null };
+    try { await api('PUT', `/api/study/${kind==='fiches'?'fiches':'quiz'}/${id}/dossier`, body); await loadStudyDossiers(); loadCours(); showToast('Déplacé ✓','success'); }
+    catch(e) { showToast('Erreur : ' + e.message, 'error'); }
+  }
+  function moveFiche(id, val){ _moveContent('fiches', id, val); }
+  function moveQuiz(id, val){ _moveContent('quiz', id, val); }
+  async function newDossierPrompt() {
+    const nom = prompt('Nom du dossier :'); if (!nom) return;
+    try { await api('POST', '/api/dossiers', { nom }); await loadStudyDossiers(); loadCours(); showToast('Dossier créé ✓','success'); }
+    catch(e){ showToast('Erreur : ' + e.message, 'error'); }
+  }
+  async function renameDossier(id) {
+    const cur = (window._dossiers||[]).find(x => String(x.id)===String(id));
+    const nom = prompt('Renommer le dossier :', cur ? cur.nom : ''); if (!nom || (cur && nom===cur.nom)) return;
+    try { await api('PUT', `/api/dossiers/${id}`, { nom }); await loadStudyDossiers(); loadCours(); }
+    catch(e){ showToast('Erreur : ' + e.message, 'error'); }
+  }
+  async function deleteDossier(id) {
+    if (!confirm('Supprimer ce dossier ? Le contenu sera conservé (rangé « sans dossier »).')) return;
+    try { await api('DELETE', `/api/dossiers/${id}`); await loadStudyDossiers(); loadCours(); showToast('Dossier supprimé','success'); }
+    catch(e){ showToast('Erreur : ' + e.message, 'error'); }
+  }
+  function _groupByDossier(items) {
+    const g = {};
+    items.forEach(it => { const k = it.dossier_id ? ('d'+it.dossier_id) : '_none';
+      (g[k] = g[k] || { nom: it.dossier_nom || '📂 Sans dossier', id: it.dossier_id, items: [] }).items.push(it); });
+    return Object.values(g).sort((a,b) => a.id ? (b.id ? a.nom.localeCompare(b.nom) : -1) : 1);
+  }
+
   async function loadFiches() {
+    await loadStudyDossiers();
     try {
       const fiches = await api('GET', '/api/study/fiches');
       renderFichesBibliotheque(fiches);
@@ -2916,21 +2992,24 @@ async function subscribePlan(plan) {
 
   function renderFichesBibliotheque(fiches) {
     const el = document.getElementById('fiches-content');
-    if (!fiches.length) { el.innerHTML = `<div class="history-empty"><div class="icon">📄</div><p>Aucune fiche pour l'instant.</p></div>`; return; }
-    const grouped = {};
-    fiches.forEach(f => { if (!grouped[f.matiere]) grouped[f.matiere] = []; grouped[f.matiere].push(f); });
-    el.innerHTML = Object.entries(grouped).map(([matiere, items]) => `
+    const header = `<div style="margin-bottom:1rem"><button class="photo-add-btn" onclick="newDossierPrompt()">➕ Nouveau dossier</button></div>`;
+    if (!fiches.length) { el.innerHTML = header + `<div class="history-empty"><div class="icon">📄</div><p>Aucune fiche pour l'instant.</p></div>`; return; }
+    el.innerHTML = header + _groupByDossier(fiches).map(g => `
       <div class="matiere-group">
         <div class="matiere-header">
-          <span class="matiere-title">${matiere}</span>
-          <span class="matiere-count">${items.length} fiche${items.length>1?'s':''}</span>
+          <span class="matiere-title">${g.id?'📁 ':''}${escapeHtml(g.nom)}</span>
+          <span style="display:flex;align-items:center;gap:.4rem">
+            <span class="matiere-count">${g.items.length} fiche${g.items.length>1?'s':''}</span>
+            ${g.id?`<button class="hist-btn" title="Renommer le dossier" onclick="renameDossier(${g.id})">✏️</button><button class="hist-btn" title="Supprimer le dossier" onclick="deleteDossier(${g.id})">🗑️</button>`:''}
+          </span>
         </div>
-        ${items.map(f => `
+        ${g.items.map(f => `
           <div class="fiche-card" onclick="viewFiche(${f.id})">
             <div><div class="fc-title">${escapeHtml(f.titre||'Sans titre')}</div>
-            <div class="fc-date">${new Date(f.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}</div></div>
-            <div class="fc-actions">
-              <button class="hist-btn" onclick="event.stopPropagation();deleteFiche(${f.id})">🗑️</button>
+            <div class="fc-date">${escapeHtml(f.matiere||'')} · ${new Date(f.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}</div></div>
+            <div class="fc-actions" onclick="event.stopPropagation()">
+              <select class="hist-btn" title="Déplacer dans un dossier" onchange="moveFiche(${f.id}, this.value)">${dossierOptions(f.dossier_id)}</select>
+              <button class="hist-btn" onclick="deleteFiche(${f.id})">🗑️</button>
             </div>
           </div>`).join('')}
       </div>`).join('');
@@ -2954,6 +3033,7 @@ async function subscribePlan(plan) {
 
   // ── BIBLIOTHÈQUE QUIZ ──
   async function loadQuizzes() {
+    await loadStudyDossiers();
     try {
       const quizzes = await api('GET', '/api/study/quiz');
       renderQuizzesBibliotheque(quizzes);
@@ -2962,23 +3042,26 @@ async function subscribePlan(plan) {
 
   function renderQuizzesBibliotheque(quizzes) {
     const el = document.getElementById('quizzes-content');
-    if (!quizzes.length) { el.innerHTML = `<div class="history-empty"><div class="icon">🎯</div><p>Aucun quiz pour l'instant.</p></div>`; return; }
-    const grouped = {};
-    quizzes.forEach(q => { if (!grouped[q.matiere]) grouped[q.matiere] = []; grouped[q.matiere].push(q); });
-    el.innerHTML = Object.entries(grouped).map(([matiere, items]) => `
+    const header = `<div style="margin-bottom:1rem"><button class="photo-add-btn" onclick="newDossierPrompt()">➕ Nouveau dossier</button></div>`;
+    if (!quizzes.length) { el.innerHTML = header + `<div class="history-empty"><div class="icon">🎯</div><p>Aucun quiz pour l'instant.</p></div>`; return; }
+    el.innerHTML = header + _groupByDossier(quizzes).map(g => `
       <div class="matiere-group">
         <div class="matiere-header">
-          <span class="matiere-title">${matiere}</span>
-          <span class="matiere-count">${items.length} quiz</span>
+          <span class="matiere-title">${g.id?'📁 ':''}${escapeHtml(g.nom)}</span>
+          <span style="display:flex;align-items:center;gap:.4rem">
+            <span class="matiere-count">${g.items.length} quiz</span>
+            ${g.id?`<button class="hist-btn" title="Renommer le dossier" onclick="renameDossier(${g.id})">✏️</button><button class="hist-btn" title="Supprimer le dossier" onclick="deleteDossier(${g.id})">🗑️</button>`:''}
+          </span>
         </div>
-        ${items.map(q => `
+        ${g.items.map(q => `
           <div class="fiche-card" onclick="openQuizFromLibrary(${q.id})">
             <div>
               <div class="fc-title">🎯 ${escapeHtml(q.titre||'Quiz')}</div>
-              <div class="fc-date">${q.attempts>0 ? `Meilleur score : ${q.score}/${q.total||10} · ${q.attempts} tentative${q.attempts>1?'s':''}` : 'Jamais joué'}</div>
+              <div class="fc-date">${escapeHtml(q.matiere||'')} · ${q.attempts>0 ? `Meilleur score : ${q.score}/${q.total||10} · ${q.attempts} tentative${q.attempts>1?'s':''}` : 'Jamais joué'}</div>
             </div>
-            <div class="fc-actions">
-              <button class="hist-btn" onclick="event.stopPropagation();deleteQuiz(${q.id})">🗑️</button>
+            <div class="fc-actions" onclick="event.stopPropagation()">
+              <select class="hist-btn" title="Déplacer dans un dossier" onchange="moveQuiz(${q.id}, this.value)">${dossierOptions(q.dossier_id)}</select>
+              <button class="hist-btn" onclick="deleteQuiz(${q.id})">🗑️</button>
             </div>
           </div>`).join('')}
       </div>`).join('');
@@ -3046,6 +3129,7 @@ async function subscribePlan(plan) {
     const el = document.getElementById('cours-content');
     el.innerHTML = '<p style="color:var(--muted);padding:1rem 0">Chargement…</p>';
     try {
+      await loadStudyDossiers();
       const [fiches, quizzes] = await Promise.all([
         api('GET', '/api/study/fiches'),
         api('GET', '/api/study/quiz')
@@ -3058,80 +3142,98 @@ async function subscribePlan(plan) {
   }
 
   // Vue 1 : la grille des dossiers (un par matière)
+  // Vue 1 : la grille des DOSSIERS (dossiers nommés par l'élève + "Sans dossier")
   function renderCoursFolders() {
     currentFolder = null;
     const el = document.getElementById('cours-content');
+    const items = [...coursData.fiches, ...coursData.quizzes];
 
-    // Compter les chapitres distincts par matière
-    const matieres = {};
-    coursData.fiches.forEach(f => {
-      (matieres[f.matiere] = matieres[f.matiere] || new Set()).add(f.titre || 'Sans titre');
+    const buckets = {};
+    items.forEach(it => {
+      const key = it.dossier_id ? ('d' + it.dossier_id) : '_none';
+      const nom = it.dossier_id ? (it.dossier_nom || 'Dossier') : 'Sans dossier';
+      (buckets[key] = buckets[key] || { key, id: it.dossier_id || null, nom, titres: new Set() }).titres.add(it.titre || 'Sans titre');
     });
-    coursData.quizzes.forEach(q => {
-      (matieres[q.matiere] = matieres[q.matiere] || new Set()).add(q.titre || 'Quiz');
-    });
+    // inclure les dossiers vides que l'élève a créés
+    (window._dossiers || []).forEach(d => { const k = 'd' + d.id; if (!buckets[k]) buckets[k] = { key: k, id: d.id, nom: d.nom, titres: new Set() }; });
 
-    const keys = Object.keys(matieres).sort((a,b)=>a.localeCompare(b,'fr'));
-    if (!keys.length) {
-      el.innerHTML = `<div class="history-empty"><div class="icon">📁</div><p>Aucun cours pour l'instant.<br>Génère ton premier contenu de révision !</p></div>`;
+    const list = Object.values(buckets).sort((a, b) => a.id ? (b.id ? a.nom.localeCompare(b.nom, 'fr') : -1) : 1);
+    const header = `<div style="margin-bottom:1rem;display:flex;gap:.5rem;flex-wrap:wrap">
+      <button class="photo-add-btn" onclick="newDossierPrompt()">➕ Nouveau dossier</button></div>`;
+
+    if (!list.length) {
+      el.innerHTML = header + `<div class="history-empty"><div class="icon">📁</div><p>Aucun cours pour l'instant.<br>Génère ton premier contenu de révision !</p></div>`;
       return;
     }
-
-    el.innerHTML = `<div class="folder-grid">${keys.map(mat => {
-      const nb = matieres[mat].size;
-      return `<div class="folder-card" onclick="openFolder('${encodeURIComponent(mat)}')">
-        <div class="folder-icon">📁</div>
-        <div class="folder-name">${escapeHtml(mat)}</div>
+    el.innerHTML = header + `<div class="folder-grid">${list.map(b => {
+      const nb = b.titres.size;
+      return `<div class="folder-card" onclick="openFolder('${b.key}')">
+        <div class="folder-icon">${b.id ? '📁' : '🗂️'}</div>
+        <div class="folder-name">${escapeHtml(b.nom)}</div>
         <div class="folder-count">${nb} chapitre${nb>1?'s':''}</div>
       </div>`;
     }).join('')}</div>`;
   }
 
-  // Vue 2 : le contenu d'un dossier (chapitres d'une matière)
-  function openFolder(matEncoded) {
-    const mat = decodeURIComponent(matEncoded);
-    currentFolder = mat;
+  // Vue 2 : le contenu d'un dossier (chapitres = titre regroupant fiche + quiz)
+  function openFolder(key) {
+    currentFolder = key;
     const el = document.getElementById('cours-content');
+    const wantId = (key === '_none') ? null : parseInt(String(key).slice(1), 10);
+    const inBucket = it => ((it.dossier_id || null) === (wantId || null));
+    const nom = wantId ? (((window._dossiers || []).find(d => d.id === wantId) || {}).nom || 'Dossier') : 'Sans dossier';
 
-    // Regrouper par titre de chapitre : { titre: {fiche, quiz} }
     const chapters = {};
-    coursData.fiches.filter(f => f.matiere === mat).forEach(f => {
-      const t = f.titre || 'Sans titre';
-      (chapters[t] = chapters[t] || {}).fiche = f;
-    });
-    coursData.quizzes.filter(q => q.matiere === mat).forEach(q => {
-      const t = q.titre || 'Quiz';
-      (chapters[t] = chapters[t] || {}).quiz = q;
-    });
+    coursData.fiches.filter(inBucket).forEach(f => { const t = f.titre || 'Sans titre'; (chapters[t] = chapters[t] || {}).fiche = f; });
+    coursData.quizzes.filter(inBucket).forEach(q => { const t = q.titre || 'Quiz'; (chapters[t] = chapters[t] || {}).quiz = q; });
+    const titres = Object.keys(chapters).sort((a, b) => a.localeCompare(b, 'fr'));
 
-    const titres = Object.keys(chapters).sort((a,b)=>a.localeCompare(b,'fr'));
+    const folderActions = wantId
+      ? `<button class="hist-btn" onclick="renameDossier(${wantId})">✏️ Renommer</button> <button class="hist-btn" onclick="deleteDossier(${wantId})">🗑️ Supprimer</button>`
+      : '';
 
     el.innerHTML = `
       <button class="cours-back" onclick="renderCoursFolders()">← Tous les dossiers</button>
-      <div class="cours-folder-title">📁 ${escapeHtml(mat)}</div>
-      ${titres.map(t => {
+      <div class="cours-folder-title">${wantId ? '📁' : '🗂️'} ${escapeHtml(nom)} <span style="float:right">${folderActions}</span></div>
+      ${titres.length ? titres.map(t => {
         const c = chapters[t];
         const f = c.fiche, q = c.quiz;
         const fid = f ? f.id : 0;
         const qid = q ? q.id : 0;
+        const mat = (f && f.matiere) || (q && q.matiere) || '';
         const quizInfo = q && q.attempts > 0 ? ` · ${q.score}/${q.total || 10}` : '';
         return `<div class="chapter-card">
           <div class="chapter-main">
             <div class="chapter-title">${escapeHtml(t)}</div>
             <div class="chapter-tags">
+              ${mat ? `<span class="chapter-tag">${escapeHtml(mat)}</span>` : ''}
               ${f ? '<span class="chapter-tag">📋 Fiche</span>' : ''}
               ${q ? `<span class="chapter-tag">🎯 Quiz${quizInfo}</span>` : ''}
             </div>
           </div>
           <div class="chapter-actions">
-            ${f ? `<button class="hist-btn" onclick="viewFiche(${fid})">📋 Fiche</button>` : ''}
-            ${q ? `<button class="hist-btn" onclick="openQuizFromLibrary(${qid})">🎯 Quiz</button>` : ''}
+            ${f ? `<button class="hist-btn" onclick="viewFiche(${fid})">📋</button>` : ''}
+            ${q ? `<button class="hist-btn" onclick="openQuizFromLibrary(${qid})">🎯</button>` : ''}
+            <select class="hist-btn" title="Déplacer vers un dossier" onchange="moveChapter(${fid}, ${qid}, this.value)">${dossierOptions(wantId)}</select>
             <button class="hist-btn" onclick="renameChapter(${fid}, ${qid}, '${encodeURIComponent(t)}')">✏️</button>
             <button class="hist-btn" onclick="deleteChapter(${fid}, ${qid})">🗑️</button>
           </div>
         </div>`;
-      }).join('')}
+      }).join('') : '<p style="color:var(--muted);padding:1rem 0">Ce dossier est vide.</p>'}
     `;
+  }
+
+  // Déplace un chapitre (sa fiche ET son quiz) vers un dossier
+  async function moveChapter(ficheId, quizId, val) {
+    let body;
+    if (val === '__new__') { const nom = prompt('Nom du nouveau dossier :'); if (!nom) { openFolder(currentFolder); return; } body = { nouveau_dossier: nom }; }
+    else body = { dossier_id: val || null };
+    try {
+      if (ficheId) await api('PUT', `/api/study/fiches/${ficheId}/dossier`, body);
+      if (quizId)  await api('PUT', `/api/study/quiz/${quizId}/dossier`, body);
+      showToast('Déplacé ✓', 'success');
+      await loadCours();
+    } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
   }
 
   // Supprime un chapitre entier (sa fiche ET son quiz)
@@ -3143,11 +3245,7 @@ async function subscribePlan(plan) {
       showToast('Chapitre supprimé', 'success');
       const folder = currentFolder;
       await loadCours();
-      // Rouvrir le dossier s'il contient encore des chapitres
-      if (folder) {
-        const reste = coursData.fiches.some(f=>f.matiere===folder) || coursData.quizzes.some(q=>q.matiere===folder);
-        if (reste) openFolder(encodeURIComponent(folder));
-      }
+      if (folder) openFolder(folder);
     } catch(e) {
       showToast('Erreur : ' + e.message, 'error');
     }
@@ -3165,7 +3263,7 @@ async function subscribePlan(plan) {
       showToast('Titre modifié', 'success');
       const folder = currentFolder;
       await loadCours();
-      if (folder) openFolder(encodeURIComponent(folder));
+      if (folder) openFolder(folder);
     } catch(e) {
       showToast('Erreur : ' + e.message, 'error');
     }
