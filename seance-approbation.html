@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<script src="config.js"></script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>LettrePro — Approbation d'une séance</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script src="theme-boot.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#FEF9F6;--surface:#FFFFFF;--card:#FFF4EE;--border:#FDDCC8;--orange:#E8692A;--text:#1C1107;--muted:#8B6E5A;--green:#22A06B;--red:#E5484D}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:2.2rem 2rem;max-width:460px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,.08);text-align:center}
+.logo{font-family:'Sora',sans-serif;font-weight:800;font-size:1.4rem;margin-bottom:1.2rem}
+.logo span{color:var(--orange)}
+.ic{font-size:2.8rem;margin-bottom:.5rem}
+h1{font-family:'Sora',sans-serif;font-weight:800;font-size:1.3rem;margin-bottom:.6rem}
+p{color:var(--muted);font-size:.95rem;line-height:1.55;margin-bottom:1.1rem}
+.info{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.9rem 1rem;font-size:.85rem;color:var(--muted);line-height:1.5;text-align:left;margin-bottom:1.2rem}
+.btn{width:100%;background:var(--orange);color:#fff;border:none;border-radius:10px;padding:.85rem;font-size:1rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
+.btn:hover{filter:brightness(1.08)}.btn:disabled{opacity:.6}
+.loader{display:inline-block;width:30px;height:30px;border:3px solid var(--border);border-top-color:var(--orange);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+a{color:var(--orange);font-weight:700;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="card" id="card">
+  <div class="logo">Lettre<span>Pro</span></div>
+  <div class="ic" id="loading"><span class="loader"></span></div>
+  <div id="content" style="display:none"></div>
+</div>
+<script>
+  const API_BASE=window.API_BASE;
+  const token=new URLSearchParams(location.search).get('token')||'';
+  const content=document.getElementById('content'), loading=document.getElementById('loading');
+  function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function show(html){ loading.style.display='none'; content.style.display='block'; content.innerHTML=html; }
+  async function load(){
+    if(!token) return show('<div class="ic">⚠️</div><h1>Lien invalide</h1><p>Ce lien d\'approbation est incomplet.</p>');
+    try{ const r=await fetch(API_BASE+'/api/seance/consentement?token='+encodeURIComponent(token)); const d=await r.json();
+      if(!r.ok) return show('<div class="ic">⚠️</div><h1>Lien indisponible</h1><p>'+esc(d.error||'Lien invalide.')+'</p>');
+      if(d.deja_approuve) return show('<div class="ic">✅</div><h1>Déjà approuvée</h1><p>Cette séance est déjà approuvée. '+esc(d.eleve||'')+' peut y participer.</p>');
+      show('<div class="ic">👪</div><h1>Approuver une séance</h1>'
+        +'<p><b>'+esc(d.eleve||'Votre enfant')+'</b> souhaite participer à une séance de soutien ('+esc(d.seance_type||'')+').</p>'
+        +'<div class="info">🛡️ Séance <b>en groupe</b> (min. 3 élèves), avec un <b>prof vérifié</b> (casier judiciaire). Vous recevrez le lien et pourrez y accéder à tout moment, et serez prévenu au début et à la fin.</div>'
+        +'<button class="btn" id="ok" onclick="approve()">Approuver la séance</button>');
+    }catch(e){ show('<div class="ic">⚠️</div><h1>Serveur injoignable</h1><p>Réessayez plus tard.</p>'); }
+  }
+  async function approve(){
+    const btn=document.getElementById('ok'); btn.disabled=true; btn.textContent='...';
+    try{ const r=await fetch(API_BASE+'/api/seance/consentement',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token})});
+      const d=await r.json();
+      if(!r.ok){ btn.disabled=false; btn.textContent='Approuver la séance'; return; }
+      show('<div class="ic">✅</div><h1>C\'est approuvé, merci !</h1><p>'+esc(d.message||'Votre enfant peut participer à la séance.')+'</p><p><a href="parent-dashboard.html">Aller à mon espace parent</a></p>');
+    }catch(e){ btn.disabled=false; btn.textContent='Approuver la séance'; }
+  }
+  load();
+</script>
+</body>
+</html>

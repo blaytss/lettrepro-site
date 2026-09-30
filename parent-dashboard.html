@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<script src="config.js"></script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>LettrePro — Espace parent</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script src="theme-boot.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#FEF9F6;--surface:#FFFFFF;--card:#FFF4EE;--border:#FDDCC8;--orange:#E8692A;--orange-glow:rgba(232,105,42,.15);--text:#1C1107;--muted:#8B6E5A;--green:#22A06B;--red:#E5484D;--gold:#C08A00}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:50;flex-wrap:wrap;gap:.6rem}
+.nav-logo{font-family:'Sora',sans-serif;font-weight:800;font-size:1.2rem;text-decoration:none;color:var(--text)}
+.nav-logo span{color:var(--orange)}
+.nav-tag{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;background:var(--orange-glow);border:1px solid var(--orange);color:var(--orange);padding:.2rem .6rem;border-radius:999px;margin-left:.5rem}
+.logout{color:var(--muted);text-decoration:none;font-size:.85rem}
+.wrap{max-width:900px;margin:0 auto;padding:2rem 1.3rem 4rem}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;flex-wrap:wrap;margin-bottom:1.4rem}
+h1{font-family:'Sora',sans-serif;font-weight:800;font-size:1.6rem}
+.sub{color:var(--muted);font-size:.9rem;margin-top:.2rem}
+select{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:.55rem .8rem;color:var(--text);font-family:inherit;font-size:.95rem;font-weight:600}
+.synth{background:linear-gradient(135deg,var(--orange),#C0501A);color:#fff;border-radius:16px;padding:1.4rem 1.6rem;margin-bottom:1.2rem;box-shadow:0 8px 30px rgba(232,105,42,.25)}
+.synth .big{font-family:'Sora';font-weight:800;font-size:1.35rem;line-height:1.25;margin-bottom:.3rem}
+.synth .meta{opacity:.92;font-size:.9rem}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.2rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.2rem 1.3rem;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.card h2{font-family:'Sora';font-weight:700;font-size:1rem;margin-bottom:.9rem}
+.stat{display:flex;gap:1.4rem;flex-wrap:wrap}
+.stat .s .v{font-family:'Sora';font-weight:800;font-size:1.7rem;color:var(--orange)}
+.stat .s .l{font-size:.78rem;color:var(--muted)}
+.bars{display:flex;align-items:flex-end;gap:.5rem;height:130px;margin-top:.4rem}
+.bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:.35rem;height:100%}
+.bar .col{width:100%;max-width:34px;background:var(--orange-glow);border:1px solid rgba(232,105,42,.35);border-radius:6px 6px 0 0;margin-top:auto;min-height:3px;transition:height .3s}
+.bar .col.on{background:var(--orange)}
+.bar .lbl{font-size:.6rem;color:var(--muted);white-space:nowrap}
+.bar .val{font-size:.6rem;font-weight:700;color:var(--muted)}
+.mat{display:flex;justify-content:space-between;align-items:center;padding:.55rem 0;border-top:1px solid var(--border);font-size:.9rem}
+.mat:first-child{border-top:none}
+.mat .sc{font-weight:800;font-family:'Sora'}
+.pill{font-size:.8rem;background:var(--card);border:1px solid var(--border);border-radius:999px;padding:.3rem .7rem;margin:.2rem .3rem .2rem 0;display:inline-block}
+.pill.weak{background:rgba(192,138,0,.12);border-color:rgba(192,138,0,.4);color:var(--gold)}
+.btn{border:none;border-radius:10px;padding:.7rem 1.1rem;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit;background:var(--orange);color:#fff}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
+.actions{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.4rem}
+.note{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.9rem 1.1rem;font-size:.82rem;color:var(--muted);line-height:1.5;margin-top:1.2rem}
+.msg{padding:.7rem 1rem;border-radius:9px;font-size:.88rem;margin-bottom:1rem;display:none}
+.msg.ok{background:rgba(34,160,107,.12);border:1px solid rgba(34,160,107,.35);color:var(--green);display:block}
+.msg.err{background:rgba(229,72,77,.1);border:1px solid rgba(229,72,77,.3);color:var(--red);display:block}
+.loader{display:inline-block;width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--orange);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{text-align:center;color:var(--muted);padding:3rem 1rem}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(2px);z-index:200;display:none;align-items:center;justify-content:center;padding:1rem}
+.overlay.show{display:flex}
+.modal-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;max-width:420px;width:100%;padding:1.5rem;position:relative;box-shadow:0 12px 50px rgba(0,0,0,.3)}
+.mclose{position:absolute;top:.9rem;right:.9rem;background:var(--card);border:1px solid var(--border);color:var(--text);width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:1rem}
+@media(max-width:640px){.grid{grid-template-columns:1fr}nav{padding:.8rem 1.1rem}}
+</style>
+</head>
+<body>
+<nav>
+  <div><a href="parent-dashboard.html" class="nav-logo">Lettre<span>Pro</span></a><span class="nav-tag">Espace parent</span></div>
+  <a href="#" class="logout" onclick="logout()">Se déconnecter</a>
+</nav>
+<div class="wrap">
+  <div class="msg" id="msg"></div>
+  <div class="head">
+    <div>
+      <h1>Le suivi de votre enfant</h1>
+      <div class="sub" id="sub">Chargement…</div>
+    </div>
+    <select id="enfant-select" onchange="loadEnfant()" style="display:none"></select>
+  </div>
+  <div id="content"><p style="color:var(--muted)"><span class="loader"></span> Chargement…</p></div>
+</div>
+<script>
+  const API_BASE=window.API_BASE;
+  if(!localStorage.getItem('lp_token')){ location.href='login.html'; }
+  let enfants=[], current=null;
+  async function api(path){
+    const r=await fetch(API_BASE+path,{headers:{Authorization:'Bearer '+localStorage.getItem('lp_token')}});
+    if(r.status===401){ location.href='login.html'; throw new Error('401'); }
+    const d=await r.json(); if(!r.ok) throw new Error(d.error||('Erreur '+r.status)); return d;
+  }
+  async function post(path,body){
+    const r=await fetch(API_BASE+path,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+localStorage.getItem('lp_token')},body:JSON.stringify(body||{})});
+    const d=await r.json(); if(!r.ok) throw new Error(d.error||('Erreur '+r.status)); return d;
+  }
+  function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function flash(t,ok){const m=document.getElementById('msg');m.className='msg '+(ok?'ok':'err');m.textContent=t;setTimeout(()=>m.className='msg',4000);}
+  function logout(){localStorage.removeItem('lp_token');location.href='login.html';}
+  function hm(min){const h=Math.floor(min/60),m=min%60;return h?(h+'h'+String(m).padStart(2,'0')):(m+' min');}
+
+  async function init(){
+    let data;
+    try{ data=await api('/api/parent/enfants'); }catch(e){ document.getElementById('content').innerHTML='<div class="empty">Impossible de charger vos enfants.</div>'; return; }
+    enfants=data.enfants||[];
+    if(!enfants.length){ document.getElementById('sub').textContent='Aucun enfant relié pour le moment.';
+      document.getElementById('content').innerHTML='<div class="empty">👨‍👩‍👧 Aucun enfant n\'est encore relié à votre compte.<br>Votre enfant peut vous renvoyer une demande depuis son espace.</div>'; return; }
+    const sel=document.getElementById('enfant-select');
+    if(enfants.length>1){ sel.style.display=''; sel.innerHTML=enfants.map(e=>`<option value="${e.enfant_id}">${esc(e.prenom)} ${esc(e.nom)}</option>`).join(''); }
+    current=enfants[0].enfant_id;
+    loadEnfant();
+  }
+  async function loadEnfant(){
+    const sel=document.getElementById('enfant-select');
+    current=sel.value?parseInt(sel.value,10):enfants[0].enfant_id;
+    const enfant=enfants.find(e=>e.enfant_id===current)||enfants[0];
+    document.getElementById('sub').textContent='Vous suivez '+enfant.prenom+(enfant.niveau?(' · '+enfant.niveau):'');
+    document.getElementById('content').innerHTML='<p style="color:var(--muted)"><span class="loader"></span> Chargement…</p>';
+    try{
+      const [r,serie]=await Promise.all([api('/api/parent/rapport?enfant_id='+current), api('/api/parent/rapport/series?enfant_id='+current)]);
+      render(r, serie.series||[]);
+    }catch(e){ document.getElementById('content').innerHTML='<div class="empty">'+esc(e.message)+'</div>'; }
+  }
+  function render(r, serie){
+    const prog=r.progression_vs_semaine_precedente;
+    const tend = prog==null?'' : (String(prog).startsWith('-')?` <span style="opacity:.9">(${prog} pts)</span>`:` <span style="opacity:.9">(+${prog} pts)</span>`);
+    const maxT=Math.max(1,...serie.map(s=>s.temps_minutes));
+    const bars=serie.map(s=>{
+      const h=Math.round(s.temps_minutes/maxT*100);
+      const on=s.semaine===r.periode.split(' au ')[0];
+      const d=new Date(s.semaine); const lbl=isNaN(d)?s.semaine.slice(5):(d.getDate()+'/'+(d.getMonth()+1));
+      return `<div class="bar"><div class="val">${s.temps_minutes?hm(s.temps_minutes):''}</div><div class="col ${on?'on':''}" style="height:${h}%"></div><div class="lbl">${lbl}</div></div>`;
+    }).join('');
+    const mats=(r.matieres||[]).map(m=>`<div class="mat"><span>${esc(m.nom)} <span style="color:var(--muted);font-size:.8rem">· ${m.sessions} session(s)</span></span>${m.score_moyen!=null?`<span class="sc" style="color:${m.score_moyen>=70?'var(--green)':m.score_moyen>=50?'var(--gold)':'var(--red)'}">${m.score_moyen}%</span>`:'<span style="color:var(--muted);font-size:.8rem">—</span>'}</div>`).join('')||'<div style="color:var(--muted);font-size:.88rem">Pas encore de révision cette semaine.</div>';
+    const faibles=(r.points_faibles||[]).map(f=>`<span class="pill weak">${esc(f)}</span>`).join('')||'<span style="color:var(--muted);font-size:.88rem">Rien à signaler cette semaine 👏</span>';
+    const chaps=(r.chapitres_revises||[]).map(ch=>`<span class="pill">${esc(ch)}</span>`).join('')||'<span style="color:var(--muted);font-size:.88rem">—</span>';
+    document.getElementById('content').innerHTML=`
+      <div class="synth">
+        <div class="big">${esc(r.eleve)} a révisé ${hm(r.temps_revision_minutes)} cette semaine${tend}.</div>
+        <div class="meta">📚 ${r.sessions} session(s) · semaine du ${esc(r.periode)}</div>
+      </div>
+      <div class="card" style="margin-bottom:1.2rem">
+        <h2>⏱️ Temps de révision (8 dernières semaines)</h2>
+        <div class="bars">${bars}</div>
+      </div>
+      <div class="grid">
+        <div class="card"><h2>📊 Scores par matière</h2>${mats}</div>
+        <div class="card"><h2>🎯 À retravailler</h2>
+          <p style="color:var(--muted);font-size:.82rem;margin-bottom:.6rem">Les notions où ${esc(r.eleve)} bute encore.</p>${faibles}
+          <h2 style="margin-top:1.1rem">📖 Chapitres révisés</h2>${chaps}
+        </div>
+      </div>
+      ${roomsCard()}
+      <div class="actions">
+        <button class="btn" onclick="envoyer()">📧 Recevoir le rapport par email</button>
+        <button class="btn ghost" id="abo-btn" onclick="openAbo()">Gérer l'abonnement</button>
+      </div>
+      <div class="note">👁️ Vous voyez l'<b>activité et la progression</b> de ${esc(r.eleve)} : temps de révision, matières, scores, notions à retravailler. Vous ne voyez <b>jamais</b> le contenu de ses cours, ni ses réponses détaillées.</div>`;
+  }
+  function roomsCard(){
+    const e=enfants.find(x=>x.enfant_id===current)||{};
+    const on=!!e.rooms_parent_ok;
+    return `<div class="card" style="margin-top:1.2rem">
+      <h2>🧑‍🤝‍🧑 Salles de travail entre élèves</h2>
+      <p style="color:var(--muted);font-size:.86rem;margin:.3rem 0 .8rem">
+        Les salles permettent à ${esc(e.prenom||'votre enfant')} de travailler en visio avec d'autres élèves (caméra, micro, bloc-notes partagé).
+        Comme ${esc(e.prenom||'votre enfant')} est mineur, <b>votre autorisation est requise</b>. L'échange de coordonnées y est bloqué.</p>
+      <button class="btn ${on?'ghost':''}" id="roomsBtn" onclick="toggleRooms(${on?0:1})">
+        ${on?"✓ Autorisé — retirer l'autorisation":'Autoriser les salles de travail'}</button>
+      <span style="margin-left:.6rem;font-size:.85rem;color:${on?'var(--green)':'var(--muted)'}">${on?'Actuellement autorisé':'Actuellement non autorisé'}</span>
+    </div>`;
+  }
+  async function toggleRooms(v){
+    try{ await post('/api/parent/enfant/rooms-autorisation',{enfant_id:current,autoriser:!!v});
+      const e=enfants.find(x=>x.enfant_id===current); if(e)e.rooms_parent_ok=v?1:0;
+      flash(v?'Salles de travail autorisées ✓':'Autorisation retirée',true);
+      const btn=document.getElementById('roomsBtn'); if(btn){ // re-render juste la carte
+        document.querySelectorAll('.card').forEach(c=>{ if(c.querySelector('#roomsBtn')) c.outerHTML=roomsCard(); });
+      }
+    }catch(e){ flash(e.message); }
+  }
+  async function envoyer(){ try{ await post('/api/parent/rapport/envoyer',{enfant_id:current}); flash('Rapport envoyé sur votre email ✓',true); }catch(e){ flash(e.message); } }
+
+  function showModal(title, inner){
+    let o=document.getElementById('abo-modal');
+    if(!o){ o=document.createElement('div'); o.id='abo-modal'; o.className='overlay'; o.onclick=(e)=>{if(e.target===o)o.classList.remove('show');}; document.body.appendChild(o); }
+    o.innerHTML='<div class="modal-box"><button class="mclose" onclick="document.getElementById(\'abo-modal\').classList.remove(\'show\')">✕</button><h2 style="font-family:Sora,sans-serif;font-weight:800;margin-bottom:.8rem">'+title+'</h2><div id="abo-inner"></div></div>';
+    o.querySelector('#abo-inner').innerHTML=inner; o.classList.add('show');
+  }
+  async function openAbo(){
+    let s; try{ s=await api('/api/parent/abonnement'); }catch(e){ flash(e.message); return; }
+    let inner;
+    if(s.actif){
+      inner='<p style="color:var(--muted);font-size:.92rem;margin-bottom:1.1rem">Votre abonnement <b>'+esc(s.plan)+'</b> est <b style="color:var(--green)">actif</b>.<br>'+s.prix+' · '+s.enfants+'/'+s.max_enfants+' enfant(s) débloqué(s).</p>'+
+        '<button class="btn ghost" style="border-color:var(--red);color:var(--red);width:100%" onclick="annuler()">Résilier l\'abonnement</button>';
+    } else {
+      inner='<p style="font-size:.98rem;margin-bottom:.6rem"><b>'+s.prix+'</b> · '+s.essai_jours+' jours d\'essai gratuit · jusqu\'à '+s.max_enfants+' enfants.</p>'+
+        '<ul style="color:var(--muted);font-size:.88rem;margin:.4rem 0 1rem 1.1rem;line-height:1.7"><li>Révisions illimitées pour vos enfants</li><li>Le rapport hebdomadaire de progression</li><li>Résiliable en un clic</li></ul>'+
+        '<label style="display:flex;gap:.5rem;align-items:flex-start;font-size:.8rem;color:var(--muted);margin-bottom:1rem;cursor:pointer"><input type="checkbox" id="renonce" style="margin-top:.2rem"/><span>Je demande l\'accès immédiat et je reconnais renoncer à mon droit de rétractation de 14 jours pour le contenu numérique déjà utilisé.</span></label>'+
+        '<button class="btn" style="width:100%" onclick="souscrire()">S\'abonner — '+s.prix+'</button>';
+    }
+    showModal('Abonnement parent', inner);
+  }
+  async function souscrire(){
+    if(!document.getElementById('renonce').checked){ flash('Cochez la case de renonciation pour continuer.'); return; }
+    try{ const r=await post('/api/parent/abonnement/checkout',{renonciation:true});
+      if(r.url){ location.href=r.url; return; }
+      document.getElementById('abo-modal').classList.remove('show'); flash('Abonnement activé ✓ Vos enfants sont débloqués.',true); loadEnfant();
+    }catch(e){ flash(e.message); }
+  }
+  async function annuler(){
+    if(!confirm('Résilier votre abonnement ? Vos enfants repasseront en gratuit.')) return;
+    try{ await post('/api/parent/abonnement/annuler',{}); document.getElementById('abo-modal').classList.remove('show'); flash('Abonnement résilié.',true); }catch(e){ flash(e.message); }
+  }
+  (function(){ var p=new URLSearchParams(location.search).get('sub');
+    if(p==='success') flash('Merci ! Votre abonnement est actif ✓',true);
+    else if(p==='cancelled') flash('Paiement annulé.');
+    if(p) history.replaceState({},'', 'parent-dashboard.html'); })();
+  init();
+</script>
+<script src="legal-footer.js"></script>
+</body>
+</html>
