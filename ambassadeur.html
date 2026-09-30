@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<script src="config.js"></script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>LettrePro — Programme ambassadeurs</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script src="theme-boot.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#FEF9F6;--surface:#FFFFFF;--card:#FFF4EE;--border:#FDDCC8;--orange:#E8692A;--orange-glow:rgba(232,105,42,.15);--text:#1C1107;--muted:#8B6E5A;--green:#22A06B;--red:#E5484D;--gold:#C08A00}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;border-bottom:1px solid var(--border);background:var(--surface)}
+.nav-logo{font-family:'Sora',sans-serif;font-weight:800;font-size:1.2rem;text-decoration:none;color:var(--text)}
+.nav-logo span{color:var(--orange)}
+.nav-tag{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;background:var(--orange-glow);border:1px solid var(--orange);color:var(--orange);padding:.2rem .6rem;border-radius:999px;margin-left:.5rem}
+.back{color:var(--muted);text-decoration:none;font-size:.85rem}
+.wrap{max-width:720px;margin:0 auto;padding:2rem 1.3rem 4rem}
+h1{font-family:'Sora',sans-serif;font-weight:800;font-size:1.6rem;margin-bottom:.3rem}
+.sub{color:var(--muted);font-size:.95rem;margin-bottom:1.4rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.2rem 1.3rem;margin-bottom:1rem}
+.card h2{font-family:'Sora',sans-serif;font-weight:700;font-size:1.05rem;margin-bottom:.8rem}
+label{display:block;font-size:.78rem;font-weight:600;color:var(--muted);margin:.5rem 0 .3rem}
+input,textarea{width:100%;background:var(--card);border:1px solid var(--border);border-radius:9px;padding:.6rem .8rem;color:var(--text);font-family:inherit;font-size:.92rem;margin-bottom:.5rem}
+textarea{min-height:80px;resize:vertical}
+.btn{background:var(--orange);color:#fff;border:none;border-radius:10px;padding:.65rem 1.1rem;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit}
+.btn:hover{filter:brightness(1.08)}.btn.small{padding:.45rem .85rem;font-size:.82rem}.btn.ghost{background:transparent;border:1px solid var(--border);color:var(--text)}.btn:disabled{opacity:.55;cursor:default}
+.check{display:flex;gap:.55rem;align-items:flex-start;margin:.7rem 0;font-size:.85rem;color:var(--text)}
+.check input{width:auto;margin:.15rem 0 0}
+.msg{padding:.7rem 1rem;border-radius:9px;font-size:.88rem;margin-bottom:1rem;display:none}
+.msg.ok{background:rgba(34,160,107,.12);border:1px solid rgba(34,160,107,.35);color:var(--green);display:block}
+.msg.err{background:rgba(229,72,77,.1);border:1px solid rgba(229,72,77,.3);color:var(--red);display:block}
+.codebox{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.code{font-family:'Sora',monospace;font-weight:800;font-size:1.4rem;letter-spacing:.12em;background:var(--card);border:1px dashed var(--orange);border-radius:10px;padding:.5rem 1rem;color:var(--orange)}
+.linkrow{display:flex;gap:.5rem;margin-top:.7rem}
+.linkrow input{margin:0;font-size:.82rem}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin:.4rem 0}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:.7rem .5rem;text-align:center}
+.stat b{display:block;font-family:'Sora',sans-serif;font-size:1.35rem;color:var(--orange)}
+.stat span{font-size:.7rem;color:var(--muted)}
+.rank{list-style:none}.rank li{display:flex;justify-content:space-between;padding:.45rem .2rem;border-bottom:1px solid var(--border);font-size:.9rem}
+.rank li.me{color:var(--orange);font-weight:700}
+.share{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.75rem .9rem;margin-bottom:.6rem;font-size:.86rem;position:relative}
+.share .t{font-weight:700;font-size:.72rem;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem}
+.note{font-size:.8rem;color:var(--muted);background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.7rem .9rem;margin-top:.5rem}
+.pill{font-size:.66rem;font-weight:700;padding:.15rem .55rem;border-radius:999px;background:var(--orange-glow);color:var(--orange)}
+@media(max-width:560px){.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<nav><a href="dashboard.html" class="nav-logo">Lettre<span>Pro</span></a><span class="nav-tag">Ambassadeurs</span><a href="dashboard.html" class="back">← Retour</a></nav>
+<div class="wrap">
+  <h1>👑 Deviens ambassadeur LettrePro</h1>
+  <p class="sub">Partage l'appli à tes potes, aide-les à réussir, et grimpe dans le classement. <b>Pas d'argent</b> — des récompenses (goodies, accès premium offert, mise en avant).</p>
+  <div class="msg" id="msg"></div>
+  <div id="root"><p style="color:var(--muted)">Chargement…</p></div>
+</div>
+<script>
+const API_BASE=window.API_BASE;
+if(!localStorage.getItem('lp_token')) location.href='login.html';
+const $=s=>document.querySelector(s), root=document.getElementById('root'), msg=document.getElementById('msg');
+function flash(t,ok){msg.textContent=t;msg.className='msg '+(ok?'ok':'err');setTimeout(()=>msg.className='msg',4000);}
+async function api(m,p,b){const r=await fetch(API_BASE+p,{method:m,headers:{'Content-Type':'application/json',Authorization:'Bearer '+localStorage.getItem('lp_token')},body:b?JSON.stringify(b):undefined});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||('Erreur '+r.status));return d;}
+const esc=s=>(s||'').replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
+
+async function load(){
+  let moi;
+  try{ moi=await api('GET','/api/ambassadeur/moi'); }catch(e){ moi={ambassadeur:false}; }
+  if(moi.code){ return renderActif(moi); }
+  if(moi.ambassadeur && moi.statut==='candidat'){ return renderEnAttente(); }
+  return renderCandidature();
+}
+
+function renderCandidature(){
+  root.innerHTML=`
+  <div class="card">
+    <h2>Candidater</h2>
+    <label>Pourquoi tu veux être ambassadeur ?</label>
+    <textarea id="motiv" placeholder="J'adore aider mes potes à réviser…"></textarea>
+    <label>Ton lycée</label>
+    <input id="lycee" placeholder="Lycée du Golfe de Saint-Tropez"/>
+    <label>Tes réseaux (facultatif, pour te mettre en avant)</label>
+    <input id="reseaux" placeholder="@ton_insta / TikTok"/>
+    <div class="check"><input type="checkbox" id="charte"/><label for="charte" style="margin:0;color:var(--text);font-weight:500">J'accepte la <a href="#" id="voircharte" style="color:var(--orange)">charte ambassadeur</a> : je reste honnête, je précise que c'est un <b>partenariat</b>, je ne spamme pas, aucune donnée d'autres élèves collectée.</label></div>
+    <div class="note" id="charteText" style="display:none">
+      <b>Charte ambassadeur LettrePro</b><br>
+      • Je partage LettrePro de façon honnête, sans promesse mensongère.<br>
+      • Je mentionne toujours qu'il s'agit d'un <b>partenariat</b> (transparence).<br>
+      • Je ne harcèle personne et je ne spamme pas.<br>
+      • Je ne collecte ni ne revends aucune donnée d'autres élèves.<br>
+      • Les récompenses sont <b>non monétaires</b> (goodies, premium offert, mise en avant). Aucune commission en argent.<br>
+      • Si j'ai moins de 18 ans, un parent doit autoriser ma participation.
+    </div>
+    <button class="btn" id="send" style="margin-top:.6rem">Envoyer ma candidature</button>
+  </div>`;
+  $('#voircharte').onclick=e=>{e.preventDefault();const t=$('#charteText');t.style.display=t.style.display==='none'?'block':'none';};
+  $('#send').onclick=async()=>{
+    if(!$('#charte').checked)return flash('Tu dois accepter la charte.',false);
+    $('#send').disabled=true;
+    try{ const r=await api('POST','/api/ambassadeur/candidature',{motivation:$('#motiv').value,lycee:$('#lycee').value,reseaux:$('#reseaux').value,charte:true});
+      flash(r.message||'Candidature envoyée !',true); setTimeout(load,900);
+    }catch(e){ flash(e.message,false); $('#send').disabled=false; }
+  };
+}
+
+function renderEnAttente(){
+  root.innerHTML=`<div class="card"><h2>⏳ Candidature en cours</h2>
+    <p style="color:var(--muted);font-size:.92rem">Merci ! Ta candidature est en cours de validation. Si tu as moins de 18 ans, un parent doit d'abord autoriser ta participation par email. Tu recevras ton code dès validation.</p></div>`;
+}
+
+async function renderActif(moi){
+  root.innerHTML=`
+  <div class="card">
+    <h2>Ton code de parrainage <span class="pill">actif</span></h2>
+    <div class="codebox"><span class="code" id="code">${esc(moi.code)}</span>
+      <button class="btn small" id="copycode">Copier le code</button></div>
+    <div class="linkrow"><input id="lien" readonly value="${esc(moi.lien)}"/><button class="btn small" id="copylien">Copier le lien</button></div>
+    <p style="color:var(--muted);font-size:.78rem;margin-top:.5rem">Quand un pote s'inscrit avec ton lien (ou ton code), il devient ton filleul.</p>
+  </div>
+  <div class="card"><h2>Tes filleuls</h2>
+    <div class="stats" id="stats"><p style="color:var(--muted)">…</p></div>
+    <p class="note">Seuls les filleuls <b>actifs</b> (au moins une fiche générée) comptent pour les récompenses. Plafond : 50 par mois.</p>
+  </div>
+  <div class="card"><h2>🏆 Classement</h2><ul class="rank" id="rank"><li>…</li></ul></div>
+  <div class="card"><h2>📣 Kit de partage</h2>
+    ${shareBlock('Story Insta / Snap','Je révise avec LettrePro (fiches + quiz générés par IA), franchement ça m\'a sauvé. Teste avec mon lien 👉 '+moi.lien+' (partenariat)')}
+    ${shareBlock('Message groupe classe','Les gars pour réviser le bac / les contrôles y a LettrePro, ça fait des fiches et des quiz automatiquement. Mon lien : '+moi.lien+' (c\'est un partenariat)')}
+    ${shareBlock('Bio / lien TikTok','📚 LettrePro — fiches & quiz IA · code '+moi.code+' · '+moi.lien+' #partenariat')}
+    <p class="note">Pense à préciser « partenariat » : c'est la règle (transparence) et ça évite les ennuis.</p>
+  </div>`;
+  copyBtn('#copycode',moi.code); copyBtn('#copylien',moi.lien);
+  document.querySelectorAll('[data-copy]').forEach(b=>b.onclick=()=>doCopy(b.getAttribute('data-copy'),b));
+  try{
+    const s=await api('GET','/api/ambassadeur/stats');
+    $('#stats').innerHTML=[['inscrits','Inscrits'],['actifs','Actifs'],['abonnes','Abonnés'],['comptabilises_ce_mois','Ce mois']]
+      .map(([k,l])=>`<div class="stat"><b>${s[k]??0}</b><span>${l}</span></div>`).join('');
+    $('#rank').innerHTML=(s.classement||[]).map((r,i)=>`<li class="${r.moi?'me':''}"><span>${i+1}. ${esc(r.nom)}${r.moi?' (toi)':''}</span><span>${r.actifs} actif${r.actifs>1?'s':''}</span></li>`).join('')||'<li style="color:var(--muted)">Personne encore — sois le premier !</li>';
+  }catch(e){ $('#stats').innerHTML='<p style="color:var(--muted)">Stats indisponibles.</p>'; }
+}
+
+function shareBlock(title,text){
+  return `<div class="share"><div class="t">${esc(title)}</div>${esc(text)}<div style="margin-top:.5rem"><button class="btn small ghost" data-copy="${text.replace(/"/g,'&quot;')}">Copier</button></div></div>`;
+}
+function copyBtn(sel,val){const b=$(sel);if(b)b.onclick=()=>doCopy(val,b);}
+async function doCopy(val,btn){
+  try{ await navigator.clipboard.writeText(val); }
+  catch(e){ const t=document.createElement('textarea');t.value=val;t.style.position='fixed';t.style.opacity='0';document.body.appendChild(t);t.select();try{document.execCommand('copy');}catch(_){}document.body.removeChild(t); }
+  const old=btn.textContent; btn.textContent='✓ Copié'; setTimeout(()=>btn.textContent=old,1500);
+}
+load();
+</script>
+</body>
+</html>

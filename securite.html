@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<script src="config.js"></script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>LettrePro — Sécurité et protection des mineurs</title>
+<meta name="description" content="Profs vérifiés (casier judiciaire), séances en groupe, parents informés, signalement en un clic."/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="legal-doc.css"/>
+<style>
+.hero{background:linear-gradient(135deg,var(--orange),#C0501A);color:#fff;padding:2.6rem 1.3rem;text-align:center}
+.hero h1{font-family:'Sora',sans-serif;font-weight:800;font-size:2rem;margin-bottom:.5rem;color:#fff}
+.hero p{color:#fff;opacity:.95;max-width:520px;margin:0 auto;font-size:1.02rem}
+.pillars{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.6rem 0}
+.pillar{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.2rem}
+.pillar .ic{font-size:1.7rem;margin-bottom:.4rem}
+.pillar h3{font-family:'Sora',sans-serif;font-weight:700;font-size:1.02rem;margin-bottom:.3rem}
+.pillar p{color:var(--muted);font-size:.9rem;margin:0}
+.report{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.3rem;text-align:center;margin-top:1.4rem}
+.report a{display:inline-block;margin-top:.7rem;background:var(--orange);color:#fff;text-decoration:none;padding:.7rem 1.4rem;border-radius:10px;font-weight:700}
+@media(max-width:560px){.pillars{grid-template-columns:1fr}.hero h1{font-size:1.6rem}}
+</style>
+</head>
+<body>
+<div class="topbar"><div class="in"><a href="index.html" class="logo">Lettre<span>Pro</span></a><a href="dashboard.html" class="home">← Retour à l'appli</a></div></div>
+<div class="hero">
+  <h1>🛡️ La sécurité de ton enfant, d'abord.</h1>
+  <p>Les visios de soutien sont conçues pour protéger les élèves. Voici, en clair, ce qu'on met en place.</p>
+</div>
+<div class="wrap">
+  <div class="pillars">
+    <div class="pillar"><div class="ic">🪪</div><h3>Des profs vérifiés</h3><p>Identité contrôlée et <b>casier judiciaire (bulletin n°3)</b> exigé et revérifié chaque année. Aucun prof ne peut publier une séance sans ça.</p></div>
+    <div class="pillar"><div class="ic">👥</div><h3>Séances en groupe</h3><p>Les visios se font <b>à partir de 3 élèves</b>, jamais en tête-à-tête. Caméra du prof allumée en permanence.</p></div>
+    <div class="pillar"><div class="ic">👪</div><h3>Parents informés</h3><p>Pour les moins de 18 ans, chaque séance est <b>approuvée par un parent</b>, qui reçoit le lien et est prévenu au début et à la fin.</p></div>
+    <div class="pillar"><div class="ic">🚫</div><h3>Aucun contact privé</h3><p>On <b>bloque tout échange de coordonnées</b> (téléphone, réseaux, adresse). Un prof qui contacte un élève en dehors est banni définitivement.</p></div>
+    <div class="pillar"><div class="ic">🎥</div><h3>Réponses vidéo modérées</h3><p>En mode asynchrone, l'élève pose une question, le prof répond en vidéo (5 min max), <b>contrôlée avant d'être délivrée</b>.</p></div>
+    <div class="pillar"><div class="ic">🕗</div><h3>Horaires encadrés</h3><p>Les séances ont lieu <b>uniquement entre 8h et 21h</b>. Qui rejoint quoi et quand est journalisé.</p></div>
+  </div>
+
+  <div class="report">
+    <h2 style="margin-top:0">Un doute, un problème ? Signale-le.</h2>
+    <p style="color:var(--muted)">Un bouton « Signaler » est présent sur chaque séance, chaque vidéo et chaque profil. On s'engage à traiter chaque signalement <b>sous 24 h</b>, et le prof concerné est suspendu immédiatement en cas de motif grave.</p>
+    <a href="signalement.html">Signaler un problème</a>
+  </div>
+
+  <h2>Notre engagement</h2>
+  <p>La protection des mineurs passe avant tout le reste. Le tête-à-tête en direct entre un adulte et un mineur est <b>désactivé</b>. En cas de danger pour un enfant, nous signalons aux autorités (119 — Allô Enfance en Danger).</p>
+  <p style="color:var(--muted);font-size:.86rem">Contact protection de l'enfance : <span class="ph">[à publier — email d'un référent joignable]</span>.</p>
+
+  <a class="back" href="index.html">← Retour</a>
+</div>
+</body>
+</html>

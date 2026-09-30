@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<script src="config.js"></script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>LettrePro — Planning (prof)</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script src="theme-boot.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#FEF9F6;--surface:#FFFFFF;--card:#FFF4EE;--border:#FDDCC8;--orange:#E8692A;--orange-light:#F5A462;--orange-glow:rgba(232,105,42,.15);--text:#1C1107;--muted:#8B6E5A;--green:#22A06B;--red:#E5484D;--gold:#C08A00;--blue:#3B82F6}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:100;flex-wrap:wrap;gap:.75rem}
+.nav-logo{font-family:'Sora',sans-serif;font-weight:800;font-size:1.2rem;color:var(--text);text-decoration:none}
+.nav-logo span{color:var(--orange)}
+.nav-tag{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;background:var(--orange-glow);border:1px solid var(--orange);color:var(--orange);padding:.2rem .6rem;border-radius:999px;margin-left:.5rem}
+.back-link{color:var(--muted);text-decoration:none;font-size:.82rem}
+.back-link:hover{color:var(--orange)}
+.wrap{max-width:1000px;margin:0 auto;padding:2rem}
+.page-header{margin-bottom:1.1rem}
+.page-header h1{font-family:'Sora',sans-serif;font-weight:800;font-size:1.6rem;margin-bottom:.25rem}
+.page-header p{color:var(--muted);font-size:.9rem;line-height:1.5;max-width:680px}
+.msg{padding:.9rem 1.1rem;border-radius:10px;font-size:.9rem;margin-bottom:1rem;display:none}
+.msg.error{background:rgba(229,72,77,.1);border:1px solid rgba(229,72,77,.3);color:var(--red);display:block}
+.msg.ok{background:rgba(34,160,107,.12);border:1px solid rgba(34,160,107,.35);color:var(--green);display:block}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.1rem 1.2rem;margin-bottom:1.1rem;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.card h2{font-family:'Sora';font-weight:700;font-size:1.02rem;margin-bottom:.8rem}
+label{display:block;font-size:.78rem;font-weight:600;color:var(--muted);margin:0 0 .35rem}
+input,select{width:100%;background:var(--card);border:1px solid var(--border);border-radius:9px;padding:.6rem .8rem;color:var(--text);font-family:'Inter',sans-serif;font-size:.9rem;margin-bottom:.9rem}
+input:focus,select:focus{outline:none;border-color:var(--orange)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem}
+.btn{border:none;border-radius:10px;padding:.65rem 1.25rem;font-size:.9rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;background:var(--orange);color:#fff;transition:filter .15s}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;border:1px solid var(--border);color:var(--muted)}
+.btn.small{padding:.4rem .85rem;font-size:.8rem}
+.btn.green{background:rgba(34,160,107,.16);border:1px solid rgba(34,160,107,.45);color:var(--green)}
+.btn.danger{background:rgba(229,72,77,.14);border:1px solid rgba(229,72,77,.4);color:var(--red)}
+.pricehint{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.7rem .9rem;font-size:.85rem;margin-bottom:.9rem}
+.pricehint b{color:var(--orange)}
+.ben-box{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:.7rem .85rem}
+.ben-box.benefit{border-color:rgba(34,160,107,.45);background:rgba(34,160,107,.08)}
+.ben-lbl{font-size:.72rem;font-weight:700;color:var(--muted);margin-bottom:.3rem}
+.ben-val{font-family:'Sora',sans-serif;font-weight:800;font-size:1.3rem;line-height:1}
+.ben-box.benefit .ben-val{color:var(--green)}
+.ben-val.neg{color:var(--red)!important}
+.dcard{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.75rem .9rem;margin-bottom:.6rem;display:flex;justify-content:space-between;gap:.8rem;align-items:center;flex-wrap:wrap}
+.dcard .dh{font-family:'Sora';font-weight:700;font-size:.9rem}
+.dcard .dm{color:var(--muted);font-size:.78rem;margin-top:.15rem}
+.dstatut{font-size:.63rem;font-weight:700;padding:.2rem .55rem;border-radius:999px;text-transform:uppercase;white-space:nowrap}
+.st-att{background:rgba(192,138,0,.14);border:1px solid rgba(192,138,0,.4);color:var(--gold)}
+.st-ok{background:rgba(34,160,107,.14);border:1px solid rgba(34,160,107,.4);color:var(--green)}
+.st-no{background:rgba(229,72,77,.12);border:1px solid rgba(229,72,77,.4);color:var(--red)}
+.chat{max-height:190px;overflow-y:auto;display:flex;flex-direction:column;gap:.4rem;margin:.7rem 0 .3rem;padding:.5rem;background:var(--bg);border-radius:10px;border:1px solid var(--border)}
+.bubble{max-width:82%;padding:.4rem .7rem;border-radius:12px;font-size:.85rem;line-height:1.35}
+.bubble.me{align-self:flex-end;background:var(--orange);color:#fff}
+.bubble.them{align-self:flex-start;background:var(--card);border:1px solid var(--border)}
+.tpl-list{border:1px solid var(--border);border-radius:10px;margin-top:.3rem;max-height:170px;overflow-y:auto;background:var(--surface)}
+.tpl-item{padding:.5rem .7rem;font-size:.85rem;cursor:pointer;border-bottom:1px solid var(--border)}
+.tpl-item:hover{background:var(--orange-glow);color:var(--orange)}
+.tpl-item:last-child{border-bottom:none}
+.tpl-hint{font-size:.72rem;color:var(--muted);margin-top:.3rem}
+.mode-tabs{display:flex;gap:.5rem;margin-bottom:.9rem}
+.mode-tab{flex:1;text-align:center;padding:.55rem .4rem;border:1px solid var(--border);background:var(--card);color:var(--muted);border-radius:10px;font-weight:700;font-size:.82rem;cursor:pointer;font-family:'Inter',sans-serif;line-height:1.3}
+.mode-tab.active{border-color:var(--orange);background:var(--orange-glow);color:var(--orange)}
+.mode-tab small{display:block;font-weight:500;font-size:.68rem;opacity:.8}
+
+/* ── Calendrier façon Apple ── */
+.cal-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.1rem 1.2rem 1.3rem;box-shadow:0 1px 3px rgba(0,0,0,.05);margin-bottom:1.1rem}
+.cal-top{display:flex;align-items:center;justify-content:space-between;gap:.8rem;margin-bottom:1rem;flex-wrap:wrap}
+.cal-title{font-family:'Sora',sans-serif;font-weight:800;font-size:1.25rem;text-transform:capitalize}
+.cal-nav{display:flex;align-items:center;gap:.4rem}
+.cal-arrow{width:34px;height:34px;border-radius:9px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.cal-arrow:hover{border-color:var(--orange);color:var(--orange)}
+.cal-today{border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:9px;padding:.45rem .8rem;font-size:.82rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
+.cal-today:hover{border-color:var(--orange);color:var(--orange)}
+.cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px}
+.cal-weekdays div{text-align:center;font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:.2rem 0}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal-cell{min-height:96px;background:var(--card);border:1px solid transparent;border-radius:11px;padding:.4rem .45rem;cursor:pointer;display:flex;flex-direction:column;gap:3px;transition:border-color .15s,transform .1s;overflow:hidden}
+.cal-cell:hover{border-color:var(--orange)}
+.cal-cell:active{transform:scale(.98)}
+.cal-cell.other{opacity:.38}
+.cal-cell.past{opacity:.62}
+.cal-dnum{font-size:.85rem;font-weight:700;color:var(--text);width:25px;height:25px;display:flex;align-items:center;justify-content:center;border-radius:50%;flex:none}
+.cal-cell.is-today .cal-dnum{background:var(--orange);color:#fff}
+.cal-chip{font-size:.63rem;font-weight:700;line-height:1.25;padding:.12rem .35rem;border-radius:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal-chip.en_vente{background:var(--orange-glow);color:var(--orange)}
+.cal-chip.complet{background:rgba(34,160,107,.18);color:var(--green)}
+.cal-chip.attente_paiement{background:rgba(192,138,0,.18);color:var(--gold)}
+.cal-chip.annule{background:rgba(229,72,77,.14);color:var(--red)}
+.cal-more{font-size:.6rem;font-weight:700;color:var(--muted)}
+.cal-legend{display:flex;gap:1rem;flex-wrap:wrap;margin-top:.9rem;font-size:.75rem;color:var(--muted)}
+.cal-legend span{display:inline-flex;align-items:center;gap:.35rem}
+.lg-dot{width:9px;height:9px;border-radius:3px;display:inline-block}
+
+/* ── Modal jour ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(2px);z-index:200;display:none;align-items:flex-end;justify-content:center}
+.overlay.show{display:flex}
+.sheet{background:var(--surface);border:1px solid var(--border);border-radius:18px 18px 0 0;width:100%;max-width:560px;max-height:92vh;overflow-y:auto;padding:1.3rem 1.4rem calc(1.6rem + env(safe-area-inset-bottom));box-shadow:0 -8px 40px rgba(0,0,0,.3);animation:slideUp .22s ease}
+@keyframes slideUp{from{transform:translateY(30px);opacity:.5}to{transform:translateY(0);opacity:1}}
+@media(min-width:640px){.overlay{align-items:center}.sheet{border-radius:18px}}
+.sheet-head{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1rem}
+.sheet-head h2{font-family:'Sora',sans-serif;font-weight:800;font-size:1.2rem;text-transform:capitalize}
+.sheet-close{background:var(--card);border:1px solid var(--border);color:var(--text);width:32px;height:32px;border-radius:8px;font-size:1.1rem;cursor:pointer;flex:none}
+.day-offre{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:.75rem .85rem;margin-bottom:.6rem}
+.day-offre .dt{font-family:'Sora';font-weight:700;font-size:.92rem}
+.day-offre .meta{color:var(--muted);font-size:.78rem;margin-top:.15rem}
+.pill{font-size:.66rem;font-weight:700;padding:.2rem .55rem;border-radius:999px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+.pill.en_vente{background:var(--orange-glow);border:1px solid var(--orange);color:var(--orange)}
+.pill.complet{background:rgba(34,160,107,.14);border:1px solid rgba(34,160,107,.4);color:var(--green)}
+.pill.attente_paiement{background:rgba(192,138,0,.14);border:1px solid rgba(192,138,0,.4);color:var(--gold)}
+.pill.annule{background:rgba(229,72,77,.12);border:1px solid rgba(229,72,77,.4);color:var(--red)}
+.res-row{display:flex;justify-content:space-between;align-items:center;gap:.6rem;font-size:.8rem;padding:.3rem 0;border-top:1px solid var(--border);margin-top:.4rem}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:.4rem}
+.add-toggle{width:100%;text-align:left;background:var(--card);border:1px dashed var(--border);color:var(--orange);border-radius:11px;padding:.7rem .85rem;font-weight:700;font-size:.88rem;cursor:pointer;font-family:'Inter',sans-serif;margin-top:.4rem}
+.add-toggle:hover{border-color:var(--orange)}
+.add-form{margin-top:.8rem;padding-top:.9rem;border-top:1px solid var(--border);display:none}
+.add-form.show{display:block}
+.loader{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--orange);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:640px){.wrap{padding:1.1rem}nav{padding:.8rem 1.1rem}.grid2,.grid3{grid-template-columns:1fr}.cal-card{padding:.8rem .7rem 1rem}.cal-grid,.cal-weekdays{gap:4px}.cal-cell{min-height:66px;padding:.3rem .28rem;border-radius:9px}.cal-dnum{width:22px;height:22px;font-size:.78rem}.cal-chip{font-size:.55rem;padding:.1rem .25rem}}
+</style>
+<link rel="stylesheet" href="etab-ui.css"/>
+</head>
+<body>
+<nav>
+  <div><a href="prof-dashboard.html" class="nav-logo">Lettre<span>Pro</span></a><span class="nav-tag">Prof · Planning</span></div>
+  <div><a href="prof-dashboard.html" class="back-link">← Mon espace prof</a></div>
+</nav>
+<div class="wrap">
+  <div class="page-header">
+    <h1>🗓️ Planning des visios</h1>
+    <p>Ton calendrier de visios payantes. <b>Clique sur un jour</b> pour créer un créneau : les élèves le réservent et te paient <b>directement sur ton PayPal</b> — LettrePro ne touche pas à cet argent.</p>
+  </div>
+  <div class="msg" id="msg"></div>
+
+  <!-- PayPal -->
+  <div class="card">
+    <h2>💳 Ton PayPal (pour être payé)</h2>
+    <label>Email PayPal — c'est là que les élèves t'envoient l'argent</label>
+    <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+      <input type="email" id="paypal" placeholder="ton.paypal@email.com" style="flex:1;min-width:200px;margin-bottom:0"/>
+      <button class="btn" onclick="savePaypal()">Enregistrer</button>
+    </div>
+  </div>
+
+  <!-- Demandes reçues -->
+  <div class="card" id="demandes-card" style="display:none">
+    <h2>💬 Demandes de visio reçues <span id="dem-badge" style="font-size:.72rem;background:var(--orange);color:#fff;border-radius:999px;padding:.1rem .5rem;margin-left:.3rem"></span></h2>
+    <div id="demandes"></div>
+  </div>
+
+  <!-- Calendrier -->
+  <div class="cal-card">
+    <div class="cal-top">
+      <div class="cal-title" id="cal-title">…</div>
+      <div class="cal-nav">
+        <button class="cal-today" onclick="goToday()">Aujourd'hui</button>
+        <button class="cal-arrow" onclick="moveMonth(-1)" aria-label="Mois précédent">‹</button>
+        <button class="cal-arrow" onclick="moveMonth(1)" aria-label="Mois suivant">›</button>
+      </div>
+    </div>
+    <div class="cal-weekdays"><div>Lun</div><div>Mar</div><div>Mer</div><div>Jeu</div><div>Ven</div><div>Sam</div><div>Dim</div></div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <div class="cal-legend">
+      <span><i class="lg-dot" style="background:var(--orange)"></i> En vente</span>
+      <span><i class="lg-dot" style="background:var(--green)"></i> Complet</span>
+      <span><i class="lg-dot" style="background:var(--gold)"></i> Paiement du code en attente</span>
+      <span><i class="lg-dot" style="background:var(--red)"></i> Annulé</span>
+    </div>
+  </div>
+</div>
+
+<!-- Modal jour -->
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeDay()">
+  <div class="sheet">
+    <div class="sheet-head">
+      <h2 id="day-title">Jour</h2>
+      <button class="sheet-close" onclick="closeDay()">✕</button>
+    </div>
+    <div id="day-offres"></div>
+    <button class="add-toggle" id="add-toggle" onclick="toggleAdd()">＋ Ajouter une visio ce jour-là</button>
+    <div class="add-form" id="add-form">
+      <label>Heure</label>
+      <input type="time" id="o-time" value="17:00"/>
+      <label>Titre (optionnel)</label>
+      <input type="text" id="o-titre" placeholder="Soutien maths — chapitre dérivées"/>
+      <div class="mode-tabs">
+        <button type="button" class="mode-tab active" id="tab-unit" onclick="setMode('unitaire')">🎯 Unitaire<small>1 à 9 élèves</small></button>
+        <button type="button" class="mode-tab" id="tab-pack" onclick="setMode('pack')">📦 Pack<small>10 à 30 élèves</small></button>
+      </div>
+      <div class="grid2">
+        <div><label>Durée (min)</label><input type="number" id="o-duree" value="60" step="15" min="15" oninput="refreshCode()"/></div>
+        <div><label>Nombre d'élèves</label><input type="number" id="o-cap" value="1" min="1" max="9" oninput="refreshCode()"/></div>
+      </div>
+      <div id="unit-only">
+        <label>Prix de base par élève (€) — pour 1 élève <span id="o-base-range" style="color:var(--muted);font-weight:400;font-size:.72rem"></span></label>
+        <input type="number" id="o-prix-base" step="0.5" min="0" oninput="prixEdited=true;recompute()"/>
+      </div>
+      <div id="pack-only" style="display:none">
+        <div class="pricehint">📦 <b>Pack</b> — chaque élève paie <b>15 € (fixe)</b> par heure. Tu choisis juste le nombre d'élèves (10 à 30) ; plus le groupe est grand, plus tu gagnes.</div>
+      </div>
+      <div class="grid2" style="margin-bottom:.9rem">
+        <div class="ben-box">
+          <div class="ben-lbl">🎓 Prix réel / élève <span id="disc-note" style="font-weight:400;color:var(--orange)"></span></div>
+          <div class="ben-val" id="eff-val">—</div>
+        </div>
+        <div class="ben-box benefit">
+          <div class="ben-lbl">💰 Bénéfice total <span style="font-weight:400">si complet</span></div>
+          <div class="ben-val" id="ben-val">—</div>
+        </div>
+      </div>
+      <div class="pricehint" id="codehint">
+        💳 Code (payé à LettrePro) : <b id="ch-cost">15,00 €</b> &nbsp;·&nbsp; 📉 Tarif dégressif : <b>−3 €</b> par élève supplémentaire
+      </div>
+      <button class="btn" style="width:100%" onclick="createOffre()">Créer le créneau (payer le code)</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal : détail d'une demande reçue (négociation + canal) -->
+<div class="overlay" id="dem-detail" onclick="if(event.target===this)closeDem('dem-detail')">
+  <div class="sheet" style="max-width:470px;border-radius:18px;align-self:center">
+    <div class="sheet-head"><h2 id="ddet-title" style="text-transform:none">Demande</h2><button class="sheet-close" onclick="closeDem('dem-detail')">✕</button></div>
+    <div id="ddet-body"></div>
+    <div style="font-size:.78rem;font-weight:700;color:var(--muted);margin-top:.6rem">💬 Messagerie</div>
+    <div class="chat" id="ddet-chat"></div>
+    <input type="text" id="dtpl-input" placeholder="Écris pour chercher un message…" autocomplete="off" oninput="filterDTpl()" style="width:100%;background:var(--card);border:1px solid var(--border);border-radius:9px;padding:.55rem .7rem;color:var(--text);font-family:'Inter',sans-serif;font-size:.9rem"/>
+    <div class="tpl-list" id="dtpl-list" style="display:none"></div>
+    <div class="tpl-hint">🔒 Seuls les messages proposés peuvent être envoyés — clique sur une proposition.</div>
+  </div>
+</div>
+
+<!-- Modal : contre-proposition (prof) -->
+<div class="overlay" id="dem-contre" onclick="if(event.target===this)closeDem('dem-contre')">
+  <div class="sheet" style="max-width:420px;border-radius:18px;align-self:center">
+    <div class="sheet-head"><h2 style="text-transform:none">Contre-proposer</h2><button class="sheet-close" onclick="closeDem('dem-contre')">✕</button></div>
+    <label>Date &amp; heure</label><input type="datetime-local" id="dc-date"/>
+    <label>Durée (min)</label><input type="number" id="dc-duree" value="60" step="15" min="15" oninput="dcRange()"/>
+    <label>Prix par élève (€) <span id="dc-range" style="color:var(--muted);font-weight:400;font-size:.72rem"></span></label>
+    <input type="number" id="dc-prix" step="0.5"/>
+    <button class="btn" style="width:100%;margin-top:.8rem" onclick="submitContre()">Envoyer ma contre-proposition</button>
+  </div>
+</div>
+
+<script>
+  const API_BASE = window.API_BASE;
+  if (!localStorage.getItem('lp_token')) { window.location.href = 'login.html'; }
+  async function apiJSON(method, path, body) {
+    const token = localStorage.getItem('lp_token');
+    const res = await fetch(API_BASE + path, { method, headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, body: body ? JSON.stringify(body) : undefined });
+    if (res.status === 401) { window.location.href = 'login.html'; throw new Error('Session expirée'); }
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || ('Erreur ' + res.status));
+    return data;
+  }
+  function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+  function eur(c){return (c/100).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';}
+  function pad(n){return (n<10?'0':'')+n;}
+  function keyOf(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+  function dayKeyFromStr(s){ if(!s) return ''; const m=String(s).match(/^(\d{4})-(\d{2})-(\d{2})/); if(m) return m[1]+'-'+m[2]+'-'+m[3]; const d=new Date(String(s).replace(' ','T')); return isNaN(d)?'':keyOf(d); }
+  function hhmm(s){ const m=String(s||'').match(/[T ](\d{2}):(\d{2})/); return m?m[1]+':'+m[2]:''; }
+  function fmtDT(s){ if(!s) return ''; try{ return new Date(String(s).replace(' ','T')).toLocaleString('fr-FR',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}); }catch(e){ return s; } }
+  function flash(t, ok){ const m=document.getElementById('msg'); m.className='msg '+(ok?'ok':'error'); m.textContent=t; window.scrollTo({top:0,behavior:'smooth'}); setTimeout(()=>{m.className='msg';}, 4000); }
+
+  // ── État calendrier ──
+  const MONTHS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  let view = new Date(); view.setDate(1);
+  let byDay = {};          // 'YYYY-MM-DD' -> [offres]
+  let selectedKey = null;  // jour ouvert dans la modale
+
+  function moveMonth(delta){ view.setMonth(view.getMonth()+delta); renderCalendar(); }
+  function goToday(){ view = new Date(); view.setDate(1); renderCalendar(); }
+
+  function renderCalendar(){
+    document.getElementById('cal-title').textContent = MONTHS[view.getMonth()] + ' ' + view.getFullYear();
+    const grid = document.getElementById('cal-grid');
+    const y = view.getFullYear(), m = view.getMonth();
+    const first = new Date(y, m, 1);
+    let offset = (first.getDay() + 6) % 7;   // lundi = 0
+    const start = new Date(y, m, 1 - offset);
+    const todayKey = keyOf(new Date());
+    let html = '';
+    for (let i = 0; i < 42; i++){
+      const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+      const k = keyOf(d);
+      const other = d.getMonth() !== m;
+      const past = k < todayKey;
+      const items = byDay[k] || [];
+      let chips = items.slice(0,3).map(o =>
+        `<div class="cal-chip ${o.statut}">${hhmm(o.scheduled_at)} ${o.titre?esc(o.titre):(o.capacite+' él.')}</div>`
+      ).join('');
+      if (items.length > 3) chips += `<div class="cal-more">+${items.length-3} autre(s)</div>`;
+      html += `<div class="cal-cell${other?' other':''}${past?' past':''}${k===todayKey?' is-today':''}" onclick="openDay('${k}')">
+        <div class="cal-dnum">${d.getDate()}</div>${chips}</div>`;
+    }
+    grid.innerHTML = html;
+    if (selectedKey && document.getElementById('overlay').classList.contains('show')) renderDayModal();
+  }
+
+  // ── Modale jour ──
+  function openDay(k){ selectedKey = k; prixEdited = false; document.getElementById('add-form').classList.remove('show'); document.getElementById('add-toggle').style.display=''; renderDayModal(); setMode('unitaire'); document.getElementById('overlay').classList.add('show'); }
+  function closeDay(){ document.getElementById('overlay').classList.remove('show'); selectedKey=null; }
+  function toggleAdd(){ const f=document.getElementById('add-form'); f.classList.toggle('show'); if(f.classList.contains('show')){ document.getElementById('add-toggle').style.display='none'; f.scrollIntoView({behavior:'smooth',block:'nearest'});} }
+
+  function renderDayModal(){
+    const d = new Date(selectedKey + 'T00:00:00');
+    document.getElementById('day-title').textContent = d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    const items = (byDay[selectedKey] || []).slice().sort((a,b)=>String(a.scheduled_at).localeCompare(String(b.scheduled_at)));
+    const box = document.getElementById('day-offres');
+    if (!items.length){ box.innerHTML = '<p style="color:var(--muted);font-size:.85rem;margin-bottom:.4rem">Aucune visio ce jour-là. Ajoute ton premier créneau ci-dessous 👇</p>'; return; }
+    box.innerHTML = items.map(o => {
+      const res = (o.reservations||[]);
+      const paidRes = res.filter(r => r.statut === 'payee');
+      const resHtml = res.length ? res.map(r => {
+        const nom = ((r.prenom||'')+' '+(r.nom||'')).trim();
+        const paid = r.statut === 'payee';
+        return `<div class="res-row"><span><span class="dot" style="background:${paid?'var(--green)':'var(--gold)'}"></span>${esc(nom)||'Élève'}</span>
+          <span style="color:${paid?'var(--green)':'var(--gold)'}">${paid?'payé ✓':'en attente'}</span></div>`;
+      }).join('') : '<div style="color:var(--muted);font-size:.78rem;margin-top:.4rem">Aucune réservation pour l\'instant.</div>';
+      const canJoin = paidRes.length > 0;
+      const label = o.statut==='en_vente'?'En vente':o.statut==='complet'?'Complet':o.statut==='attente_paiement'?'💳 Code en attente':o.statut==='annule'?'Annulé':o.statut;
+      return `<div class="day-offre">
+        <div style="display:flex;justify-content:space-between;gap:.6rem;align-items:flex-start;flex-wrap:wrap">
+          <div><div class="dt">${hhmm(o.scheduled_at)} · ${o.titre?esc(o.titre):'Visio'}</div>
+            <div class="meta">${o.duration_min} min · ${eur(o.prix_eleve_cents)}/élève · <b style="color:var(--text)">${o.places_prises}</b>/${o.capacite} payé(s)</div></div>
+          <span class="pill ${o.statut}">${label}</span>
+        </div>
+        ${resHtml}
+        <div style="display:flex;gap:.5rem;margin-top:.6rem;flex-wrap:wrap">
+          ${canJoin ? `<button class="btn small green" onclick="join(${o.id})">🎥 Rejoindre</button>` : ''}
+          ${paidRes.length===0 ? `<button class="btn small danger" onclick="delOffre(${o.id})">Annuler</button>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Prix / code ──
+  let prixEdited = false;
+  let priceInfo = null;
+  let offreMode = 'unitaire';
+  function setMode(m){
+    offreMode = m;
+    document.getElementById('tab-unit').classList.toggle('active', m==='unitaire');
+    document.getElementById('tab-pack').classList.toggle('active', m==='pack');
+    document.getElementById('unit-only').style.display = m==='unitaire' ? '' : 'none';
+    document.getElementById('pack-only').style.display = m==='pack' ? '' : 'none';
+    const cap = document.getElementById('o-cap');
+    if (m==='pack'){ cap.min=10; cap.max=30; if((parseInt(cap.value||'0',10))<10) cap.value=10; }
+    else { cap.min=1; cap.max=9; if((parseInt(cap.value||'0',10))>9) cap.value=1; }
+    prixEdited = false;
+    refreshCode();
+  }
+  async function refreshCode(){
+    const cap = Math.max(1, parseInt(document.getElementById('o-cap').value||'1',10));
+    const dur = Math.max(1, parseInt(document.getElementById('o-duree').value||'60',10));
+    try {
+      const r = await apiJSON('GET','/api/visio2/code-price?mode='+offreMode+'&capacite='+cap+'&duration_min='+dur);
+      priceInfo = r;
+      if (offreMode === 'pack'){
+        document.getElementById('codehint').innerHTML = '💳 Code (payé à LettrePro) : <b>'+eur(r.code_cost_cents)+'</b> &nbsp;·&nbsp; 🎓 Prix par élève : <b>'+eur(r.eleve_price_cents)+'</b> (fixe)';
+      } else {
+        const base = document.getElementById('o-prix-base');
+        base.min = (r.base_suggest_cents/100).toFixed(2);
+        base.max = (r.base_max_cents/100).toFixed(2);
+        document.getElementById('o-base-range').textContent = '· de ' + eur(r.base_suggest_cents) + ' à ' + eur(r.base_max_cents);
+        if (!prixEdited) base.value = (r.base_suggest_cents/100);
+        document.getElementById('codehint').innerHTML = '💳 Code (payé à LettrePro) : <b>'+eur(r.code_cost_cents)+'</b> &nbsp;·&nbsp; 📉 Tarif dégressif : <b>−3 €</b> par élève supplémentaire';
+      }
+      recompute();
+    } catch(e){}
+  }
+  // Bénéfice total (si complet) = prix réel/élève × nb élèves − coût du code
+  function recompute(){
+    if (!priceInfo) return;
+    const cap = Math.max(1, parseInt(document.getElementById('o-cap').value||'1',10));
+    let eff, benefit;
+    if (offreMode === 'pack'){
+      eff = priceInfo.eleve_price_cents;
+      benefit = eff * cap - priceInfo.code_cost_cents;
+      document.getElementById('disc-note').textContent = '(15 € fixe · '+cap+' él.)';
+    } else {
+      const base = Math.round(parseFloat(document.getElementById('o-prix-base').value||'0')*100);
+      eff = Math.max(0, base - priceInfo.discount_cents);
+      benefit = eff * cap - priceInfo.code_cost_cents;
+      document.getElementById('disc-note').textContent = (cap>1 && priceInfo.discount_cents>0) ? ('(−'+eur(priceInfo.discount_cents)+' · '+cap+' él.)') : '';
+    }
+    document.getElementById('eff-val').textContent = eur(eff);
+    const bv = document.getElementById('ben-val');
+    bv.textContent = (benefit>=0?'+':'') + eur(benefit);
+    bv.classList.toggle('neg', benefit < 0);
+  }
+  function effectivePriceCents(){
+    if (offreMode === 'pack') return priceInfo ? priceInfo.eleve_price_cents : 1500;
+    const base = Math.round(parseFloat(document.getElementById('o-prix-base').value||'0')*100);
+    const disc = priceInfo ? priceInfo.discount_cents : 0;
+    return Math.max(0, base - disc);
+  }
+  async function savePaypal(){
+    try { await apiJSON('POST','/api/visio2/prof/paypal',{paypal_email:document.getElementById('paypal').value.trim()}); flash('PayPal enregistré ✓', true); }
+    catch(e){ flash(e.message); }
+  }
+  async function createOffre(){
+    if (!selectedKey) { flash('Choisis un jour'); return; }
+    const time = document.getElementById('o-time').value || '17:00';
+    const scheduled = selectedKey + 'T' + time;
+    const prix = effectivePriceCents();   // unitaire : prix réel après remise · pack : 15 € fixe
+    const body = { scheduled_at: scheduled, titre: document.getElementById('o-titre').value.trim(),
+      mode: offreMode,
+      duration_min: parseInt(document.getElementById('o-duree').value||'60',10),
+      capacite: parseInt(document.getElementById('o-cap').value||'1',10), prix_eleve_cents: prix };
+    try {
+      const r = await apiJSON('POST','/api/visio2/offres', body);
+      if (r.checkout_url) { window.location.href = r.checkout_url; return; }   // vrai paiement Stripe
+      flash('Créneau créé ! Code payé : ' + eur(r.code_cost_cents) + ' (simulé)', true);
+      document.getElementById('o-titre').value='';
+      await loadOffres();      // recharge → le calendrier se met à jour
+      renderDayModal();        // et la liste du jour ouvert aussi
+    } catch(e){ flash(e.message); }
+  }
+  async function loadOffres(){
+    try {
+      const data = await apiJSON('GET','/api/visio2/offres/mine');
+      if (data.paypal_email) document.getElementById('paypal').value = data.paypal_email;
+      byDay = {};
+      (data.offres || []).forEach(o => { const k = dayKeyFromStr(o.scheduled_at); if(!k) return; (byDay[k] = byDay[k] || []).push(o); });
+      renderCalendar();
+    } catch(e){ flash(e.message); }
+  }
+  async function join(oid){
+    try { const r = await apiJSON('GET','/api/visio2/offres/'+oid+'/join'); window.open(r.jitsi_room,'_blank'); }
+    catch(e){ flash(e.message); }
+  }
+  async function delOffre(oid){
+    if (!confirm('Annuler ce créneau ?')) return;
+    try { await apiJSON('DELETE','/api/visio2/offres/'+oid); await loadOffres(); renderDayModal(); }
+    catch(e){ flash(e.message); }
+  }
+  // ── Demandes de visio reçues (négociation + canal à messages prédéfinis) ──
+  let profDemandes = [], curD = null, dChatTpls = [];
+  function closeDem(id){ document.getElementById(id).classList.remove('show'); }
+  function dStLabel(d){
+    if (d.statut==='finalise') return ['Créneau créé ✓','st-ok'];
+    if (d.statut==='refuse')   return ['Refusée','st-no'];
+    if (d.statut==='accepte')  return ['💳 À toi de payer le code','st-att'];
+    if (d.mon_tour)            return ['🔔 À répondre','st-att'];
+    return ['En attente de l\'élève','st-att'];
+  }
+  async function loadProfDemandes(){
+    try {
+      const data = await apiJSON('GET','/api/visio2/demandes/mes');
+      profDemandes = (data.comme_prof || []).filter(d => d.statut !== 'refuse');
+      const card = document.getElementById('demandes-card');
+      const actives = profDemandes.filter(d => d.mon_tour || d.statut==='accepte').length;
+      if (!profDemandes.length){ card.style.display='none'; return; }
+      card.style.display='block';
+      document.getElementById('dem-badge').textContent = actives ? (actives+' à traiter') : '';
+      document.getElementById('demandes').innerHTML = profDemandes.map(d => {
+        const [lab,cls]=dStLabel(d);
+        return `<div class="dcard">
+          <div><div class="dh">${esc(d.eleve_nom)} · ${fmtDT(d.scheduled_at)}</div>
+            <div class="dm">${d.duration_min} min · ${eur(d.prix_eleve_cents)}</div></div>
+          <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+            <span class="dstatut ${cls}">${lab}</span>
+            <button class="btn small" onclick="openProfDetail(${d.id})">Ouvrir</button>
+          </div></div>`;
+      }).join('');
+    } catch(e){}
+  }
+  async function openProfDetail(id){
+    curD = profDemandes.find(x=>x.id===id); if(!curD) return;
+    const d=curD, [lab,cls]=dStLabel(d);
+    document.getElementById('ddet-title').textContent = 'Demande de ' + d.eleve_nom;
+    let actions='';
+    if (d.statut==='finalise') actions=`<div class="tpl-hint">Le créneau est créé et pré-réservé pour l'élève. Il n'a plus qu'à payer.</div>`;
+    else if (d.statut==='accepte') actions=`<button class="btn" style="width:100%" onclick="finalizeProf()">💳 Payer le code et créer le créneau</button>`;
+    else if (d.mon_tour) actions=`<div style="display:flex;gap:.5rem;flex-wrap:wrap">
+        <button class="btn small green" onclick="acceptProf()">Accepter (payer le code)</button>
+        <button class="btn small" onclick="openContre()">Contre-proposer</button>
+        <button class="btn small danger" onclick="refuseProf()">Refuser</button></div>`;
+    else actions=`<div class="tpl-hint">En attente de la réponse de l'élève.</div>`;
+    document.getElementById('ddet-body').innerHTML=`<div class="dcard" style="margin-bottom:.5rem">
+        <div><div class="dh">${fmtDT(d.scheduled_at)}</div><div class="dm">${d.duration_min} min · ${eur(d.prix_eleve_cents)}/élève</div></div>
+        <span class="dstatut ${cls}">${lab}</span></div>${actions}`;
+    await loadDChat();
+    document.getElementById('dem-detail').classList.add('show');
+  }
+  async function acceptProf(){
+    try { const r=await apiJSON('POST','/api/visio2/demandes/'+curD.id+'/accepter',{});
+      if (r.checkout_url){ window.location.href=r.checkout_url; return; }
+      flash('Demande acceptée — créneau créé et pré-réservé ✓', true); closeDem('dem-detail'); await loadProfDemandes(); await loadOffres();
+    } catch(e){ flash(e.message); }
+  }
+  async function finalizeProf(){
+    try { const r=await apiJSON('POST','/api/visio2/demandes/'+curD.id+'/finaliser',{});
+      if (r.checkout_url){ window.location.href=r.checkout_url; return; }
+      flash('Créneau créé et pré-réservé ✓', true); closeDem('dem-detail'); await loadProfDemandes(); await loadOffres();
+    } catch(e){ flash(e.message); }
+  }
+  async function refuseProf(){ if(!confirm('Refuser cette demande ?'))return;
+    try { await apiJSON('POST','/api/visio2/demandes/'+curD.id+'/refuser',{}); closeDem('dem-detail'); await loadProfDemandes(); } catch(e){ flash(e.message); }
+  }
+  async function dcRange(){
+    const dur=Math.max(1,parseInt(document.getElementById('dc-duree').value||'60',10));
+    try { const r=await apiJSON('GET','/api/visio2/code-price?mode=unitaire&capacite=1&duration_min='+dur);
+      const p=document.getElementById('dc-prix'); p.min=(r.eleve_suggest_cents/100).toFixed(2); p.max=(r.eleve_max_cents/100).toFixed(2);
+      document.getElementById('dc-range').textContent='· entre '+eur(r.eleve_suggest_cents)+' et '+eur(r.eleve_max_cents);
+    } catch(e){}
+  }
+  async function openContre(){
+    document.getElementById('dc-date').value=curD.scheduled_at.replace(' ','T').slice(0,16);
+    document.getElementById('dc-duree').value=curD.duration_min;
+    await dcRange(); document.getElementById('dc-prix').value=(curD.prix_eleve_cents/100);
+    closeDem('dem-detail'); document.getElementById('dem-contre').classList.add('show');
+  }
+  async function submitContre(){
+    const date=document.getElementById('dc-date').value; if(!date){ flash('Choisis une date'); return; }
+    const prix=Math.round(parseFloat(document.getElementById('dc-prix').value||'0')*100);
+    const duree=parseInt(document.getElementById('dc-duree').value||'60',10);
+    try { await apiJSON('POST','/api/visio2/demandes/'+curD.id+'/contre',{scheduled_at:date,duration_min:duree,prix_eleve_cents:prix});
+      flash('Contre-proposition envoyée ✓', true); closeDem('dem-contre'); await loadProfDemandes();
+    } catch(e){ flash(e.message); }
+  }
+  async function loadDChat(){
+    try { const r=await apiJSON('GET','/api/visio2/demandes/'+curD.id+'/messages');
+      dChatTpls=r.templates||[];
+      const box=document.getElementById('ddet-chat');
+      box.innerHTML=(r.messages||[]).map(m=>`<div class="bubble ${m.sender==='prof'?'me':'them'}">${esc(m.texte)}</div>`).join('') || '<div class="tpl-hint" style="text-align:center">Aucun message.</div>';
+      box.scrollTop=box.scrollHeight;
+      document.getElementById('dtpl-input').value=''; document.getElementById('dtpl-list').style.display='none';
+    } catch(e){}
+  }
+  let dtplTimer=null;
+  function renderDTplList(arr){
+    const list=document.getElementById('dtpl-list');
+    if(!arr.length){ list.style.display='none'; return; }
+    list.innerHTML=arr.map(t=>`<div class="tpl-item" data-t="${esc(t)}" onclick="sendDMsg(this.dataset.t)">${esc(t)}</div>`).join('');
+    list.style.display='block';
+  }
+  function filterDTpl(){
+    const q=document.getElementById('dtpl-input').value;
+    const list=document.getElementById('dtpl-list');
+    if(!q.trim()){ list.style.display='none'; clearTimeout(dtplTimer); return; }
+    const subs=dChatTpls.filter(t=>t.toLowerCase().includes(q.toLowerCase())).slice(0,6);
+    if(subs.length) renderDTplList(subs);
+    else if(q.trim().length>=3){ list.innerHTML='<div class="tpl-item" style="color:var(--muted);cursor:default">🔎 Je cherche la bonne formule…</div>'; list.style.display='block'; }
+    else { list.style.display='none'; }
+    clearTimeout(dtplTimer);
+    if(q.trim().length<3) return;
+    dtplTimer=setTimeout(async()=>{
+      try{ const r=await apiJSON('POST','/api/visio2/suggest-messages',{demande_id:curD.id, query:q}); renderDTplList(r.suggestions||[]); }
+      catch(e){ list.style.display='none'; }
+    }, 400);
+  }
+  async function sendDMsg(texte){ try{ await apiJSON('POST','/api/visio2/demandes/'+curD.id+'/messages',{texte}); await loadDChat(); }catch(e){ flash(e.message);} }
+
+  // Retour de Stripe (paiement du code)
+  (function(){
+    var p = new URLSearchParams(location.search).get('code');
+    if (p === 'success') flash('Paiement du code reçu ✓ — ton créneau est en vente dès la confirmation Stripe.', true);
+    else if (p === 'cancelled') flash('Paiement annulé — le créneau n\'a pas été mis en vente.');
+    if (p) history.replaceState({}, '', 'prof-visios.html');
+  })();
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeDay(); closeDem('dem-detail'); closeDem('dem-contre'); } });
+  (async function(){
+    try {
+      const c = await (await fetch(API_BASE + '/api/auth/config')).json();
+      if (!c.visio_enabled){
+        document.querySelector('.wrap').innerHTML =
+          '<div style="text-align:center;padding:3.5rem 1rem"><div style="font-size:2.8rem">⏸️</div>' +
+          '<h1 style="font-family:Sora,sans-serif;font-weight:800;margin:.6rem 0 .4rem">Visios en pause</h1>' +
+          '<p style="color:var(--muted);max-width:440px;margin:0 auto 1.2rem;line-height:1.5">Cette fonctionnalité est temporairement indisponible.</p>' +
+          '<a href="prof-dashboard.html" style="color:var(--orange);font-weight:700;text-decoration:none">← Retour à mon espace prof</a></div>';
+        return;
+      }
+    } catch(e){}
+    renderCalendar();
+    loadOffres();
+    loadProfDemandes();
+  })();
+</script>
+</body>
+</html>

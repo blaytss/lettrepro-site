@@ -1,0 +1,24 @@
+/* Palette CLAIRE (jour) — surcharge les variables :root sombres des pages.
+   Le sélecteur [data-theme="light"] est plus spécifique que :root, donc il gagne. */
+:root[data-theme="light"] {
+  --bg: #FAF6EF;
+  --surface: #FFFFFF;
+  --card: #F3ECE1;
+  --border: #E4D9C8;
+  --orange: #D9541E;
+  --orange-light: #B8551F;
+  --orange-glow: rgba(217, 84, 30, 0.12);
+  --text: #2A211A;
+  --muted: #7A6C5C;
+  --green: #1E9E5F;
+  --red: #CF4141;
+  --gold: #B67A00;
+  --blue: #2F6FB0;
+}
+
+/* Transition douce lors de la bascule jour/nuit */
+:root[data-theme] body { transition: background-color .4s ease, color .4s ease; }
+
+/* Quelques bordures/ombres codées en dur (pensées pour le sombre) adoucies en clair */
+:root[data-theme="light"] td { border-bottom-color: var(--border) !important; }
+:root[data-theme="light"] tr:last-child td { border-bottom: none !important; }
