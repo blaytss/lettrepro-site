@@ -2832,7 +2832,8 @@ async function subscribePlan(plan) {
       ${rewardHtml}
       <div class="quiz-final-bar"><div class="quiz-final-fill" style="width:0%"></div></div>
       ${recapBtnHtml}
-      <button class="quiz-restart" onclick="restartQuiz()">↻ Recommencer</button>`;
+      <button class="quiz-restart" onclick="restartQuiz()">↻ Recommencer (mêmes questions)</button>
+      ${activeQuiz.quizId ? `<button class="quiz-restart" id="refaire-btn" onclick="refaireQuiz()" style="background:var(--orange);color:#fff;border-color:var(--orange)">🔄 Refaire (nouvelles questions) — 2 crédits</button>` : ''}`;
     final.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
     // animations : score qui défile + barre + confettis si sans-faute
@@ -2919,6 +2920,24 @@ async function subscribePlan(plan) {
     const container = document.getElementById('quiz-container').parentElement;
     container.innerHTML = renderQuizHTML({ questions: savedQuestions }, savedQuizId, savedFicheId);
     renderQuestion();
+  }
+
+  // Refaire un quiz sur le MÊME sujet avec de NOUVELLES questions (coûte 2 crédits)
+  async function refaireQuiz() {
+    if (!activeQuiz || !activeQuiz.quizId) return;
+    if ((currentUser.credits || 0) < 2) { showToast('Il te faut 2 crédits pour refaire un quiz.', 'error'); return; }
+    if (!confirm('Refaire un quiz sur le même sujet, avec de nouvelles questions ? Cela coûte 2 crédits.')) return;
+    const btn = document.getElementById('refaire-btn');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Génération du nouveau quiz…'; }
+    try {
+      const res = await api('POST', `/api/study/quiz/${activeQuiz.quizId}/refaire`);
+      if (typeof res.creditsLeft === 'number') { currentUser.credits = res.creditsLeft; refreshUI(); }
+      showToast('Nouveau quiz prêt ! (−2 crédits)', 'success');
+      openQuizFromLibrary(res.quizId);   // ouvre le nouveau quiz
+    } catch(e) {
+      showToast('Erreur : ' + e.message, 'error');
+      if (btn) { btn.disabled = false; btn.textContent = '🔄 Refaire (nouvelles questions) — 2 crédits'; }
+    }
   }
 
   // ── BIBLIOTHÈQUE FICHES ──
