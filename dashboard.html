@@ -3162,59 +3162,102 @@ async function subscribePlan(plan) {
 
   // Vue 1 : la grille des dossiers (un par matière)
   // Vue 1 : la grille des DOSSIERS (dossiers nommés par l'élève + "Sans dossier")
+  // ── Helpers dossiers imbriqués ──
+  function _folderChapterCount(id) {
+    const s = new Set();
+    coursData.fiches.forEach(f => { if ((f.dossier_id || null) === id) s.add(f.titre || 'Sans titre'); });
+    coursData.quizzes.forEach(q => { if ((q.dossier_id || null) === id) s.add(q.titre || 'Quiz'); });
+    return s.size;
+  }
+  function _descendantIds(id) {
+    const out = new Set(), all = window._dossiers || [];
+    (function rec(pid) { all.filter(d => d.parent_id === pid).forEach(d => { if (!out.has(d.id)) { out.add(d.id); rec(d.id); } }); })(id);
+    return out;
+  }
+  function folderMoveOptions(folderId) {
+    const cur = (window._dossiers || []).find(d => d.id === folderId) || {};
+    const excl = _descendantIds(folderId); excl.add(folderId);
+    return '<option value="">⤴ Déplacer vers…</option>'
+      + '<option value="">— Racine —</option>'
+      + (window._dossiers || []).filter(d => !excl.has(d.id)).sort((a, b) => a.nom.localeCompare(b.nom, 'fr'))
+          .map(d => `<option value="${d.id}">${escapeHtml(d.nom)}</option>`).join('');
+  }
+  async function moveDossier(id, val) {
+    try {
+      await api('PUT', `/api/dossiers/${id}/parent`, { parent_id: val || null });
+      await loadStudyDossiers();
+      showToast('Dossier déplacé ✓', 'success');
+      await loadCours();
+    } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
+  }
+  function folderCard(d) {
+    const nbCh = _folderChapterCount(d.id);
+    const nbSub = (window._dossiers || []).filter(x => x.parent_id === d.id).length;
+    const meta = [nbCh ? `${nbCh} chapitre${nbCh>1?'s':''}` : '', nbSub ? `${nbSub} sous-dossier${nbSub>1?'s':''}` : ''].filter(Boolean).join(' · ') || 'vide';
+    return `<div class="folder-card">
+      <div onclick="openFolder('d${d.id}')" style="cursor:pointer">
+        <div class="folder-icon">📁</div>
+        <div class="folder-name">${escapeHtml(d.nom)}</div>
+        <div class="folder-count">${meta}</div>
+      </div>
+      <div style="margin-top:.5rem" onclick="event.stopPropagation()">
+        <select class="hist-btn" style="width:100%;font-size:.75rem" title="Déplacer ce dossier" onchange="moveDossier(${d.id}, this.value); this.selectedIndex=0;">${folderMoveOptions(d.id)}</select>
+      </div>
+    </div>`;
+  }
+
+  // Vue 1 : les dossiers de PREMIER niveau (parent_id vide) + "Sans dossier"
   function renderCoursFolders() {
     currentFolder = null;
     const el = document.getElementById('cours-content');
-    const items = [...coursData.fiches, ...coursData.quizzes];
+    const topFolders = (window._dossiers || []).filter(d => !d.parent_id).sort((a, b) => a.nom.localeCompare(b.nom, 'fr'));
+    const hasNone = coursData.fiches.some(f => !f.dossier_id) || coursData.quizzes.some(q => !q.dossier_id);
+    const header = `<div style="margin-bottom:1rem"><button class="photo-add-btn" onclick="newDossierPrompt()">➕ Nouveau dossier</button></div>`;
 
-    const buckets = {};
-    items.forEach(it => {
-      const key = it.dossier_id ? ('d' + it.dossier_id) : '_none';
-      const nom = it.dossier_id ? (it.dossier_nom || 'Dossier') : 'Sans dossier';
-      (buckets[key] = buckets[key] || { key, id: it.dossier_id || null, nom, titres: new Set() }).titres.add(it.titre || 'Sans titre');
-    });
-    // inclure les dossiers vides que l'élève a créés
-    (window._dossiers || []).forEach(d => { const k = 'd' + d.id; if (!buckets[k]) buckets[k] = { key: k, id: d.id, nom: d.nom, titres: new Set() }; });
-
-    const list = Object.values(buckets).sort((a, b) => a.id ? (b.id ? a.nom.localeCompare(b.nom, 'fr') : -1) : 1);
-    const header = `<div style="margin-bottom:1rem;display:flex;gap:.5rem;flex-wrap:wrap">
-      <button class="photo-add-btn" onclick="newDossierPrompt()">➕ Nouveau dossier</button></div>`;
-
-    if (!list.length) {
+    if (!topFolders.length && !hasNone) {
       el.innerHTML = header + `<div class="history-empty"><div class="icon">📁</div><p>Aucun cours pour l'instant.<br>Génère ton premier contenu de révision !</p></div>`;
       return;
     }
-    el.innerHTML = header + `<div class="folder-grid">${list.map(b => {
-      const nb = b.titres.size;
-      return `<div class="folder-card" onclick="openFolder('${b.key}')">
-        <div class="folder-icon">${b.id ? '📁' : '🗂️'}</div>
-        <div class="folder-name">${escapeHtml(b.nom)}</div>
-        <div class="folder-count">${nb} chapitre${nb>1?'s':''}</div>
-      </div>`;
-    }).join('')}</div>`;
+    let cards = topFolders.map(folderCard).join('');
+    if (hasNone) {
+      const nb = _folderChapterCount(null);
+      cards += `<div class="folder-card" onclick="openFolder('_none')" style="cursor:pointer">
+        <div class="folder-icon">🗂️</div><div class="folder-name">Sans dossier</div>
+        <div class="folder-count">${nb} chapitre${nb>1?'s':''}</div></div>`;
+    }
+    el.innerHTML = header + `<div class="folder-grid">${cards}</div>`;
   }
 
-  // Vue 2 : le contenu d'un dossier (chapitres = titre regroupant fiche + quiz)
+  // Vue 2 : contenu d'un dossier = sous-dossiers + chapitres (titre regroupant fiche + quiz)
   function openFolder(key) {
     currentFolder = key;
     const el = document.getElementById('cours-content');
     const wantId = (key === '_none') ? null : parseInt(String(key).slice(1), 10);
     const inBucket = it => ((it.dossier_id || null) === (wantId || null));
-    const nom = wantId ? (((window._dossiers || []).find(d => d.id === wantId) || {}).nom || 'Dossier') : 'Sans dossier';
+    const me = wantId ? ((window._dossiers || []).find(d => d.id === wantId) || {}) : {};
+    const nom = wantId ? (me.nom || 'Dossier') : 'Sans dossier';
+    const subFolders = wantId ? (window._dossiers || []).filter(d => d.parent_id === wantId).sort((a, b) => a.nom.localeCompare(b.nom, 'fr')) : [];
 
     const chapters = {};
     coursData.fiches.filter(inBucket).forEach(f => { const t = f.titre || 'Sans titre'; (chapters[t] = chapters[t] || {}).fiche = f; });
     coursData.quizzes.filter(inBucket).forEach(q => { const t = q.titre || 'Quiz'; (chapters[t] = chapters[t] || {}).quiz = q; });
     const titres = Object.keys(chapters).sort((a, b) => a.localeCompare(b, 'fr'));
 
+    const backTarget = (wantId && me.parent_id) ? `openFolder('d${me.parent_id}')` : `renderCoursFolders()`;
     const folderActions = wantId
-      ? `<button class="hist-btn" onclick="renameDossier(${wantId})">✏️ Renommer</button> <button class="hist-btn" onclick="deleteDossier(${wantId})">🗑️ Supprimer</button>`
+      ? `<button class="hist-btn" onclick="renameDossier(${wantId})">✏️ Renommer</button> <button class="hist-btn" onclick="deleteDossier(${wantId})">🗑️ Supprimer</button>
+         <select class="hist-btn" style="font-size:.75rem" title="Déplacer ce dossier" onchange="moveDossier(${wantId}, this.value)">${folderMoveOptions(wantId)}</select>`
       : '';
 
+    const subHtml = subFolders.length
+      ? `<div class="folder-grid" style="margin-bottom:1rem">${subFolders.map(folderCard).join('')}</div>` : '';
+
     el.innerHTML = `
-      <button class="cours-back" onclick="renderCoursFolders()">← Tous les dossiers</button>
+      <button class="cours-back" onclick="${backTarget}">← Retour</button>
       <div class="cours-folder-title">${wantId ? '📁' : '🗂️'} ${escapeHtml(nom)} <span style="float:right">${folderActions}</span></div>
-      ${titres.length ? titres.map(t => {
+      ${subHtml}
+      ${(!titres.length && !subFolders.length) ? '<p style="color:var(--muted);padding:1rem 0">Ce dossier est vide.</p>' : ''}
+      ${titres.map(t => {
         const c = chapters[t];
         const f = c.fiche, q = c.quiz;
         const fid = f ? f.id : 0;
@@ -3238,7 +3281,7 @@ async function subscribePlan(plan) {
             <button class="hist-btn" onclick="deleteChapter(${fid}, ${qid})">🗑️</button>
           </div>
         </div>`;
-      }).join('') : '<p style="color:var(--muted);padding:1rem 0">Ce dossier est vide.</p>'}
+      }).join('')}
     `;
   }
 
