@@ -258,7 +258,7 @@
     .plan-card-features li { display: flex; align-items: flex-start; gap: 0.55rem; font-size: 0.85rem; color: var(--text); padding: 0.4rem 0; }
     .plan-card-features li::before { content: '✓'; color: var(--orange); font-weight: 700; flex-shrink: 0; }
     .plan-card-features li.off { color: var(--muted); }
-    .plan-card-features li.off::before { content: '–'; color: var(--border); }
+    .plan-card-features li.off::before { content: '🔒'; font-size: .8em; filter: grayscale(1); opacity: .7; }
     .plan-action-btn { width: 100%; padding: 0.8rem; border-radius: 10px; font-size: 0.9rem; font-weight: 700; font-family: 'Sora', sans-serif; cursor: pointer; transition: all 0.2s; text-align: center; display: block; text-decoration: none; border: none; }
     .plan-action-btn.filled { background: linear-gradient(135deg, var(--orange), #C0501A); color: white; box-shadow: 0 4px 20px rgba(232,105,42,0.3); }
     .plan-action-btn.filled:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(232,105,42,0.45); }
@@ -1164,6 +1164,36 @@
         <div class="empty"><div class="icon">📅</div><p>Chargement…</p></div>
       </div>
     </div>
+    <style>
+    .hist-jauge{font-size:.85rem;color:var(--muted);margin-bottom:.9rem}
+    .hist-jauge.plein{color:var(--orange);font-weight:600}
+    .hist-lock{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-top:1rem;padding:1rem 1.1rem;border:1px dashed var(--border);border-radius:12px;background:var(--card);font-size:.88rem;color:var(--text)}
+    .hist-lock span{color:var(--muted);font-size:.82rem}
+    .hist-lock-btns{display:flex;gap:.4rem;flex-wrap:wrap}
+    #ep-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9100;align-items:center;justify-content:center;padding:1rem}
+    #ep-modal.on{display:flex}
+    #ep-modal .ep-box{background:var(--surface);border-radius:18px;padding:2rem 1.8rem;width:100%;max-width:440px;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.3)}
+    #ep-modal .ep-ico{font-size:2.6rem;margin-bottom:.4rem}
+    #ep-modal h3{font-family:'Sora',sans-serif;font-weight:800;font-size:1.35rem;color:var(--text);margin-bottom:.5rem}
+    #ep-modal p{color:var(--muted);font-size:.92rem;line-height:1.55;margin-bottom:.6rem}
+    #ep-modal .ep-main{display:block;width:100%;background:var(--orange);color:#fff;border:none;border-radius:11px;padding:.8rem 1rem;font-size:.95rem;font-weight:700;cursor:pointer;font-family:inherit;margin-top:.8rem}
+    #ep-modal .ep-sec{display:block;width:100%;background:transparent;color:var(--text);border:1px solid var(--border);border-radius:11px;padding:.65rem 1rem;font-size:.88rem;font-weight:600;cursor:pointer;font-family:inherit;margin-top:.5rem}
+    #ep-modal .ep-later{background:none;border:none;color:var(--muted);font-size:.84rem;cursor:pointer;margin-top:.8rem;font-family:inherit}
+    #pl-modal .pl-sw button{position:relative}
+    #pl-modal .pl-sw button.lock{opacity:.35;cursor:not-allowed}
+    #pl-modal .pl-sw button.lock::after{content:'🔒';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px}
+    </style>
+    <div id="ep-modal" onclick="if(event.target===this)closeEspacePlein()">
+      <div class="ep-box">
+        <div class="ep-ico">📂</div>
+        <h3>Ton espace est plein</h3>
+        <p>Ton offre garde tes <strong id="ep-limite">5</strong> lettres les plus récentes. Ta nouvelle lettre est bien enregistrée, mais <strong id="ep-masquees">1</strong> plus ancienne(s) sont maintenant masquée(s) 🔒.</p>
+        <p>Veux-tu passer à un abonnement supérieur pour tout retrouver ?</p>
+        <button class="ep-main" onclick="closeEspacePlein('abonnement')">⚡ Voir les abonnements</button>
+        <button class="ep-sec" onclick="closeEspacePlein('history')">🗑 Faire de la place dans mes lettres</button>
+        <button class="ep-later" onclick="closeEspacePlein()">Plus tard</button>
+      </div>
+    </div>
     <div id="pl-modal" onclick="if(event.target===this)plClose()">
       <div class="pl-box">
         <h3 id="pl-titre-modal">Nouvel événement</h3>
@@ -1446,20 +1476,20 @@
             <tr><td>Crédits mensuels</td><td>5</td><td class="hl">15</td><td>30</td><td>70</td></tr>
             <tr><td>Langues disponibles</td><td>1 (FR)</td><td class="hl">5</td><td>8</td><td>8</td></tr>
             <tr><td>Lettre de motivation (1 crédit)</td><td><span class="ck">✓</span></td><td class="hl"><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
-            <tr><td>Correction de lettre</td><td><span class="cr">–</span></td><td class="hl"><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
-            <tr><td>Choix du nombre de caractères</td><td><span class="cr">–</span></td><td class="hl"><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
+            <tr><td>Correction de lettre</td><td><span class="cr" title="Non inclus dans cette offre">🔒</span></td><td class="hl"><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
+            <tr><td>Choix du nombre de caractères</td><td><span class="cr" title="Non inclus dans cette offre">🔒</span></td><td class="hl"><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
             <tr><td>Création de CV (2 crédits) + 4 modèles de présentation</td><td><span class="ck">✓</span></td><td class="hl"><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
-            <tr><td>CV : déplacer librement les blocs et la photo</td><td><span class="cr">–</span></td><td class="hl"><span class="cr">–</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
+            <tr><td>CV : déplacer librement les blocs et la photo</td><td><span class="cr" title="Non inclus dans cette offre">🔒</span></td><td class="hl"><span class="cr" title="Non inclus dans cette offre">🔒</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
             <tr><td>Fiches, résumés et quiz</td><td><span class="ck">✓</span></td><td class="hl"><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
             <tr><td>Refaire un quiz avec de nouvelles questions (2 crédits)</td><td><span class="ck">✓</span></td><td class="hl"><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
             <tr><td>Crédits gagnés aux quiz (jusqu'à 6 au 1er essai)</td><td><span class="ck">✓</span></td><td class="hl"><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
             <tr><td>Dossiers et sous-dossiers pour ranger tes cours</td><td><span class="ck">✓</span></td><td class="hl"><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
             <tr><td>Planning personnel (calendrier)</td><td><span class="ck">✓</span></td><td class="hl"><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
-            <tr><td>Planning : couleurs des événements</td><td><span class="cr">–</span></td><td class="hl"><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
-            <tr><td>Historique illimité</td><td><span class="cr">–</span></td><td class="hl"><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
+            <tr><td>Planning : couleurs des événements</td><td><span class="cr" title="Non inclus dans cette offre">🔒</span></td><td class="hl">6 couleurs</td><td>6 couleurs</td><td>12 couleurs</td></tr>
+            <tr><td>Historique des lettres</td><td>5 lettres</td><td class="hl">20 lettres</td><td>50 lettres</td><td>Illimité</td></tr>
             <tr><td>Achat de crédits supplémentaires</td><td><span class="ck">✓</span></td><td class="hl"><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
-            <tr><td>Support prioritaire</td><td><span class="cr">–</span></td><td class="hl"><span class="cr">–</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
-            <tr><td>Nouvelles fonctions en avant-première</td><td><span class="cr">–</span></td><td class="hl"><span class="cr">–</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
+            <tr><td>Support prioritaire</td><td><span class="cr" title="Non inclus dans cette offre">🔒</span></td><td class="hl"><span class="cr" title="Non inclus dans cette offre">🔒</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
+            <tr><td>Nouvelles fonctions en avant-première</td><td><span class="cr" title="Non inclus dans cette offre">🔒</span></td><td class="hl"><span class="cr" title="Non inclus dans cette offre">🔒</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
           </tbody>
         </table>
       </div>
@@ -1575,6 +1605,7 @@
   let currentUser = null;
   let creditLog   = [];
   let history     = [];
+  let histInfo    = { total: 0, limite: null, masquees: 0 };
   let currentLetter   = '';
   let currentImproved = '';
 
@@ -1663,6 +1694,7 @@
 
       creditLog   = data.creditLog || [];
       history     = data.history   || [];
+      histInfo    = data.historyInfo || histInfo;
       refreshUI();
       initFicheThemePicker();
       // Ouverture directe d'un onglet depuis le menu partagé (?p=study, ?p=credits, …)
@@ -1758,8 +1790,9 @@
       currentUser.credits    = data.creditsLeft;
       currentUser.credits_used = (currentUser.credits_used || 0) + 1;
       creditLog.unshift({ type:'debit', amount:-1, description:`Génération — ${poste}`, date: new Date().toISOString() });
-      history.unshift({ id: Date.now(), poste, entreprise: document.getElementById('g-entreprise').value.trim(), lang: document.getElementById('g-lang').value, type:'generate', created_at: new Date().toISOString(), content: data.letter });
+      history.unshift({ id: data.letterId || Date.now(), poste, entreprise: document.getElementById('g-entreprise').value.trim(), lang: document.getElementById('g-lang').value, type:'generate', created_at: new Date().toISOString(), content: data.letter });
 
+      histAfterGeneration(data);
       currentLetter = data.letter;
       const resultEl = document.getElementById('result-text');
       resultEl.textContent = currentLetter;
@@ -1824,6 +1857,7 @@
       document.getElementById('imp-result-card').scrollIntoView({ behavior:'smooth', block:'nearest' });
       refreshUI();
       showToast('✏️ Lettre améliorée — 1 crédit déduit', 'success');
+      histReload().then(function () { if (data.espacePlein) showEspacePlein(); });
 
     } catch(e) {
       msg.className = 'msg error'; msg.textContent = 'Erreur : ' + e.message;
@@ -1893,7 +1927,20 @@
       el.innerHTML = `<div class="history-empty"><div class="icon">📄</div><p>Aucune lettre sauvegardée.<br>Génère ta première lettre !</p></div>`;
       return;
     }
-    el.innerHTML = `<div class="history-grid">${history.map(h => `
+    const plein = histInfo.limite !== null && histInfo.total >= histInfo.limite;
+    const jauge = histInfo.limite === null
+      ? `<div class="hist-jauge">📂 ${histInfo.total} lettre${histInfo.total>1?'s':''} · historique illimité</div>`
+      : `<div class="hist-jauge${plein?' plein':''}">📂 ${Math.min(histInfo.total, histInfo.limite)} / ${histInfo.limite} lettres dans ton historique${plein?' — espace plein':''}</div>`;
+    const masque = histInfo.masquees > 0 ? `
+      <div class="hist-lock">
+        <div><strong>🔒 ${histInfo.masquees} lettre${histInfo.masquees>1?'s':''} plus ancienne${histInfo.masquees>1?'s':''} masquée${histInfo.masquees>1?'s':''}</strong><br>
+        <span>Ton offre affiche les ${histInfo.limite} plus récentes. Elles ne sont pas supprimées : elles réapparaissent avec une offre supérieure.</span></div>
+        <div class="hist-lock-btns">
+          <button class="hist-btn" onclick="showPage('abonnement', document.querySelector('[data-page=abonnement]'))">⚡ Voir les offres</button>
+          <button class="hist-btn" onclick="deleteHiddenLetters()">🗑 Les supprimer</button>
+        </div>
+      </div>` : '';
+    el.innerHTML = jauge + `<div class="history-grid">${history.map(h => `
       <div class="history-item">
         <div class="history-meta">
           <h3>${h.type==='improve'?'✏️ ':'✦ '}${h.poste||'Lettre'}${h.entreprise?' — '+h.entreprise:''}<span class="lang-badge">${LANG_NAMES[h.lang]||'FR'}</span></h3>
@@ -1904,7 +1951,32 @@
           <button class="hist-btn" onclick="copyHistoryLetter(${h.id})">📋 Copier</button>
           <button class="hist-btn" onclick="deleteLetter(${h.id})">🗑 Suppr.</button>
         </div>
-      </div>`).join('')}</div>`;
+      </div>`).join('')}</div>` + masque;
+  }
+
+  // Recharge l'historique depuis le serveur (après suppression : une lettre masquée peut réapparaître).
+  async function histReload() {
+    try { const d = await api('GET', '/api/me'); history = d.history || []; histInfo = d.historyInfo || histInfo; } catch (e) {}
+    if (document.getElementById('page-history').classList.contains('active')) renderHistory();
+  }
+  function histAfterGeneration(data) {
+    if (data.historyInfo) histInfo = data.historyInfo;
+    if (histInfo.limite !== null) history = history.slice(0, histInfo.limite);
+    if (data.espacePlein) showEspacePlein();
+  }
+  async function deleteHiddenLetters() {
+    if (!confirm('Supprimer définitivement les ' + histInfo.masquees + ' lettres masquées ?')) return;
+    try { await api('DELETE', '/api/letters/masquees'); await histReload(); showToast('Lettres masquées supprimées', 'success'); }
+    catch (e) { showToast('Erreur : ' + e.message, 'error'); }
+  }
+  function showEspacePlein() {
+    document.getElementById('ep-limite').textContent = histInfo.limite;
+    document.getElementById('ep-masquees').textContent = histInfo.masquees;
+    document.getElementById('ep-modal').classList.add('on');
+  }
+  function closeEspacePlein(goto) {
+    document.getElementById('ep-modal').classList.remove('on');
+    if (goto) showPage(goto, document.querySelector('[data-page=' + goto + ']'));
   }
 
   function copyHistoryLetter(id) {
@@ -1938,6 +2010,7 @@
       history = history.filter(h => h.id !== id);
       renderHistory();
       showToast('Lettre supprimée', 'success');
+      histReload();
     } catch(e) {
       showToast('Erreur : ' + e.message, 'error');
     }
@@ -2011,10 +2084,10 @@
   function renderAbonnement() {
     const userPlan = currentUser.plan || 'free';
     const planDefs = [
-      { key:'free',    price:'0€', period:'Pour toujours',           visio:0,  features:['5 crédits / mois','Français uniquement','Lettre, CV, fiches, quiz','Dossiers et planning','off:Correction de lettre','off:Couleurs du planning'] },
-      { key:'starter', price:'3€', period:'/mois · sans engagement', visio:4,  features:['15 crédits / mois','5 langues','Correction de lettre ✓','Caractères personnalisés ✓','Couleurs dans le planning ✓','off:Mise en page libre du CV'] },
-      { key:'premium', price:'5€', period:'/mois · sans engagement', visio:8, features:['30 crédits / mois','8 langues','Correction de lettre ✓','Couleurs dans le planning ✓','Mise en page libre du CV ✓','Support prioritaire ✓'] },
-      { key:'pro',     price:'9€', period:'/mois · sans engagement', visio:20, features:['70 crédits / mois','Toutes les langues','Correction de lettre ✓','Couleurs dans le planning ✓','Mise en page libre du CV ✓','Support prioritaire ✓'] }
+      { key:'free',    price:'0€', period:'Pour toujours',           visio:0,  features:['5 crédits / mois','Français uniquement','Lettre, CV, fiches, quiz','Historique : 5 lettres','off:Correction de lettre','off:Couleurs du planning'] },
+      { key:'starter', price:'3€', period:'/mois · sans engagement', visio:4,  features:['15 crédits / mois','5 langues','Correction de lettre ✓','Planning : 6 couleurs','Historique : 20 lettres','off:Mise en page libre du CV'] },
+      { key:'premium', price:'5€', period:'/mois · sans engagement', visio:8, features:['30 crédits / mois','8 langues','Mise en page libre du CV ✓','Planning : 6 couleurs','Historique : 50 lettres','off:Historique illimité'] },
+      { key:'pro',     price:'9€', period:'/mois · sans engagement', visio:20, features:['70 crédits / mois','Toutes les langues','Mise en page libre du CV ✓','Planning : 12 couleurs','Historique illimité ✓','Support prioritaire ✓'] }
     ];
     document.getElementById('plans-grid').innerHTML = planDefs.map(p => {
       const isCurrent = p.key === userPlan;
@@ -2460,7 +2533,7 @@ async function subscribePlan(plan) {
     if (name === 'credits') { renderCreditsPage(); renderVisioPacks(); document.getElementById('visio-balance').textContent = (currentUser.visio_credits||0) + ' crédits'; }
     if (name === 'abonnement') { renderAbonnement(); }
     if (name === 'study')      { updateCostPreview(); loadStudyDossiers(); }
-    if (name === 'cv')         { cvLoadList(); cvRenderTpls(); }
+    if (name === 'cv')         { cvLoadList(); cvRenderTpls(); cvMoveLabel(); }
     if (name === 'apparence')  { initThemePage(); }
     if (name === 'classes')    { loadMyClasses(); startChatPolling(); }
     if (name === 'myprofs')    { loadMyProfs(); }
@@ -2581,10 +2654,15 @@ async function subscribePlan(plan) {
     }, 600);
   }
   function cvCanMove() { return !!currentUser && CV_MOVE_PLANS.indexOf(currentUser.plan) !== -1; }
+  function cvMoveLabel() {
+    var b = document.getElementById('cv-move'); if (!b) return;
+    b.textContent = cvState.edit ? '✓ Terminer' : (cvCanMove() ? '✥ Déplacer les blocs' : '🔒 Déplacer les blocs');
+    b.title = cvCanMove() ? '' : 'Réservé aux offres Premium et Pro';
+  }
   function cvToggleMove() {
-    if (!cvCanMove()) { showToast('Déplacer les blocs du CV est réservé aux abonnements Premium et Pro.', 'error'); return; }
+    if (!cvCanMove()) { showToast('🔒 Déplacer les blocs du CV est réservé aux abonnements Premium et Pro.', 'error'); return; }
     cvState.edit = !cvState.edit;
-    document.getElementById('cv-move').textContent = cvState.edit ? '✓ Terminer' : '✥ Déplacer les blocs';
+    cvMoveLabel();
     document.getElementById('cv-reset').style.display = cvState.edit ? '' : 'none';
     cvRender();
   }
@@ -4556,10 +4634,11 @@ async function subscribePlan(plan) {
 <!-- ===== MON PLANNING (élève) ===== -->
 <script>
   // ── PLANNING : calendrier mensuel personnel ──
-  var PL_COULEURS = ['#E8692A', '#E5484D', '#D6409F', '#8E4EC6', '#3E63DD', '#0090FF', '#12A594', '#30A46C', '#F5A524'];
+  // Même ordre que le backend : Starter/Premium = les 6 premières, Pro = les 12.
+  var PL_COULEURS = ['#E8692A', '#E5484D', '#8E4EC6', '#3E63DD', '#12A594', '#30A46C', '#D6409F', '#0090FF', '#F5A524', '#8D6E4B', '#5B6B7A', '#1F2937'];
   var PL_MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
   var PL_MOIS_ABR = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
-  var plState = { y: null, m: null, events: [], couleursOk: false, editId: null, couleur: PL_COULEURS[0] };
+  var plState = { y: null, m: null, events: [], couleursOk: false, nb: 0, editId: null, couleur: PL_COULEURS[0] };
   function plFmt(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
   function plPremierJour() {   // lundi de la semaine qui contient le 1er du mois
     var d = new Date(plState.y, plState.m, 1); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d;
@@ -4570,7 +4649,7 @@ async function subscribePlan(plan) {
     try {
       var du = plPremierJour(), au = new Date(du); au.setDate(au.getDate() + 41);
       var d = await api('GET', '/api/planning?du=' + plFmt(du) + '&au=' + plFmt(au));
-      plState.events = d.events || []; plState.couleursOk = !!d.couleurs_autorisees;
+      plState.events = d.events || []; plState.couleursOk = !!d.couleurs_autorisees; plState.nb = d.nb_couleurs || 0;
       plRender();
     } catch (e) {
       el.innerHTML = '<div class="empty"><p style="color:#FF6B6B">Erreur : ' + escapeHtml(e.message) + '</p></div>';
@@ -4605,15 +4684,20 @@ async function subscribePlan(plan) {
   }
   function plSwatches() {
     var box = document.getElementById('pl-sw');
-    box.className = 'pl-sw' + (plState.couleursOk ? '' : ' verrou');
-    box.innerHTML = PL_COULEURS.map(function (c) {
-      return '<button type="button" style="background:' + c + '" class="' + (c.toLowerCase() === (plState.couleur || '').toLowerCase() ? 'on' : '') + '" data-c="' + c + '" aria-label="Couleur ' + c + '"></button>';
+    box.className = 'pl-sw';
+    box.innerHTML = PL_COULEURS.map(function (c, k) {
+      var ok = k < plState.nb || (plState.nb === 0 && k === 0);   // gratuit : seule la couleur par défaut
+      var need = k < 6 ? 'Starter' : 'Pro';
+      return '<button type="button" style="background:' + c + '" class="' + (c.toLowerCase() === (plState.couleur || '').toLowerCase() ? 'on' : '') + (ok ? '' : ' lock') + '" data-c="' + c + '" data-need="' + (ok ? '' : need) + '" title="' + (ok ? '' : 'Réservé à l’offre ' + need) + '" aria-label="Couleur ' + c + (ok ? '' : ' (verrouillée)') + '"></button>';
     }).join('');
-    box.onclick = function (ev) { var b = ev.target.closest('button'); if (b) plPick(b.getAttribute('data-c')); };
-    document.getElementById('pl-lock').style.display = plState.couleursOk ? 'none' : 'block';
+    box.onclick = function (ev) { var b = ev.target.closest('button'); if (b) plPick(b.getAttribute('data-c'), b.getAttribute('data-need')); };
+    var lock = document.getElementById('pl-lock');
+    lock.style.display = plState.nb >= 12 ? 'none' : 'block';
+    lock.textContent = plState.nb === 0 ? '🔒 Les couleurs sont réservées aux abonnés : 6 couleurs avec Starter et Premium, 12 avec Pro.'
+                                        : '🔒 6 couleurs supplémentaires avec l’offre Pro.';
   }
-  function plPick(c) {
-    if (!plState.couleursOk) { showToast('Choisir la couleur est réservé aux abonnements Starter, Premium et Pro.', 'error'); return; }
+  function plPick(c, need) {
+    if (need) { showToast('🔒 Cette couleur est réservée à l’offre ' + need + (need === 'Starter' ? ' ou supérieure.' : '.'), 'error'); return; }
     plState.couleur = c; plSwatches();
   }
   function plOpen(id, iso) {
