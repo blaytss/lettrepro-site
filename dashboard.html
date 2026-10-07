@@ -1487,6 +1487,12 @@
       history     = data.history   || [];
       refreshUI();
       initFicheThemePicker();
+      // Ouverture directe d'un onglet depuis le menu partagé (?p=study, ?p=credits, …)
+      const wantPage = params.get('p');
+      if (wantPage) {
+        const btn = document.querySelector('.sidebar-item[data-page="' + wantPage + '"]');
+        if (btn) { showPage(wantPage, btn); window.history.replaceState({}, '', 'dashboard.html'); }
+      }
     } catch(e) {
       showToast('Erreur de connexion au serveur', 'error');
     }
