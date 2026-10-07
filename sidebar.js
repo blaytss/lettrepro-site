@@ -23,7 +23,7 @@
   // Markup repris du dashboard ; les onglets internes pointent vers dashboard.html?p=…
   var html =
     '<a class="sidebar-item" href="dashboard.html?p=generate"><span class="icon">✦</span> Générer une lettre</a>' +
-    '<a class="sidebar-item" href="cv.html"><span class="icon">📄</span> Créer un CV</a>' +
+    '<a class="sidebar-item" href="dashboard.html?p=cv"><span class="icon">📄</span> Créer un CV</a>' +
     '<a class="sidebar-item" href="dashboard.html?p=improve"><span class="icon">✏️</span> Améliorer</a>' +
     '<a class="sidebar-item" href="dashboard.html?p=study"><span class="icon">📚</span> Cours &amp; Révisions</a>' +
     '<a class="sidebar-item" href="explorer.html"><span class="icon">🔍</span> Explorer les profs</a>' +

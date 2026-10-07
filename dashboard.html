@@ -673,7 +673,7 @@
 
     <div class="nav-group-label">Travail</div>
     <button class="sidebar-item active" data-page="generate" onclick="showPage('generate', this)"><span class="icon">✦</span> Générer une lettre</button>
-    <a class="sidebar-item" href="cv.html"><span class="icon">📄</span> Créer un CV</a>
+    <button class="sidebar-item" data-page="cv" onclick="showPage('cv', this)"><span class="icon">📄</span> Créer un CV</button>
     <button class="sidebar-item" data-page="improve" onclick="showPage('improve', this)"><span class="icon">✏️</span> Améliorer</button>
     <button class="sidebar-item" data-page="study" onclick="showPage('study', this)"><span class="icon">📚</span> Cours & Révisions</button>
 
@@ -708,6 +708,56 @@
   </aside>
 
   <main class="main">
+
+    <!-- PAGE CV -->
+    <style>
+    #page-cv .cv-grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:1rem;align-items:start}
+    @media(max-width:900px){#page-cv .cv-grid{grid-template-columns:1fr!important}}
+    #page-cv .cv-card{display:block!important;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.1rem 1.2rem;min-width:0}
+    #page-cv .cv-h2{font-family:'Sora',sans-serif;font-weight:700;font-size:1.02rem;margin-bottom:.6rem}
+    #page-cv .cv-label{display:block!important;font-size:.76rem;font-weight:600;color:var(--muted);margin:.5rem 0 .25rem}
+    #page-cv .cv-in{display:block!important;width:100%!important;max-width:100%;background:var(--card);border:1px solid var(--border);border-radius:9px;padding:.55rem .75rem;color:var(--text);font-family:inherit;font-size:.9rem}
+    #page-cv textarea.cv-in{min-height:64px;resize:vertical}
+    #page-cv .cv-btn{background:var(--orange);color:#fff;border:none;border-radius:10px;padding:.62rem 1.05rem;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit}
+    #page-cv .cv-btn.cv-small{padding:.38rem .75rem;font-size:.8rem}
+    #page-cv .cv-btn.cv-ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
+    #page-cv .cv-btn:disabled{opacity:.5;cursor:default}
+    #page-cv #cv-out{white-space:pre-wrap;font-size:.9rem;line-height:1.55;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1rem;min-height:240px}
+    #page-cv .cv-empty{color:var(--muted);font-size:.86rem}
+    #page-cv .cv-actions{margin-top:.7rem;display:flex;gap:.4rem}
+    #page-cv .cv-saved .it{display:flex;justify-content:space-between;align-items:center;gap:.5rem;border-bottom:1px solid var(--border);padding:.45rem .1rem;font-size:.86rem}
+    #page-cv .cv-saved a{color:var(--orange);cursor:pointer;text-decoration:none}
+    @media print{body *{visibility:hidden}#page-cv #cv-out,#page-cv #cv-out *{visibility:visible}#page-cv #cv-out{position:absolute;left:0;top:0;width:100%;border:0;background:#fff;padding:0}}
+    </style>
+    <div class="page" id="page-cv">
+      <div class="page-header">
+        <h1>📄 Créer un CV</h1>
+        <p>Remplis ce que tu peux — l'IA rédige un CV clair et honnête, adapté à un profil jeune. 1 crédit par génération.</p>
+      </div>
+      <div class="cv-grid">
+        <div class="cv-card">
+          <h2 class="cv-h2">Tes informations</h2>
+          <label class="cv-label">Titre du CV</label><input class="cv-in" id="cv-titre" placeholder="CV — stage de seconde"/>
+          <label class="cv-label">Objectif / poste visé</label><input class="cv-in" id="cv-objectif" placeholder="Stage d'observation en entreprise"/>
+          <label class="cv-label">Formation / scolarité</label><textarea class="cv-in" id="cv-formation" placeholder="Seconde générale au Lycée…, options…"></textarea>
+          <label class="cv-label">Expériences (stages, jobs, bénévolat)</label><textarea class="cv-in" id="cv-experiences" placeholder="Baby-sitting, bénévolat, petit job d'été…"></textarea>
+          <label class="cv-label">Compétences</label><textarea class="cv-in" id="cv-competences" placeholder="Travail en équipe, informatique, rigueur…"></textarea>
+          <div style="display:flex;gap:.6rem"><div style="flex:1"><label class="cv-label">Langues</label><input class="cv-in" id="cv-langues" placeholder="Anglais B1, Espagnol A2"/></div>
+            <div style="flex:1"><label class="cv-label">Centres d'intérêt</label><input class="cv-in" id="cv-interets" placeholder="Sport, musique…"/></div></div>
+          <label class="cv-label">Coordonnées (optionnel)</label><input class="cv-in" id="cv-coordonnees" placeholder="Ville, email, téléphone"/>
+          <button class="cv-btn" id="cv-gen" style="margin-top:.9rem" onclick="cvGenerate()">✦ Générer mon CV</button>
+        </div>
+        <div class="cv-card">
+          <h2 class="cv-h2">Résultat</h2>
+          <div id="cv-out" class="cv-empty">Ton CV apparaîtra ici.</div>
+          <div class="cv-actions" id="cv-actions" style="display:none">
+            <button class="cv-btn cv-small" id="cv-copy" onclick="cvCopy()">Copier</button>
+            <button class="cv-btn cv-small cv-ghost" onclick="window.print()">Imprimer / PDF</button>
+          </div>
+          <div class="cv-saved"><h2 class="cv-h2" style="margin-top:1rem;font-size:.95rem">Mes CV</h2><div id="cv-list"><div class="cv-empty">…</div></div></div>
+        </div>
+      </div>
+    </div>
 
     <!-- PAGE GENERATE -->
     <div class="page active" id="page-generate">
@@ -2282,12 +2332,45 @@ async function subscribePlan(plan) {
     if (name === 'credits') { renderCreditsPage(); renderVisioPacks(); document.getElementById('visio-balance').textContent = (currentUser.visio_credits||0) + ' crédits'; }
     if (name === 'abonnement') { renderAbonnement(); }
     if (name === 'study')      { updateCostPreview(); loadStudyDossiers(); }
+    if (name === 'cv')         { cvLoadList(); }
     if (name === 'apparence')  { initThemePage(); }
     if (name === 'classes')    { loadMyClasses(); startChatPolling(); }
     if (name === 'myprofs')    { loadMyProfs(); }
     if (name === 'planning')   { loadPlanning(); }
     if (name === 'quete')      { loadQuete(); }
     if (name === 'cahiers')    { loadCahiers(); }
+  }
+
+  // ══════════════════════════════════════════
+  //  CV (onglet intégré)
+  // ══════════════════════════════════════════
+  function cvVal(id) { var e = document.getElementById(id); return e ? e.value : ''; }
+  function cvShow(text) { var o = document.getElementById('cv-out'); o.classList.remove('cv-empty'); o.textContent = text; document.getElementById('cv-actions').style.display = 'flex'; }
+  function cvCopy() { var t = document.getElementById('cv-out').textContent; navigator.clipboard.writeText(t).then(function () { var b = document.getElementById('cv-copy'); b.textContent = '✓ Copié'; setTimeout(function () { b.textContent = 'Copier'; }, 1500); }).catch(function () {}); }
+  async function cvGenerate() {
+    var g = document.getElementById('cv-gen');
+    var body = { titre: cvVal('cv-titre'), objectif: cvVal('cv-objectif'), formation: cvVal('cv-formation'),
+      experiences: cvVal('cv-experiences'), competences: cvVal('cv-competences'), langues: cvVal('cv-langues'),
+      interets: cvVal('cv-interets'), coordonnees: cvVal('cv-coordonnees') };
+    if (!body.objectif && !body.formation) { showToast('Renseigne au moins un objectif ou ta formation.', 'error'); return; }
+    g.disabled = true; g.textContent = 'Génération…';
+    try {
+      var r = await api('POST', '/api/generate-cv', body);
+      cvShow(r.cv);
+      if (typeof r.creditsLeft === 'number') { currentUser.credits = r.creditsLeft; refreshUI(); }
+      showToast('CV généré ✓', 'success'); cvLoadList();
+    } catch (e) { showToast('Erreur : ' + e.message, 'error'); }
+    finally { g.disabled = false; g.textContent = '✦ Générer mon CV'; }
+  }
+  async function cvLoadList() {
+    try {
+      var d = await api('GET', '/api/cvs'); var L = document.getElementById('cv-list'); if (!L) return;
+      L.innerHTML = (d.cvs || []).map(function (c) {
+        return '<div class="it"><span>' + escapeHtml(c.titre || 'CV') + ' <span style="color:var(--muted);font-size:.76rem">' + (c.created_at || '').slice(0, 10) + '</span></span><span><a data-open="' + c.id + '">ouvrir</a> · <a data-del="' + c.id + '">suppr.</a></span></div>';
+      }).join('') || '<div class="cv-empty">Aucun CV enregistré.</div>';
+      L.querySelectorAll('[data-open]').forEach(function (a) { a.onclick = async function () { var c = await api('GET', '/api/cvs/' + a.getAttribute('data-open')); cvShow(c.content); window.scrollTo({ top: 0, behavior: 'smooth' }); }; });
+      L.querySelectorAll('[data-del]').forEach(function (a) { a.onclick = async function () { if (!confirm('Supprimer ce CV ?')) return; await api('DELETE', '/api/cvs/' + a.getAttribute('data-del')); cvLoadList(); }; });
+    } catch (e) {}
   }
 
   // ══════════════════════════════════════════
