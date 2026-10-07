@@ -1120,10 +1120,64 @@
     </div>
 
 <!-- PAGE MON PLANNING -->
+    <style>
+    #page-planning .pl-top{display:flex!important;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:.8rem;flex-wrap:wrap}
+    #page-planning .pl-mois{font-family:'Sora',sans-serif;font-weight:300;font-size:1.9rem;color:var(--text)}
+    #page-planning .pl-mois b{font-weight:800}
+    #page-planning .pl-nav{display:flex!important;gap:.3rem;align-items:center}
+    #page-planning .pl-nav button{background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:.3rem .7rem;font-size:.85rem;color:var(--text);cursor:pointer;font-family:inherit}
+    #page-planning .pl-nav button:hover{background:var(--card)}
+    #page-planning .pl-cal{display:block!important;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+    #page-planning .pl-jours, #page-planning .pl-grille{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))}
+    #page-planning .pl-jours div{text-align:right;padding:.4rem .6rem;font-size:.85rem;color:var(--muted);border-bottom:1px solid var(--border)}
+    #page-planning .pl-jours div.we{opacity:.6}
+    #page-planning .pl-case{display:block!important;min-height:104px;padding:.3rem .3rem .4rem;border-right:1px solid var(--border);border-bottom:1px solid var(--border);cursor:pointer;min-width:0}
+    #page-planning .pl-case:nth-child(7n){border-right:0}
+    #page-planning .pl-case.we{background:var(--card)}
+    #page-planning .pl-case.hors .pl-num{opacity:.35}
+    #page-planning .pl-case:hover{box-shadow:inset 0 0 0 2px var(--orange-glow)}
+    #page-planning .pl-num{display:block;text-align:right;font-size:1.05rem;color:var(--text);padding:.1rem .3rem .25rem}
+    #page-planning .pl-case.auj .pl-num span{display:inline-block;min-width:1.7em;height:1.7em;line-height:1.7em;text-align:center;border-radius:50%;background:#E5484D;color:#fff;font-weight:700}
+    #page-planning .pl-ev{display:block;font-size:.74rem;line-height:1.3;padding:.14rem .35rem;margin-bottom:.15rem;border-radius:3px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+    #page-planning .pl-ev:hover{filter:brightness(.95)}
+    #pl-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9000;align-items:center;justify-content:center;padding:1rem}
+    #pl-modal.on{display:flex}
+    #pl-modal .pl-box{background:var(--surface);border-radius:14px;padding:1.3rem;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+    #pl-modal h3{font-family:'Sora',sans-serif;font-weight:700;font-size:1.1rem;margin-bottom:.8rem;color:var(--text)}
+    #pl-modal label{display:block;font-size:.76rem;font-weight:600;color:var(--muted);margin:.6rem 0 .25rem}
+    #pl-modal input{display:block;width:100%;background:var(--card);border:1px solid var(--border);border-radius:9px;padding:.55rem .75rem;color:var(--text);font-family:inherit;font-size:.9rem}
+    #pl-modal .pl-row{display:flex;gap:.6rem}#pl-modal .pl-row>div{flex:1}
+    #pl-modal .pl-sw{display:flex;gap:.45rem;flex-wrap:wrap}
+    #pl-modal .pl-sw button{width:26px;height:26px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0}
+    #pl-modal .pl-sw button.on{border-color:var(--text)}
+    #pl-modal .pl-sw.verrou button{opacity:.3;cursor:not-allowed}
+    #pl-modal .pl-lock{font-size:.76rem;color:var(--muted);margin-top:.4rem}
+    #pl-modal .pl-btns{display:flex;gap:.5rem;margin-top:1.1rem;justify-content:flex-end}
+    #pl-modal .pl-btns button{border-radius:9px;padding:.55rem 1rem;font-size:.88rem;font-weight:700;cursor:pointer;font-family:inherit;border:1px solid var(--border);background:transparent;color:var(--text)}
+    #pl-modal .pl-btns .ok{background:var(--orange);border-color:var(--orange);color:#fff}
+    #pl-modal .pl-btns .del{color:#E5484D;margin-right:auto}
+    @media(max-width:700px){#page-planning .pl-case{min-height:72px}#page-planning .pl-ev{font-size:.62rem;padding:.1rem .2rem}#page-planning .pl-mois{font-size:1.4rem}}
+    </style>
     <div class="page" id="page-planning">
-      <div class="page-header"><h1>Mon planning</h1><p>Tes visios demandées et confirmées.</p></div>
+      <div class="page-header"><h1>Mon planning</h1><p>Note tes contrôles, révisions et devoirs. Clique sur un jour pour ajouter un événement.</p></div>
       <div id="planning-content">
         <div class="empty"><div class="icon">📅</div><p>Chargement…</p></div>
+      </div>
+    </div>
+    <div id="pl-modal" onclick="if(event.target===this)plClose()">
+      <div class="pl-box">
+        <h3 id="pl-titre-modal">Nouvel événement</h3>
+        <label>Titre</label><input id="pl-in-titre" maxlength="80" placeholder="Contrôle de maths"/>
+        <div class="pl-row"><div><label>Date</label><input type="date" id="pl-in-date"/></div>
+          <div><label>Heure (optionnel)</label><input type="time" id="pl-in-heure"/></div></div>
+        <label>Couleur</label>
+        <div class="pl-sw" id="pl-sw"></div>
+        <div class="pl-lock" id="pl-lock" style="display:none">🔒 Choisir la couleur est réservé aux abonnements Starter, Premium et Pro.</div>
+        <div class="pl-btns">
+          <button class="del" id="pl-del" onclick="plDelete()">Supprimer</button>
+          <button onclick="plClose()">Annuler</button>
+          <button class="ok" onclick="plSave()">Enregistrer</button>
+        </div>
       </div>
     </div>
 
@@ -4492,39 +4546,95 @@ async function subscribePlan(plan) {
 
 <!-- ===== MON PLANNING (élève) ===== -->
 <script>
+  // ── PLANNING : calendrier mensuel personnel ──
+  var PL_COULEURS = ['#E8692A', '#E5484D', '#D6409F', '#8E4EC6', '#3E63DD', '#0090FF', '#12A594', '#30A46C', '#F5A524'];
+  var PL_MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+  var PL_MOIS_ABR = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+  var plState = { y: null, m: null, events: [], couleursOk: false, editId: null, couleur: PL_COULEURS[0] };
+  function plFmt(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+  function plPremierJour() {   // lundi de la semaine qui contient le 1er du mois
+    var d = new Date(plState.y, plState.m, 1); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d;
+  }
   async function loadPlanning() {
-    const el = document.getElementById('planning-content');
-    el.innerHTML = '<div class="empty"><div class="icon">📅</div><p>Chargement…</p></div>';
+    if (plState.y === null) { var t = new Date(); plState.y = t.getFullYear(); plState.m = t.getMonth(); }
+    var el = document.getElementById('planning-content');
     try {
-      const sessions = await api('GET', '/api/video-sessions/student');
-
-      // On garde les demandes en attente + les visios confirmées à venir
-      const pending = sessions.filter(s => s.status === 'requested');
-      const booked  = sessions.filter(s => s.status === 'booked');
-
-      if (!pending.length && !booked.length) {
-        el.innerHTML = `<div class="empty"><div class="icon">📅</div><p>Aucune visio prévue.<br>Va dans <a href="#" onclick="showPage('myprofs',document.querySelector('[data-page=myprofs]'));return false;" style="color:var(--orange)">Mes profs</a> pour en demander une.</p></div>`;
-        return;
-      }
-
-      let html = '';
-
-      // EN ATTENTE
-      if (pending.length) {
-        html += `<h2 style="font-family:'Sora',sans-serif;font-size:1rem;color:var(--text);margin:0 0 0.75rem">⏳ En attente de réponse</h2>`;
-        html += pending.map(s => planningCard(s, 'pending')).join('');
-      }
-
-      // CONFIRMÉES
-      if (booked.length) {
-        html += `<h2 style="font-family:'Sora',sans-serif;font-size:1rem;color:var(--text);margin:1.5rem 0 0.75rem">✅ Visios confirmées</h2>`;
-        html += booked.map(s => planningCard(s, 'booked')).join('');
-      }
-
-      el.innerHTML = html;
-    } catch(e) {
-      el.innerHTML = `<div class="empty"><p style="color:#FF6B6B">Erreur : ${escapeHtml(e.message)}</p></div>`;
+      var du = plPremierJour(), au = new Date(du); au.setDate(au.getDate() + 41);
+      var d = await api('GET', '/api/planning?du=' + plFmt(du) + '&au=' + plFmt(au));
+      plState.events = d.events || []; plState.couleursOk = !!d.couleurs_autorisees;
+      plRender();
+    } catch (e) {
+      el.innerHTML = '<div class="empty"><p style="color:#FF6B6B">Erreur : ' + escapeHtml(e.message) + '</p></div>';
     }
+  }
+  function plRender() {
+    var el = document.getElementById('planning-content'), auj = plFmt(new Date()), d = plPremierJour(), cases = '';
+    for (var i = 0; i < 42; i++) {
+      var iso = plFmt(d), we = (i % 7) >= 5, hors = d.getMonth() !== plState.m;
+      var evs = plState.events.filter(function (e) { return e.date === iso; }).map(function (e) {
+        return '<div class="pl-ev" style="background:' + e.couleur + '33;border-left:3px solid ' + e.couleur + '" title="' + escapeHtml(e.titre) + '" data-ev="' + e.id + '">' + (e.heure ? escapeHtml(e.heure) + ' ' : '') + escapeHtml(e.titre) + '</div>';
+      }).join('');
+      var num = d.getDate() === 1 ? '1 ' + PL_MOIS_ABR[d.getMonth()] : d.getDate();
+      cases += '<div class="pl-case' + (we ? ' we' : '') + (hors ? ' hors' : '') + (iso === auj ? ' auj' : '') + '" data-jour="' + iso + '"><span class="pl-num"><span>' + num + '</span></span>' + evs + '</div>';
+      d.setDate(d.getDate() + 1);
+    }
+    el.innerHTML = '<div class="pl-top"><div class="pl-mois"><b>' + PL_MOIS[plState.m] + '</b> ' + plState.y + '</div>' +
+      '<div class="pl-nav"><button onclick="plMove(-1)" aria-label="Mois précédent">‹</button><button onclick="plMove(0)">Aujourd’hui</button><button onclick="plMove(1)" aria-label="Mois suivant">›</button></div></div>' +
+      '<div class="pl-cal"><div class="pl-jours"><div>lun.</div><div>mar.</div><div>mer.</div><div>jeu.</div><div>ven.</div><div class="we">sam.</div><div class="we">dim.</div></div>' +
+      '<div class="pl-grille">' + cases + '</div></div>';
+    // Clic sur un événement = le modifier ; clic sur une case = en créer un ce jour-là.
+    el.querySelector('.pl-grille').onclick = function (ev) {
+      var e = ev.target.closest('.pl-ev'), c = ev.target.closest('.pl-case');
+      if (e) plOpen(parseInt(e.getAttribute('data-ev'), 10));
+      else if (c) plOpen(null, c.getAttribute('data-jour'));
+    };
+  }
+  function plMove(n) {
+    if (n === 0) { var t = new Date(); plState.y = t.getFullYear(); plState.m = t.getMonth(); }
+    else { var d = new Date(plState.y, plState.m + n, 1); plState.y = d.getFullYear(); plState.m = d.getMonth(); }
+    loadPlanning();
+  }
+  function plSwatches() {
+    var box = document.getElementById('pl-sw');
+    box.className = 'pl-sw' + (plState.couleursOk ? '' : ' verrou');
+    box.innerHTML = PL_COULEURS.map(function (c) {
+      return '<button type="button" style="background:' + c + '" class="' + (c.toLowerCase() === (plState.couleur || '').toLowerCase() ? 'on' : '') + '" data-c="' + c + '" aria-label="Couleur ' + c + '"></button>';
+    }).join('');
+    box.onclick = function (ev) { var b = ev.target.closest('button'); if (b) plPick(b.getAttribute('data-c')); };
+    document.getElementById('pl-lock').style.display = plState.couleursOk ? 'none' : 'block';
+  }
+  function plPick(c) {
+    if (!plState.couleursOk) { showToast('Choisir la couleur est réservé aux abonnements Starter, Premium et Pro.', 'error'); return; }
+    plState.couleur = c; plSwatches();
+  }
+  function plOpen(id, iso) {
+    var e = id ? plState.events.filter(function (x) { return x.id === id; })[0] : null;
+    plState.editId = e ? e.id : null;
+    plState.couleur = e ? e.couleur : PL_COULEURS[0];
+    document.getElementById('pl-titre-modal').textContent = e ? 'Modifier l’événement' : 'Nouvel événement';
+    document.getElementById('pl-in-titre').value = e ? e.titre : '';
+    document.getElementById('pl-in-date').value = e ? e.date : iso;
+    document.getElementById('pl-in-heure').value = e ? (e.heure || '') : '';
+    document.getElementById('pl-del').style.display = e ? '' : 'none';
+    plSwatches();
+    document.getElementById('pl-modal').classList.add('on');
+    document.getElementById('pl-in-titre').focus();
+  }
+  function plClose() { document.getElementById('pl-modal').classList.remove('on'); }
+  async function plSave() {
+    var body = { titre: document.getElementById('pl-in-titre').value.trim(), date: document.getElementById('pl-in-date').value,
+                 heure: document.getElementById('pl-in-heure').value, couleur: plState.couleur };
+    if (!body.titre) { showToast('Donne un titre à l’événement.', 'error'); return; }
+    try {
+      if (plState.editId) await api('PUT', '/api/planning/' + plState.editId, body);
+      else await api('POST', '/api/planning', body);
+      plClose(); loadPlanning();
+    } catch (e) { showToast('Erreur : ' + e.message, 'error'); }
+  }
+  async function plDelete() {
+    if (!plState.editId || !confirm('Supprimer cet événement ?')) return;
+    try { await api('DELETE', '/api/planning/' + plState.editId); plClose(); loadPlanning(); }
+    catch (e) { showToast('Erreur : ' + e.message, 'error'); }
   }
 
   function planningCard(s, type) {
