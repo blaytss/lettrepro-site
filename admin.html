@@ -15,7 +15,7 @@
     .mod-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
     .mod-sev { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.2rem 0.6rem; border-radius: 999px; }
     .mod-sev.high { background: rgba(239,68,68,0.15); color: #EF4444; border: 1px solid rgba(239,68,68,0.4); }
-    .mod-sev.medium { background: rgba(245,158,11,0.15); color: #F59E0B; border: 1px solid rgba(245,158,11,0.4); }
+    .mod-sev.medium { background: rgba(245,158,11,0.15); color: #B45309; border: 1px solid rgba(245,158,11,0.4); }
     .mod-people { font-size: 0.82rem; color: var(--muted); }
     .mod-people strong { color: var(--text); }
     .mod-reason { font-size: 0.82rem; color: var(--orange); margin-top: 0.2rem; }
@@ -29,10 +29,10 @@
     .mod-count-badge { background: #EF4444; color: #fff; font-size: 0.75rem; font-weight: 700; border-radius: 999px; padding: 0.1rem 0.6rem; margin-left: 0.5rem; }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #0F0D0A; --surface: #1A1612; --card: #231E17; --border: #3A2F22;
+      --bg: #FEF9F6; --surface: #FFFFFF; --card: #FFF4EE; --border: #FDDCC8;
       --orange: #E8692A; --orange-light: #F5A462; --orange-glow: rgba(232,105,42,0.15);
-      --text: #F5F0E8; --muted: #9A8A78;
-      --green: #5CDB95; --red: #FF6B6B; --gold: #FFB400; --blue: #5B9BD5;
+      --text: #1C1107; --muted: #8B6E5A;
+      --green: #15803D; --red: #DC2626; --gold: #B45309; --blue: #2563EB;
     }
     body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
 
@@ -111,7 +111,7 @@
     .noshow-card .ns-date { font-size: 0.78rem; color: var(--muted); margin-top: 0.3rem; }
     .ns-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.85rem; }
     .ns-btn { border: none; border-radius: 8px; padding: 0.5rem 1.1rem; font-size: 0.83rem; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; }
-    .ns-btn.refund { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.4); color: #10B981; }
+    .ns-btn.refund { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.4); color: #047857; }
     .ns-btn.reject { background: transparent; border: 1px solid var(--border); color: var(--muted); }
   </style>
 </head>
@@ -309,7 +309,7 @@
       const sumEl = document.getElementById('credits-summary');
       if (sumEl) {
         sumEl.innerHTML = 'Total : <strong>' + num(totalCredits) + '</strong> crédits dépensés · '
-          + '<strong style="color:#F59E0B">' + totalCost.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €</strong> de coût '
+          + '<strong style="color:#B45309">' + totalCost.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €</strong> de coût '
           + '<span style="opacity:.7">(' + cpc.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €/crédit)</span>';
       }
       if (!recent.length) {
@@ -333,7 +333,7 @@
             <td style="color:var(--muted)">${lastLogin}</td>
             <td style="color:var(--muted)">${formatDuration(u.total_time)}</td>
             <td style="font-weight:600">${num(used)}</td>
-            <td style="color:#F59E0B;font-weight:600">${cout} €</td>
+            <td style="color:#B45309;font-weight:600">${cout} €</td>
             <td style="text-align:right">
               <button class="refresh-btn" onclick="editEmail(${u.id}, '${esc(u.email || '')}')">✏️ Email</button>
               <button class="refresh-btn" style="border-color:rgba(239,68,68,0.4);color:#EF4444;margin-left:0.4rem" onclick="deleteUser(${u.id}, '${esc(u.email || '')}')">🗑️ Suppr.</button>

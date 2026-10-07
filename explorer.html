@@ -21,13 +21,13 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg:#0F0D0A; --surface:#1A1612; --card:#231E17; --border:#3A2F22;
+      --bg:#FEF9F6; --surface:#FFFFFF; --card:#FFF4EE; --border:#FDDCC8;
       --orange:#E8692A; --orange-light:#F5A462; --orange-glow:rgba(232,105,42,0.15);
-      --text:#F5F0E8; --muted:#9A8A78; --white:#ffffff;
+      --text:#1C1107; --muted:#8B6E5A; --white: #1C1107;
     }
     body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; }
 
-    nav { display:flex; align-items:center; justify-content:space-between; padding:1rem 2rem; border-bottom:1px solid var(--border); background:rgba(15,13,10,0.92); backdrop-filter:blur(12px); position:sticky; top:0; z-index:100; }
+    nav { display:flex; align-items:center; justify-content:space-between; padding:1rem 2rem; border-bottom:1px solid var(--border); background:rgba(254,249,246,0.92); backdrop-filter:blur(12px); position:sticky; top:0; z-index:100; }
     .nav-logo { font-family:'Sora',sans-serif; font-weight:800; font-size:1.2rem; color:var(--text); text-decoration:none; }
     .nav-logo span { color:var(--orange); }
     .nav-links { display:flex; gap:1.5rem; }
@@ -75,7 +75,7 @@
     .prof-price strong { color:var(--orange); font-family:'Sora',sans-serif; }
     .sub-btn { background:linear-gradient(135deg,var(--orange),#C0501A); color:white; border:none; border-radius:8px; padding:0.45rem 1rem; font-size:0.82rem; font-weight:700; cursor:pointer; transition:all 0.2s; font-family:'Sora',sans-serif; }
     .sub-btn:hover { transform:translateY(-1px); }
-    .sub-btn.subscribed { background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.3); color:#10B981; }
+    .sub-btn.subscribed { background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.3); color:#047857; }
 
     /* GRILLE COURS */
     .courses-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem; }
@@ -99,7 +99,7 @@
     @keyframes spin { to{transform:rotate(360deg)} }
 
     /* MODAL PROF */
-    .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:200; display:none; align-items:center; justify-content:center; padding:1rem; }
+    .modal-overlay { position:fixed; inset:0; background:rgba(28,17,7,0.45); z-index:200; display:none; align-items:center; justify-content:center; padding:1rem; }
     .modal-overlay.visible { display:flex; }
     .modal { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:2rem; max-width:680px; width:100%; position:relative; max-height:90vh; overflow-y:auto; }
     .modal-close { position:absolute; top:1rem; right:1rem; background:var(--card); border:none; color:var(--muted); width:28px; height:28px; border-radius:6px; cursor:pointer; font-size:1rem; }
@@ -118,7 +118,7 @@
     .book-btn { background:linear-gradient(135deg,var(--orange),#C0501A); color:white; border:none; border-radius:8px; padding:0.5rem 1rem; font-size:0.82rem; font-weight:700; cursor:pointer; font-family:'Sora',sans-serif; transition:all 0.2s; white-space:nowrap; }
     .book-btn:hover { transform:translateY(-1px); }
 
-    .toast { position:fixed; bottom:2rem; right:2rem; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:0.85rem 1.25rem; font-size:0.88rem; color:var(--text); z-index:300; box-shadow:0 8px 32px rgba(0,0,0,0.4); transform:translateY(20px); opacity:0; transition:all 0.3s; pointer-events:none; }
+    .toast { position:fixed; bottom:2rem; right:2rem; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:0.85rem 1.25rem; font-size:0.88rem; color:var(--text); z-index:300; box-shadow:0 8px 32px rgba(28,17,7,0.12); transform:translateY(20px); opacity:0; transition:all 0.3s; pointer-events:none; }
     .toast.visible { transform:translateY(0); opacity:1; }
     .toast.success { border-color:rgba(50,200,100,0.3); }
     .toast.error { border-color:rgba(220,50,50,0.3); }
@@ -321,7 +321,7 @@
         <div class="prof-subjects">${(p.subjects||[]).slice(0,3).map(s=>`<span class="subject-tag">${s}</span>`).join('')}</div>
         <div class="prof-bio">${p.bio || 'Aucune description.'}</div>
         <div class="prof-footer">
-          <div class="prof-price"><strong style="color:#10B981">Gratuit</strong> <span style="color:var(--muted);font-size:.72rem">· 1 crédit d'abo</span></div>
+          <div class="prof-price"><strong style="color:#047857">Gratuit</strong> <span style="color:var(--muted);font-size:.72rem">· 1 crédit d'abo</span></div>
           <button class="sub-btn ${isSubbed?'subscribed':''}" onclick="event.stopPropagation();subscribeTo(${p.id},${p.subscription_price})">
             ${isSubbed ? '✓ Abonné' : "S'abonner"}
           </button>
@@ -395,7 +395,7 @@
         <div style="display:flex;align-items:center;justify-content:space-between;background:var(--card);border-radius:10px;padding:1rem;margin-bottom:1.5rem">
           <div>
             <p style="font-size:0.78rem;color:var(--muted);margin-bottom:0.2rem">Abonnement</p>
-            <p style="font-family:'Sora',sans-serif;font-weight:800;font-size:1.2rem;color:#10B981">Gratuit</p>
+            <p style="font-family:'Sora',sans-serif;font-weight:800;font-size:1.2rem;color:#047857">Gratuit</p>
             <p style="font-size:0.72rem;color:var(--muted)">coûte 1 crédit d'abonnement</p>
           </div>
           <div>
@@ -482,7 +482,7 @@
     if (!nom) { alert('Indique le nom de la classe souhaitée.'); return; }
     try {
       await api('POST', '/api/classes/creation-request', { profId, nom, matiere, message });
-      document.getElementById('suggest-class-form').innerHTML = '<p style="color:#10B981">✓ Suggestion envoyée au prof !</p>';
+      document.getElementById('suggest-class-form').innerHTML = '<p style="color:#047857">✓ Suggestion envoyée au prof !</p>';
     } catch(e) {
       alert(e.message);
     }
