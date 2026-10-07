@@ -727,7 +727,60 @@
     #page-cv .cv-actions{margin-top:.7rem;display:flex;gap:.4rem}
     #page-cv .cv-saved .it{display:flex;justify-content:space-between;align-items:center;gap:.5rem;border-bottom:1px solid var(--border);padding:.45rem .1rem;font-size:.86rem}
     #page-cv .cv-saved a{color:var(--orange);cursor:pointer;text-decoration:none}
-    @media print{body *{visibility:hidden}#page-cv #cv-out,#page-cv #cv-out *{visibility:visible}#page-cv #cv-out{position:absolute;left:0;top:0;width:100%;border:0;background:#fff;padding:0}}
+    #page-cv .cv-actions{flex-wrap:wrap}
+    #page-cv .cv-col{display:block!important;min-width:0}
+    /* ── Page CV mise en forme (tailles en em : s'adapte à la largeur via cqw) ── */
+    #page-cv #cv-page-wrap, #page-cv .cv-tpl{container-type:inline-size}
+    #page-cv .cvp{display:flex!important;flex-direction:column;position:relative;background:#fff;color:#222;font-size:2.05cqw;line-height:1.45;min-height:141.4cqw;width:100%;border:1px solid var(--border);font-family:'Inter',Arial,sans-serif;text-align:left}
+    #page-cv .cvp-head{display:flex!important;align-items:center;gap:1.6em;padding:2em 2.2em 1.4em}
+    #page-cv .cvp-name{font-family:'Sora',sans-serif;font-weight:800;font-size:2.5em;line-height:1.1;color:inherit}
+    #page-cv .cvp-sub{font-size:1.15em;opacity:.8;margin-top:.35em}
+    #page-cv .cvp-photo{width:8.5em;height:8.5em;flex:0 0 auto;background:#e6e6e6 center/cover no-repeat;display:flex!important;align-items:center;justify-content:center;color:#888;font-size:1em;text-align:center;cursor:pointer;line-height:1.2}
+    #page-cv .cvp-body{display:flex!important;flex:1;min-height:0}
+    #page-cv .cvp-side{width:37%;padding:1.5em 1.6em;flex:0 0 auto}
+    #page-cv .cvp-main{flex:1;padding:1.5em 2em;min-width:0}
+    #page-cv .cvp-b{margin-bottom:1.5em}
+    #page-cv .cvp-b h3{font-family:'Inter',Arial,sans-serif;font-size:1.15em;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin:0 0 .5em;color:inherit}
+    #page-cv .cvp-b p{margin:0 0 .25em;font-size:1em;color:inherit}
+    #page-cv .cvp-b ul{margin:0;padding-left:1.3em}
+    #page-cv .cvp-b li{margin-bottom:.2em;font-size:1em}
+    /* Modèle 1 — Classique (vert) */
+    #page-cv .cvp.t1 .cvp-name, #page-cv .cvp.t1 .cvp-b h3{color:#4a9a6c}
+    #page-cv .cvp.t1 .cvp-head{justify-content:space-between}
+    #page-cv .cvp.t1 .cvp-side{background:#e3efe6}
+    /* Modèle 2 — Chronologique (bleu, frise à gauche) */
+    #page-cv .cvp.t2 .cvp-head{justify-content:space-between}
+    #page-cv .cvp.t2 .cvp-photo{border-radius:50%}
+    #page-cv .cvp.t2 .cvp-body{flex-direction:row-reverse}
+    #page-cv .cvp.t2 .cvp-b h3{color:#2f55d4;text-transform:none;font-size:1.35em}
+    #page-cv .cvp.t2 .cvp-side .cvp-b{border:1px solid #cfd4e2;padding:1em;box-shadow:.25em .25em 0 #e6e9f2}
+    #page-cv .cvp.t2 .cvp-main .cvp-b{border-left:.18em solid #2f55d4;padding-left:1.1em}
+    /* Modèle 3 — Bandeau sombre */
+    #page-cv .cvp.t3 .cvp-head{background:#2f323a;color:#fff}
+    #page-cv .cvp.t3 .cvp-photo{border-radius:50%;order:-1}
+    #page-cv .cvp.t3 .cvp-side{background:#ebe7e2}
+    #page-cv .cvp.t3 .cvp-b h3{text-transform:none;font-size:1.3em;font-weight:600}
+    #page-cv .cvp.t3 .cvp-main .cvp-b h3{border-bottom:1px solid #555;padding-bottom:.25em}
+    /* Modèle 4 — Colonne sombre */
+    #page-cv .cvp.t4{flex-direction:row}
+    #page-cv .cvp.t4 .cvp-side{background:#3d3d3d;color:#fff;padding-top:2em}
+    #page-cv .cvp.t4 .cvp-side .cvp-photo{border-radius:50%;margin:0 auto 1.6em;width:11em;height:11em}
+    #page-cv .cvp.t4 .cvp-side .cvp-b h3{border-bottom:.15em solid #fff;padding-bottom:.3em}
+    #page-cv .cvp.t4 .cvp-head{padding:0 0 1.2em}
+    #page-cv .cvp.t4 .cvp-name{color:#a39c96;text-transform:uppercase;font-size:2.9em}
+    #page-cv .cvp.t4 .cvp-main .cvp-b h3{border-bottom:.15em solid #a39c96;padding-bottom:.3em}
+    /* Vignettes des modèles */
+    #page-cv .cv-tpls{display:grid!important;grid-template-columns:repeat(4,1fr);gap:.7rem}
+    @media(max-width:1200px){#page-cv .cv-tpls{grid-template-columns:repeat(2,1fr)}}
+    #page-cv .cv-tpl{display:block!important;cursor:pointer;border:2px solid var(--border);border-radius:10px;padding:5px;background:var(--surface);transition:border-color .15s}
+    #page-cv .cv-tpl:hover{border-color:var(--orange)}
+    #page-cv .cv-tpl.on{border-color:var(--orange);box-shadow:0 0 0 3px var(--orange-glow)}
+    #page-cv .cv-tpl .cvp{pointer-events:none;border:0}
+    #page-cv .cv-tpl-nom{font-size:.78rem;font-weight:600;text-align:center;margin-top:.35rem;color:var(--text)}
+    /* Mode déplacement (Premium) */
+    #page-cv .cvp.edit [data-b]{cursor:move;outline:1px dashed var(--orange);outline-offset:.2em;touch-action:none;user-select:none}
+    #page-cv .cvp.edit [data-b]:hover{background:rgba(232,105,42,.08)}
+    @media print{body *{visibility:hidden}#page-cv #cv-page-wrap,#page-cv #cv-page-wrap *{visibility:visible}#page-cv #cv-page-wrap{position:absolute;left:0;top:0;width:100%}#page-cv .cvp{border:0}#page-cv .cvp-photo.vide{visibility:hidden!important}#page-cv .cvp.edit [data-b]{outline:0}}
     </style>
     <div class="page" id="page-cv">
       <div class="page-header">
@@ -747,14 +800,26 @@
           <label class="cv-label">Coordonnées (optionnel)</label><input class="cv-in" id="cv-coordonnees" placeholder="Ville, email, téléphone"/>
           <button class="cv-btn" id="cv-gen" style="margin-top:.9rem" onclick="cvGenerate()">✦ Générer mon CV</button>
         </div>
-        <div class="cv-card">
-          <h2 class="cv-h2">Résultat</h2>
-          <div id="cv-out" class="cv-empty">Ton CV apparaîtra ici.</div>
-          <div class="cv-actions" id="cv-actions" style="display:none">
-            <button class="cv-btn cv-small" id="cv-copy" onclick="cvCopy()">Copier</button>
-            <button class="cv-btn cv-small cv-ghost" onclick="window.print()">Imprimer / PDF</button>
+        <div class="cv-col">
+          <div class="cv-card">
+            <h2 class="cv-h2">Résultat</h2>
+            <div id="cv-out" class="cv-empty">Ton CV apparaîtra ici.</div>
+            <div id="cv-page-wrap" style="display:none"><div id="cv-page"></div></div>
+            <div class="cv-actions" id="cv-actions" style="display:none">
+              <button class="cv-btn cv-small" id="cv-copy" onclick="cvCopy()">Copier le texte</button>
+              <button class="cv-btn cv-small cv-ghost" onclick="window.print()">Imprimer / PDF</button>
+              <button class="cv-btn cv-small cv-ghost" onclick="document.getElementById('cv-photo-in').click()">📷 Photo</button>
+              <button class="cv-btn cv-small cv-ghost" id="cv-move" onclick="cvToggleMove()">✥ Déplacer les blocs</button>
+              <button class="cv-btn cv-small cv-ghost" id="cv-reset" onclick="cvResetPos()" style="display:none">↺ Remettre en place</button>
+            </div>
+            <input type="file" id="cv-photo-in" accept="image/*" style="display:none" onchange="cvPickPhoto(this)"/>
+            <div class="cv-saved"><h2 class="cv-h2" style="margin-top:1rem;font-size:.95rem">Mes CV</h2><div id="cv-list"><div class="cv-empty">…</div></div></div>
           </div>
-          <div class="cv-saved"><h2 class="cv-h2" style="margin-top:1rem;font-size:.95rem">Mes CV</h2><div id="cv-list"><div class="cv-empty">…</div></div></div>
+          <div class="cv-card" style="margin-top:1rem">
+            <h2 class="cv-h2">Modèles de présentation</h2>
+            <p class="cv-empty" style="margin-bottom:.7rem">Clique sur un modèle pour l'appliquer à ton CV. Déplacer les blocs et la photo : Premium ou Pro.</p>
+            <div id="cv-tpls" class="cv-tpls"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -2332,7 +2397,7 @@ async function subscribePlan(plan) {
     if (name === 'credits') { renderCreditsPage(); renderVisioPacks(); document.getElementById('visio-balance').textContent = (currentUser.visio_credits||0) + ' crédits'; }
     if (name === 'abonnement') { renderAbonnement(); }
     if (name === 'study')      { updateCostPreview(); loadStudyDossiers(); }
-    if (name === 'cv')         { cvLoadList(); }
+    if (name === 'cv')         { cvLoadList(); cvRenderTpls(); }
     if (name === 'apparence')  { initThemePage(); }
     if (name === 'classes')    { loadMyClasses(); startChatPolling(); }
     if (name === 'myprofs')    { loadMyProfs(); }
@@ -2345,8 +2410,155 @@ async function subscribePlan(plan) {
   //  CV (onglet intégré)
   // ══════════════════════════════════════════
   function cvVal(id) { var e = document.getElementById(id); return e ? e.value : ''; }
-  function cvShow(text) { var o = document.getElementById('cv-out'); o.classList.remove('cv-empty'); o.textContent = text; document.getElementById('cv-actions').style.display = 'flex'; }
-  function cvCopy() { var t = document.getElementById('cv-out').textContent; navigator.clipboard.writeText(t).then(function () { var b = document.getElementById('cv-copy'); b.textContent = '✓ Copié'; setTimeout(function () { b.textContent = 'Copier'; }, 1500); }).catch(function () {}); }
+  // Modèles : `side` = blocs rangés dans la colonne latérale, le reste va dans la colonne principale.
+  var CV_TPLS = [
+    { id: 't1', nom: 'Classique',     side: ['contact', 'formation', 'competences', 'langues', 'interets'], photo: 'head', head: 'top' },
+    { id: 't2', nom: 'Chronologique', side: ['contact', 'competences', 'langues', 'interets'],              photo: 'head', head: 'top' },
+    { id: 't3', nom: 'Bandeau',       side: ['contact', 'formation', 'competences', 'langues'],             photo: 'head', head: 'top' },
+    { id: 't4', nom: 'Colonne',       side: ['competences', 'langues', 'interets'],                         photo: 'side', head: 'main' }
+  ];
+  var CV_MOVE_PLANS = ['premium', 'pro'];
+  var CV_SAMPLE = 'COORDONNÉES\n- Lyon\n- camille.martin@email.fr\n- 06 00 00 00 00\n\nOBJECTIF\nStage d\'observation en entreprise pour découvrir le monde professionnel.\n\nFORMATION\nSeconde générale — Lycée Jean Moulin\n- Option anglais renforcé\n- Délégué de classe\n\nEXPÉRIENCE\nBénévolat — Association sportive\n- Encadrer les plus jeunes\n- Aider à organiser les tournois\nBaby-sitting\n- Garder deux enfants le mercredi\n\nCOMPÉTENCES\n- Travail en équipe\n- Informatique\n- Rigueur\n\nLANGUES\n- Anglais B1\n- Espagnol A2\n\nCENTRES D\'INTÉRÊT\n- Football\n- Musique';
+  var cvState = { id: null, text: '', sub: '', tpl: 't1', pos: {}, photo: '', edit: false };
+  var cvSaveTimer = null;
+
+  function cvKey(title) {
+    var t = title.toUpperCase();
+    if (/COORDONN|CONTACT/.test(t)) return 'contact';
+    if (/OBJECTIF|PROFIL/.test(t)) return 'objectif';
+    if (/FORMATION|SCOLARIT/.test(t)) return 'formation';
+    if (/EXP[ÉE]RIENCE/.test(t)) return 'experience';
+    if (/COMP[ÉE]TENCE/.test(t)) return 'competences';
+    if (/LANGUE/.test(t)) return 'langues';
+    if (/INT[ÉE]R[ÊE]T|LOISIR/.test(t)) return 'interets';
+    return null;
+  }
+  // Découpe le texte du CV (titres de section en MAJUSCULES, puces « - ») en blocs.
+  function cvParse(text) {
+    var sections = [], cur = null, n = 0, avant = [];
+    (text || '').split(/\r?\n/).forEach(function (raw) {
+      var l = raw.trim().replace(/^#+\s*/, '').replace(/\*\*/g, '');
+      if (!l || /^[-–—_=]{3,}$/.test(l)) return;
+      var bare = l.replace(/\s*:$/, '');
+      var isUpper = bare.length <= 45 && /[A-ZÀ-Ý]/.test(bare) && bare === bare.toUpperCase() && !/^[-•*]/.test(bare);
+      var key = isUpper ? cvKey(bare) : null;
+      if (isUpper && (key || cur)) {
+        cur = { key: key || ('autre' + (++n)), title: bare, lines: [] }; sections.push(cur); return;
+      }
+      if (cur) cur.lines.push(l); else avant.push(l);
+    });
+    // Lignes placées avant la 1re section : la 1re est le nom (affiché depuis le compte), le reste = coordonnées.
+    var reste = avant.slice(1);
+    if (reste.length && !sections.some(function (s) { return s.key === 'contact'; })) {
+      sections.unshift({ key: 'contact', title: 'COORDONNÉES', lines: reste });
+    }
+    return sections;
+  }
+  function cvBlockHtml(s) {
+    var html = '', inList = false;
+    s.lines.forEach(function (l) {
+      var m = l.match(/^[-•*]\s*(.+)$/);
+      if (m) { if (!inList) { html += '<ul>'; inList = true; } html += '<li>' + escapeHtml(m[1]) + '</li>'; }
+      else { if (inList) { html += '</ul>'; inList = false; } html += '<p>' + escapeHtml(l) + '</p>'; }
+    });
+    if (inList) html += '</ul>';
+    return '<div class="cvp-b" data-b="' + s.key + '"><h3>' + escapeHtml(s.title.charAt(0) + s.title.slice(1).toLowerCase()) + '</h3>' + html + '</div>';
+  }
+  // Dessine une page de CV dans `el` avec le modèle `tplId`.
+  function cvRenderPage(el, text, tplId, o) {
+    o = o || {};
+    var tpl = CV_TPLS.filter(function (t) { return t.id === tplId; })[0] || CV_TPLS[0];
+    var side = '', main = '';
+    cvParse(text).forEach(function (s) { if (tpl.side.indexOf(s.key) !== -1) side += cvBlockHtml(s); else main += cvBlockHtml(s); });
+    var photo = '<div class="cvp-photo' + (o.photo ? '' : ' vide') + '" data-b="photo"' + (o.photo ? ' style="background-image:url(' + o.photo + ')"' : '') + '>' + (o.photo ? '' : (o.sample ? '👤' : '📷<br>Photo')) + '</div>';
+    var head = '<div class="cvp-head"><div data-b="head"><div class="cvp-name">' + escapeHtml(o.name || 'Prénom Nom') + '</div>' + (o.sub ? '<div class="cvp-sub">' + escapeHtml(o.sub) + '</div>' : '') + '</div>' + (tpl.photo === 'head' ? photo : '') + '</div>';
+    el.className = 'cvp ' + tpl.id + (o.edit ? ' edit' : '');
+    el.innerHTML = (tpl.head === 'top' ? head : '') +
+      '<div class="cvp-body"><div class="cvp-side">' + (tpl.photo === 'side' ? photo : '') + side + '</div>' +
+      '<div class="cvp-main">' + (tpl.head === 'main' ? head : '') + main + '</div></div>';
+    // Positions personnalisées (fractions de la largeur de page → identiques à l'écran et à l'impression)
+    var pos = o.pos || {};
+    el.querySelectorAll('[data-b]').forEach(function (b) {
+      var p = pos[b.getAttribute('data-b')];
+      if (p) b.style.transform = 'translate(' + (p.x * 100) + 'cqw,' + (p.y * 100) + 'cqw)';
+    });
+  }
+  function cvUserName() { return ((currentUser && (currentUser.prenom || '')) + ' ' + ((currentUser && currentUser.nom) || '')).trim(); }
+  function cvRender() {
+    if (!cvState.text) return;
+    cvRenderPage(document.getElementById('cv-page'), cvState.text, cvState.tpl,
+      { name: cvUserName(), sub: cvState.sub, photo: cvState.photo, pos: cvState.pos, edit: cvState.edit });
+  }
+  function cvRenderTpls() {
+    var box = document.getElementById('cv-tpls'); if (!box) return;
+    box.innerHTML = CV_TPLS.map(function (t) {
+      return '<div class="cv-tpl' + (t.id === cvState.tpl ? ' on' : '') + '" data-tpl="' + t.id + '"><div class="cvp"></div><div class="cv-tpl-nom">' + t.nom + '</div></div>';
+    }).join('');
+    box.querySelectorAll('.cv-tpl').forEach(function (d) {
+      var id = d.getAttribute('data-tpl');
+      cvRenderPage(d.querySelector('.cvp'), CV_SAMPLE, id, { name: 'Camille Martin', sub: 'Lycéenne — Seconde générale', sample: true });
+      d.onclick = function () { cvState.tpl = id; cvState.pos = {}; cvRenderTpls(); cvRender(); cvSaveLayout();
+        if (!cvState.text) showToast('Modèle choisi. Génère ton CV pour le voir mis en page.', 'success'); };
+    });
+  }
+  function cvShow(text, layout) {
+    cvState.text = text || '';
+    if (layout) { cvState.tpl = layout.template || 't1'; cvState.pos = layout.pos || {}; cvState.photo = layout.photo || ''; cvRenderTpls(); }
+    document.getElementById('cv-out').style.display = 'none';
+    document.getElementById('cv-page-wrap').style.display = 'block';
+    document.getElementById('cv-actions').style.display = 'flex';
+    cvRender();
+  }
+  function cvCopy() { navigator.clipboard.writeText(cvState.text).then(function () { var b = document.getElementById('cv-copy'); b.textContent = '✓ Copié'; setTimeout(function () { b.textContent = 'Copier le texte'; }, 1500); }).catch(function () {}); }
+  function cvSaveLayout() {
+    if (!cvState.id) return;
+    clearTimeout(cvSaveTimer);
+    cvSaveTimer = setTimeout(function () {
+      api('PUT', '/api/cvs/' + cvState.id + '/layout', { template: cvState.tpl, pos: cvState.pos, photo: cvState.photo }).catch(function () {});
+    }, 600);
+  }
+  function cvCanMove() { return !!currentUser && CV_MOVE_PLANS.indexOf(currentUser.plan) !== -1; }
+  function cvToggleMove() {
+    if (!cvCanMove()) { showToast('Déplacer les blocs du CV est réservé aux abonnements Premium et Pro.', 'error'); return; }
+    cvState.edit = !cvState.edit;
+    document.getElementById('cv-move').textContent = cvState.edit ? '✓ Terminer' : '✥ Déplacer les blocs';
+    document.getElementById('cv-reset').style.display = cvState.edit ? '' : 'none';
+    cvRender();
+  }
+  function cvResetPos() { cvState.pos = {}; cvRender(); cvSaveLayout(); }
+  function cvPickPhoto(input) {
+    var f = input.files && input.files[0]; input.value = ''; if (!f) return;
+    var img = new Image(), url = URL.createObjectURL(f);
+    img.onload = function () {   // on réduit la photo (carré 320 px) avant de l'enregistrer
+      var c = document.createElement('canvas'), s = Math.min(img.width, img.height); c.width = c.height = 320;
+      c.getContext('2d').drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 0, 0, 320, 320);
+      cvState.photo = c.toDataURL('image/jpeg', 0.85); URL.revokeObjectURL(url); cvRender(); cvSaveLayout();
+    };
+    img.onerror = function () { showToast('Image illisible.', 'error'); };
+    img.src = url;
+  }
+  // Glisser-déposer des blocs (mode déplacement) + clic sur la photo pour en choisir une.
+  (function () {
+    var page = document.getElementById('cv-page'), drag = null;
+    page.addEventListener('click', function (e) {
+      if (!cvState.edit && e.target.closest('.cvp-photo')) document.getElementById('cv-photo-in').click();
+    });
+    page.addEventListener('pointerdown', function (e) {
+      if (!cvState.edit) return;
+      var b = e.target.closest('[data-b]'); if (!b) return;
+      var key = b.getAttribute('data-b'), p = cvState.pos[key] || { x: 0, y: 0 };
+      drag = { b: b, key: key, sx: e.clientX, sy: e.clientY, ox: p.x, oy: p.y, w: page.offsetWidth };
+      b.setPointerCapture(e.pointerId); e.preventDefault();
+    });
+    page.addEventListener('pointermove', function (e) {
+      if (!drag) return;
+      var x = drag.ox + (e.clientX - drag.sx) / drag.w, y = drag.oy + (e.clientY - drag.sy) / drag.w;
+      cvState.pos[drag.key] = { x: x, y: y };
+      drag.b.style.transform = 'translate(' + (x * 100) + 'cqw,' + (y * 100) + 'cqw)';
+    });
+    function end() { if (drag) { drag = null; cvSaveLayout(); } }
+    page.addEventListener('pointerup', end); page.addEventListener('pointercancel', end);
+  })();
   async function cvGenerate() {
     var g = document.getElementById('cv-gen');
     var body = { titre: cvVal('cv-titre'), objectif: cvVal('cv-objectif'), formation: cvVal('cv-formation'),
@@ -2356,7 +2568,8 @@ async function subscribePlan(plan) {
     g.disabled = true; g.textContent = 'Génération…';
     try {
       var r = await api('POST', '/api/generate-cv', body);
-      cvShow(r.cv);
+      cvState.id = r.id; cvState.sub = body.objectif; cvState.pos = {};
+      cvShow(r.cv); cvSaveLayout();
       if (typeof r.creditsLeft === 'number') { currentUser.credits = r.creditsLeft; refreshUI(); }
       showToast('CV généré ✓', 'success'); cvLoadList();
     } catch (e) { showToast('Erreur : ' + e.message, 'error'); }
@@ -2368,7 +2581,7 @@ async function subscribePlan(plan) {
       L.innerHTML = (d.cvs || []).map(function (c) {
         return '<div class="it"><span>' + escapeHtml(c.titre || 'CV') + ' <span style="color:var(--muted);font-size:.76rem">' + (c.created_at || '').slice(0, 10) + '</span></span><span><a data-open="' + c.id + '">ouvrir</a> · <a data-del="' + c.id + '">suppr.</a></span></div>';
       }).join('') || '<div class="cv-empty">Aucun CV enregistré.</div>';
-      L.querySelectorAll('[data-open]').forEach(function (a) { a.onclick = async function () { var c = await api('GET', '/api/cvs/' + a.getAttribute('data-open')); cvShow(c.content); window.scrollTo({ top: 0, behavior: 'smooth' }); }; });
+      L.querySelectorAll('[data-open]').forEach(function (a) { a.onclick = async function () { var c = await api('GET', '/api/cvs/' + a.getAttribute('data-open')); var lay = {}; try { lay = JSON.parse(c.layout || '{}'); } catch (e) {} cvState.id = c.id; cvState.sub = c.poste || ''; cvShow(c.content, lay); window.scrollTo({ top: 0, behavior: 'smooth' }); }; });
       L.querySelectorAll('[data-del]').forEach(function (a) { a.onclick = async function () { if (!confirm('Supprimer ce CV ?')) return; await api('DELETE', '/api/cvs/' + a.getAttribute('data-del')); cvLoadList(); }; });
     } catch (e) {}
   }
