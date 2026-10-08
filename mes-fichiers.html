@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<script src="config.js"></script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>LettrePro — Mes fichiers</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#FEF9F6;--surface:#FFFFFF;--card:#FFF4EE;--border:#FDDCC8;--orange:#E8692A;--orange-light:#F5A462;--text:#1C1107;--muted:#8B6E5A;--green:#1E9E5F;--red:#CF4141;--blue:#2F6FB0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:100;flex-wrap:wrap;gap:.75rem}
+.nav-logo{font-family:'Sora',sans-serif;font-weight:800;font-size:1.2rem;color:var(--text);text-decoration:none}
+.nav-logo span{color:var(--orange)}
+.nav-link{color:var(--muted);text-decoration:none;font-size:.82rem;margin-left:1rem}
+.nav-link:hover{color:var(--orange)}
+.wrap{max-width:900px;margin:0 auto;padding:2rem}
+.page-header{margin-bottom:1.25rem}
+.page-header h1{font-family:'Sora',sans-serif;font-weight:800;font-size:1.6rem;margin-bottom:.25rem}
+.page-header p{color:var(--muted);font-size:.9rem}
+.msg{padding:1rem 1.25rem;border-radius:10px;font-size:.9rem;margin-bottom:1.25rem;display:none}
+.msg.error{background:rgba(207,65,65,.1);border:1px solid rgba(207,65,65,.3);color:var(--red);display:block}
+.storage{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.3rem 1.5rem;margin-bottom:1.25rem}
+.storage .top{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:.5rem}
+.storage .lbl{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.storage .val{font-family:'Sora',sans-serif;font-weight:700}
+.bar{height:10px;background:var(--card);border-radius:999px;overflow:hidden;margin-top:.7rem}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--orange),var(--orange-light));border-radius:999px;transition:width .5s}
+.bar-fill.full{background:var(--red)}
+.actions{display:flex;gap:.7rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.btn{border:none;border-radius:10px;padding:.65rem 1.2rem;font-size:.9rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;background:var(--orange);color:#fff}
+.btn:hover{filter:brightness(1.06)}
+.btn.ghost{background:var(--surface);border:1px solid var(--border);color:var(--text)}
+.btn.small{padding:.4rem .8rem;font-size:.8rem}
+.btn.danger{background:transparent;border:1px solid rgba(207,65,65,.4);color:var(--red)}
+.file{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:.9rem 1.1rem;margin-bottom:.6rem;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+.file .ic{font-size:1.4rem}
+.file .meta{color:var(--muted);font-size:.78rem}
+label{display:block;font-size:.78rem;font-weight:600;color:var(--muted);margin:0 0 .35rem}
+input,textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:.6rem .8rem;color:var(--text);font-family:'Inter',sans-serif;font-size:.9rem;margin-bottom:.9rem}
+textarea{min-height:180px;resize:vertical}
+input:focus,textarea:focus{outline:none;border-color:var(--orange)}
+.loader{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--orange);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+.overlay{display:none;position:fixed;inset:0;background:rgba(28,17,7,.5);z-index:200;align-items:center;justify-content:center;padding:1rem}
+.overlay.show{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.6rem;max-width:640px;width:100%;max-height:90vh;overflow:auto}
+.modal h3{font-family:'Sora';font-weight:800;margin-bottom:1rem}
+@media(max-width:640px){.wrap{padding:1.25rem}nav{padding:.8rem 1.1rem}}
+</style>
+<link rel="stylesheet" href="etab-ui.css"/>
+</head>
+<body>
+<nav>
+  <a href="dashboard.html" class="nav-logo">Lettre<span>Pro</span></a>
+  <div><a href="dashboard.html" class="nav-link">← Retour</a></div>
+</nav>
+<div class="wrap">
+  <div class="page-header">
+    <h1>📁 Mes fichiers</h1>
+    <p>Ton espace de stockage : crée des documents PDF ou importe des fichiers, et retrouve-les partout.</p>
+  </div>
+  <div class="msg" id="msg"></div>
+
+  <div class="storage">
+    <div class="top">
+      <span class="lbl">💾 Espace de stockage</span>
+      <span class="val" id="storage-val">—</span>
+    </div>
+    <div class="bar"><div class="bar-fill" id="storage-bar" style="width:0%"></div></div>
+  </div>
+
+  <div class="actions">
+    <button class="btn" onclick="openEditor()">✍️ Créer un document</button>
+    <button class="btn ghost" onclick="document.getElementById('up').click()">⬆️ Importer un fichier</button>
+    <input type="file" id="up" accept="application/pdf,image/*" style="display:none" onchange="uploadFile(this.files[0])"/>
+  </div>
+
+  <div id="list"><p style="color:var(--muted)"><span class="loader"></span> Chargement…</p></div>
+</div>
+
+<!-- Modal éditeur -> PDF -->
+<div class="overlay" id="ov-editor"><div class="modal">
+  <h3>✍️ Nouveau document</h3>
+  <label>Titre du document</label>
+  <input type="text" id="doc-titre" placeholder="Fiche de maths — chapitre 3"/>
+  <label>Contenu</label>
+  <textarea id="doc-texte" placeholder="Écris ton texte ici…"></textarea>
+  <div style="display:flex;gap:.6rem;justify-content:flex-end">
+    <button class="btn ghost" onclick="closeModal('ov-editor')">Annuler</button>
+    <button class="btn" onclick="saveDoc()">Enregistrer en PDF</button>
+  </div>
+</div></div>
+
+<script>
+  const API_BASE = window.API_BASE;
+  if (!localStorage.getItem('lp_token')) { window.location.href = 'login.html'; }
+  function token(){ return localStorage.getItem('lp_token'); }
+  async function apiJSON(method, path, body) {
+    const res = await fetch(API_BASE + path, { method, headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token() }, body: body ? JSON.stringify(body) : undefined });
+    if (res.status === 401) { window.location.href = 'login.html'; throw new Error('Session expirée'); }
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || ('Erreur ' + res.status));
+    return data;
+  }
+  function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+  function closeModal(id){document.getElementById(id).classList.remove('show');}
+  function fmtSize(b){ b=b||0; if(b<1024) return b+' o'; if(b<1024*1024) return (b/1024).toFixed(0)+' Ko'; if(b<1024*1024*1024) return (b/1024/1024).toFixed(1)+' Mo'; return (b/1024/1024/1024).toFixed(2)+' Go'; }
+  function fmtDate(s){ if(!s) return ''; try{ return new Date(s.replace(' ','T')+'Z').toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'});}catch(e){return s;} }
+
+  async function load() {
+    const el = document.getElementById('list');
+    try {
+      const d = await apiJSON('GET', '/api/files');
+      const used = d.used || 0, quota = d.quota || 1;
+      const pct = Math.min(100, Math.round(used / quota * 100));
+      document.getElementById('storage-val').textContent = fmtSize(used) + ' / ' + fmtSize(quota) + ' (' + pct + '%)';
+      const bar = document.getElementById('storage-bar');
+      bar.style.width = pct + '%';
+      bar.className = 'bar-fill' + (pct >= 95 ? ' full' : '');
+      const files = d.files || [];
+      el.innerHTML = files.length ? files.map(f => {
+        const isImg = (f.mime || '').startsWith('image/');
+        return `<div class="file">
+          <div style="display:flex;align-items:center;gap:.8rem">
+            <span class="ic">${isImg ? '🖼️' : '📄'}</span>
+            <div><div style="font-weight:600">${esc(f.nom)}</div><div class="meta">${fmtSize(f.taille)} · ${fmtDate(f.created_at)}</div></div>
+          </div>
+          <div style="display:flex;gap:.5rem">
+            <button class="btn small ghost" onclick="openFile(${f.id})">Ouvrir</button>
+            <button class="btn small danger" onclick="delFile(${f.id}, ${esc(JSON.stringify(f.nom))})">Supprimer</button>
+          </div></div>`;
+      }).join('') : '<div class="empty"><div class="e-ic">📄</div><div class="e-t">Ton espace est vide</div><div class="e-d">Crée un document dans l\'app (il sera enregistré en PDF) ou importe un fichier depuis ton appareil. Tu pourras ensuite le rendre comme devoir.</div><button class="btn" onclick="openEditor()">✍️ Créer mon premier document</button></div>';
+    } catch (e) { el.innerHTML = '<p style="color:var(--red)">' + esc(e.message) + '</p>'; }
+  }
+
+  function openEditor(){ document.getElementById('doc-titre').value=''; document.getElementById('doc-texte').value=''; document.getElementById('ov-editor').classList.add('show'); }
+
+  async function saveDoc() {
+    const titre = document.getElementById('doc-titre').value.trim() || 'Document';
+    const texte = document.getElementById('doc-texte').value;
+    if (!texte.trim()) { alert('Écris un peu de contenu.'); return; }
+    try {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+      const margin = 48, width = doc.internal.pageSize.getWidth() - margin * 2;
+      let y = margin;
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(16);
+      doc.text(doc.splitTextToSize(titre, width), margin, y); y += 28;
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(12);
+      const lines = doc.splitTextToSize(texte, width);
+      const lh = 16, ph = doc.internal.pageSize.getHeight() - margin;
+      for (const ln of lines) { if (y > ph) { doc.addPage(); y = margin; } doc.text(ln, margin, y); y += lh; }
+      const dataUrl = doc.output('datauristring');
+      await apiJSON('POST', '/api/files', { nom: titre.replace(/[\\/:*?"<>|]/g,'').slice(0,60) + '.pdf', mime: 'application/pdf', data: dataUrl });
+      closeModal('ov-editor'); load();
+    } catch (e) {
+      const msg = document.getElementById('msg'); msg.className = 'msg error'; msg.textContent = e.message;
+    }
+  }
+
+  function uploadFile(file) {
+    if (!file) return;
+    const rd = new FileReader();
+    rd.onload = async () => {
+      try {
+        await apiJSON('POST', '/api/files', { nom: file.name.slice(0,80), mime: file.type || 'application/octet-stream', data: rd.result });
+        document.getElementById('up').value = ''; load();
+      } catch (e) { const msg = document.getElementById('msg'); msg.className = 'msg error'; msg.textContent = e.message; }
+    };
+    rd.readAsDataURL(file);
+  }
+
+  async function openFile(id) {
+    try {
+      const f = await apiJSON('GET', '/api/files/' + id);
+      const res = await fetch(f.data); const blob = await res.blob();
+      window.open(URL.createObjectURL(blob), '_blank');
+    } catch (e) { alert(e.message); }
+  }
+  async function delFile(id, nom) {
+    if (!confirm('Supprimer « ' + nom + ' » ?')) return;
+    try { await apiJSON('DELETE', '/api/files/' + id); load(); } catch (e) { alert(e.message); }
+  }
+  load();
+</script>
+
+</body>
+</html>
