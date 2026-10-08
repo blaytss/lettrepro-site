@@ -2,7 +2,7 @@
    Connexion sociale : bouton Google officiel (fiable) + bouton Apple.
    S'injecte dans #social-auth (login.html + inscription.html).
    Google : actif dès que GOOGLE_CLIENT_ID est défini côté serveur.
-   Apple  : bouton présent, activation = compte Apple Developer requis.
+   Apple  : « Sign in with Apple » (redirection vers Apple, retour sur login.html avec un code).
    ══════════════════════════════════════════════════════════════ */
 (function () {
   var API = window.API_BASE;
@@ -67,8 +67,33 @@
     document.head.appendChild(s);
   }).catch(function () {});
 
-  // ── Apple (à activer avec un compte Apple Developer) ──
-  document.getElementById('btn-apple').onclick = function () {
-    alert('Connexion Apple bientôt disponible — elle nécessite un compte Apple Developer (configuration en cours).');
+  // ── Apple : on part chez Apple, qui nous renvoie sur login.html avec ?apple_code=… ──
+  var btnApple = document.getElementById('btn-apple');
+  btnApple.onclick = function () {
+    btnApple.disabled = true;
+    var ref = window.getRefCode ? window.getRefCode() : '';
+    fetch(API + '/api/auth/apple/start?ref=' + encodeURIComponent(ref || ''))
+      .then(function (r) { return r.json(); })
+      .then(function (d) { if (d.url) window.location.href = d.url; else throw new Error(); })
+      .catch(function () { btnApple.disabled = false; alert('Connexion Apple indisponible pour le moment.'); });
   };
+
+  // Retour d'Apple
+  var qs = new URLSearchParams(window.location.search);
+  var appleCode = qs.get('apple_code'), appleError = qs.get('apple_error');
+  if (appleCode || appleError) {
+    history.replaceState(null, '', window.location.pathname);   // on retire le code de l'adresse
+    if (appleError) {
+      if (appleError !== 'annule') alert(appleError === 'email'
+        ? "Apple n'a pas transmis ton adresse email. Réessaie en acceptant de la partager (ou masquée)."
+        : 'La connexion Apple a échoué. Réessaie.');
+    } else {
+      fetch(API + '/api/auth/apple/exchange', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: appleCode })
+      }).then(function (r) { return r.json(); }).then(function (d) {
+        if (d.token) success(d.token); else alert(d.error || 'Échec de la connexion Apple');
+      }).catch(function () { alert('Serveur injoignable.'); });
+    }
+  }
 })();
