@@ -1,16 +1,15 @@
-// Animation d'ouverture de l'appli : le score monte à 100 %, « +6 crédits » et confettis.
-// Jouée une seule fois par ouverture (pas à chaque changement de page).
-// Au lancement, l'appli enchaîne souvent 2 ou 3 pages (accueil -> connexion -> tableau de bord) :
-// l'animation reprend là où elle en était sur chaque page, et n'est « finie » qu'une fois arrivée à 100 %.
+// Animation d'entrée dans l'appli : le score monte à 100 %, « +6 crédits » et confettis.
+// Jouée à l'arrivée sur le tableau de bord, donc APRÈS la connexion : une fois par ouverture de l'appli,
+// et de nouveau après chaque connexion (la déconnexion remet le compteur à zéro).
 // Sa durée suit la connexion : le cercle avance tant que la page et ses données chargent,
 // et n'atteint 100 % que lorsque tout est prêt.
 (function () {
   var t0;   // moment où l'animation a commencé (gardé d'une page à l'autre)
   try {
+    if (!localStorage.getItem('lp_token')) return;                 // pas connecté : la page va renvoyer vers la connexion
     if (sessionStorage.getItem('lp_splash') === 'fini') return;
     t0 = +sessionStorage.getItem('lp_splash_t0') || 0;
-    if (t0 && Date.now() - t0 > 15000) { sessionStorage.setItem('lp_splash', 'fini'); return; }
-    if (!t0) { t0 = Date.now(); sessionStorage.setItem('lp_splash_t0', t0); }
+    if (!t0 || Date.now() - t0 > 15000) { t0 = Date.now(); sessionStorage.setItem('lp_splash_t0', t0); }
   } catch (e) { return; }
 
   var calme = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;

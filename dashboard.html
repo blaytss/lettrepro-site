@@ -4242,6 +4242,7 @@ async function subscribePlan(plan) {
   function logout(silent = false) {
     if (!silent && !confirm('Tu veux vraiment te déconnecter ?')) return;
     if (window.lpRappels) lpRappels.effacer();   // ne pas laisser les rappels d'un compte sur le téléphone
+    try { sessionStorage.removeItem('lp_splash'); sessionStorage.removeItem('lp_splash_t0'); } catch (e) {}   // l'animation rejouera à la prochaine connexion
     localStorage.removeItem('lp_token');
     localStorage.removeItem('lp_session');
     localStorage.removeItem('lp_api_key');
