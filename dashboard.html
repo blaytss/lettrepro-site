@@ -4241,6 +4241,7 @@ async function subscribePlan(plan) {
   // ══════════════════════════════════════════
   function logout(silent = false) {
     if (!silent && !confirm('Tu veux vraiment te déconnecter ?')) return;
+    if (window.lpRappels) lpRappels.effacer();   // ne pas laisser les rappels d'un compte sur le téléphone
     localStorage.removeItem('lp_token');
     localStorage.removeItem('lp_session');
     localStorage.removeItem('lp_api_key');
@@ -4677,6 +4678,7 @@ async function subscribePlan(plan) {
       if (e) plOpen(parseInt(e.getAttribute('data-ev'), 10));
       else if (c) plOpen(null, c.getAttribute('data-jour'));
     };
+    if (window.lpRappels) lpRappels.afficher(el);   // barre « Rappels » (appli mobile uniquement)
   }
   function plMove(n) {
     if (n === 0) { var t = new Date(); plState.y = t.getFullYear(); plState.m = t.getMonth(); }
@@ -4723,11 +4725,12 @@ async function subscribePlan(plan) {
       if (plState.editId) await api('PUT', '/api/planning/' + plState.editId, body);
       else await api('POST', '/api/planning', body);
       plClose(); loadPlanning();
+      if (window.lpRappels) lpRappels.sync();
     } catch (e) { showToast('Erreur : ' + e.message, 'error'); }
   }
   async function plDelete() {
     if (!plState.editId || !confirm('Supprimer cet événement ?')) return;
-    try { await api('DELETE', '/api/planning/' + plState.editId); plClose(); loadPlanning(); }
+    try { await api('DELETE', '/api/planning/' + plState.editId); plClose(); loadPlanning(); if (window.lpRappels) lpRappels.sync(); }
     catch (e) { showToast('Erreur : ' + e.message, 'error'); }
   }
 
@@ -5509,6 +5512,7 @@ async function subscribePlan(plan) {
   }).catch(function(){});
 })();
 </script>
+<script src="rappels.js"></script>
 <script src="prof-switch.js"></script>
 <script src="visio-guard.js"></script>
 <script>
