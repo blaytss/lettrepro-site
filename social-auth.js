@@ -36,7 +36,9 @@
   }
 
   // ── Google (bouton officiel) ──
-  fetch(API + '/api/auth/config').then(function (r) { return r.json(); }).then(function (cfg) {
+  // Dans l'appli mobile, Google refuse d'ouvrir sa fenêtre de connexion (bouton sans effet) : on ne l'affiche pas.
+  var NATIF = !!(window.Capacitor && Capacitor.isNativePlatform && Capacitor.isNativePlatform());
+  if (!NATIF) fetch(API + '/api/auth/config').then(function (r) { return r.json(); }).then(function (cfg) {
     var cid = cfg && cfg.google_client_id;
     var slot = document.getElementById('gsi-button');
     if (!cid) {

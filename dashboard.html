@@ -2,6 +2,13 @@
 <html lang="fr">
 <head>
 <script src="config.js"></script>
+<script>
+  // Appli mobile (iPhone/Android) : les stores interdisent de vendre du numérique hors de leur système d'achat.
+  // On y masque donc tout ce qui sert à acheter (.web-only) ; le site, lui, garde tout.
+  window.LP_NATIF = !!(window.Capacitor && Capacitor.isNativePlatform && Capacitor.isNativePlatform());
+  if (window.LP_NATIF) document.documentElement.classList.add('lp-native');
+</script>
+<style>.lp-native .web-only{display:none!important}.native-only{display:none!important}.lp-native .native-only{display:block!important}</style>
 <script src="splash.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -1224,8 +1231,8 @@
         <div class="ep-ico">📂</div>
         <h3>Ton espace est plein</h3>
         <p>Ton offre garde tes <strong id="ep-limite">15</strong> éléments les plus récents (lettres, CV, fiches et quiz). Ta nouvelle création est bien enregistrée, mais <strong id="ep-masquees">1</strong> plus ancien(s) sont maintenant masqué(s) 🔒.</p>
-        <p>Veux-tu passer à un abonnement supérieur pour tout retrouver ?</p>
-        <button class="ep-main" onclick="closeEspacePlein('abonnement')">⚡ Voir les abonnements</button>
+        <p class="web-only">Veux-tu passer à un abonnement supérieur pour tout retrouver ?</p>
+        <button class="ep-main web-only" onclick="closeEspacePlein('abonnement')">⚡ Voir les abonnements</button>
         <button class="ep-sec" onclick="closeEspacePlein(); deleteHiddenLetters()">🗑 Supprimer les éléments masqués</button>
         <button class="ep-later" onclick="closeEspacePlein()">Plus tard</button>
       </div>
@@ -1298,14 +1305,14 @@
           Recharge mensuelle : <strong id="credits-monthly">—</strong> crédits<br>
           Prochaine recharge : <strong id="credits-next-refill">—</strong>
         </div>
-        <button class="buy-btn" onclick="scrollToPacks()">Acheter des crédits +</button>
+        <button class="buy-btn web-only" onclick="scrollToPacks()">Acheter des crédits +</button>
       </div>
 
-      <h2 style="font-family:'Sora',sans-serif;font-weight:700;color:var(--text);margin-bottom:1.25rem;font-size:1.1rem" id="packs-title">Packs de crédits</h2>
-      <div class="packs-grid" id="packs-grid"></div>
+      <h2 style="font-family:'Sora',sans-serif;font-weight:700;color:var(--text);margin-bottom:1.25rem;font-size:1.1rem" id="packs-title" class="web-only">Packs de crédits</h2>
+      <div class="packs-grid web-only" id="packs-grid"></div>
 
       <!-- CRÉDITS VISIO -->
-      <div style="margin-top:2rem">
+      <div style="margin-top:2rem" class="web-only">
         <h2 style="font-family:'Sora',sans-serif;font-weight:700;color:var(--text);margin-bottom:0.4rem;font-size:1.1rem">🎓 Crédits visio</h2>
         <p style="color:var(--muted);font-size:0.85rem;margin-bottom:1.25rem">Pour t'abonner à des profs, réserver des visios et accéder aux cours payants. Tu en as <strong id="visio-balance" style="color:#3B82F6">—</strong>.</p>
         <div class="packs-grid" id="visio-packs-grid"></div>
@@ -1494,10 +1501,11 @@
     <div class="page" id="page-abonnement">
       <div class="page-header">
         <h1>Mon abonnement</h1>
-        <p>Choisis le plan qui correspond à tes besoins. Change à tout moment.</p>
+        <p class="web-only">Choisis le plan qui correspond à tes besoins. Change à tout moment.</p>
+        <p class="native-only">Voici ce que comprend chaque offre. Les offres payantes ne sont pas proposées dans l'application.</p>
       </div>
       <div class="plans-grid" id="plans-grid"></div>
-      <div id="manage-sub-row" style="display:none;margin-bottom:2rem;text-align:center">
+      <div id="manage-sub-row" class="web-only" style="display:none;margin-bottom:2rem;text-align:center">
         <button class="plan-action-btn outline" style="max-width:320px;margin:0 auto" onclick="openPortal()">⚙️ Gérer / résilier mon abonnement</button>
       </div>
       <h2 style="font-family:'Sora',sans-serif;font-weight:700;color:var(--text);margin-bottom:1.25rem;font-size:1.1rem">Comparaison complète</h2>
@@ -1942,6 +1950,7 @@
   }
 
   async function buyCredits(packId, credits) {
+    if (window.LP_NATIF) return;
     const btn = event.target;
     btn.disabled = true; btn.textContent = 'Chargement…';
     try {
@@ -1970,7 +1979,7 @@
         <div><strong>🔒 ${histInfo.masquees} élément${histInfo.masquees>1?'s':''} plus ancien${histInfo.masquees>1?'s':''} masqué${histInfo.masquees>1?'s':''}</strong><br>
         <span>Ton offre garde les ${histInfo.limite} plus récents (lettres, CV, fiches et quiz). Rien n'est supprimé : tout réapparaît avec une offre supérieure.</span></div>
         <div class="hist-lock-btns">
-          <button class="hist-btn" onclick="showPage('abonnement', document.querySelector('[data-page=abonnement]'))">⚡ Voir les offres</button>
+          <button class="hist-btn web-only" onclick="showPage('abonnement', document.querySelector('[data-page=abonnement]'))">⚡ Voir les offres</button>
           <button class="hist-btn" onclick="deleteHiddenLetters()">🗑 Les supprimer</button>
         </div>
       </div>` : '';
@@ -2146,15 +2155,15 @@
         ? `<button class="plan-action-btn active-plan" disabled>✓ Plan actuel</button>`
         : p.key === 'free'
           ? `<button class="plan-action-btn outline" onclick="downgradePlan('free')">Repasser en Gratuit</button>`
-          : `<button class="plan-action-btn filled" onclick="subscribePlan('${p.key}')">Passer ${plan.name}</button>`;
+          : `<button class="plan-action-btn filled web-only" onclick="subscribePlan('${p.key}')">Passer ${plan.name}</button>`;
       const visioHTML = p.visio > 0
         ? `<div class="plan-card-credits" style="color:#3B82F6;background:rgba(59,130,246,0.1)">🎓 ${p.visio} crédits visio / mois</div>`
         : '';
       return `<div class="plan-card ${isCurrent?'current':''}">
         ${badge}
         <div class="plan-card-name">${plan.name}</div>
-        <div class="plan-card-price">${p.price}<sub>${p.key!=='free'?'/mois':''}</sub></div>
-        <div class="plan-card-period">${p.period}</div>
+        <div class="plan-card-price web-only">${p.price}<sub>${p.key!=='free'?'/mois':''}</sub></div>
+        <div class="plan-card-period web-only">${p.period}</div>
         <div class="plan-card-credits">💳 ${plan.monthlyCredits} crédits / mois</div>
         ${visioHTML}
         <ul class="plan-card-features">${featuresHTML}</ul>
@@ -2175,6 +2184,7 @@
     } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
   }
 async function subscribePlan(plan) {
+    if (window.LP_NATIF) return;
     try {
       const data = await api('POST', '/api/stripe/create-subscription', { plan });
       window.location.href = data.url;
@@ -2182,6 +2192,7 @@ async function subscribePlan(plan) {
   }
 
   async function openPortal() {
+    if (window.LP_NATIF) return;
     try {
       const data = await api('POST', '/api/stripe/portal');
       window.location.href = data.url;
@@ -3705,7 +3716,7 @@ async function subscribePlan(plan) {
     const el = document.getElementById('cours-content');
     const topFolders = (window._dossiers || []).filter(d => !d.parent_id).sort((a, b) => a.nom.localeCompare(b.nom, 'fr'));
     const hasNone = coursData.fiches.some(f => !f.dossier_id) || coursData.quizzes.some(q => !q.dossier_id);
-    const masqueCours = histInfo.masquees > 0 ? `<div class="hist-jauge" style="margin-top:.5rem">🔒 ${histInfo.masquees} élément${histInfo.masquees>1?'s':''} plus ancien${histInfo.masquees>1?'s':''} masqué${histInfo.masquees>1?'s':''} · <a href="#" onclick="showPage('abonnement', document.querySelector('[data-page=abonnement]'));return false" style="color:var(--orange);font-weight:700">Voir les offres</a> · <a href="#" onclick="deleteHiddenLetters();return false" style="color:var(--muted)">Les supprimer</a></div>` : '';
+    const masqueCours = histInfo.masquees > 0 ? `<div class="hist-jauge" style="margin-top:.5rem">🔒 ${histInfo.masquees} élément${histInfo.masquees>1?'s':''} plus ancien${histInfo.masquees>1?'s':''} masqué${histInfo.masquees>1?'s':''} <span class="web-only">· <a href="#" onclick="showPage('abonnement', document.querySelector('[data-page=abonnement]'));return false" style="color:var(--orange);font-weight:700">Voir les offres</a></span> · <a href="#" onclick="deleteHiddenLetters();return false" style="color:var(--muted)">Les supprimer</a></div>` : '';
     const header = `<div style="margin-bottom:1rem"><button class="photo-add-btn" onclick="newDossierPrompt()">➕ Nouveau dossier</button><div style="margin-top:.8rem">${espaceJaugeHTML()}${masqueCours}</div></div>`;
 
     if (!topFolders.length && !hasNone) {
@@ -4945,6 +4956,7 @@ async function subscribePlan(plan) {
   }
 
   async function buyVisioCredits(packId) {
+    if (window.LP_NATIF) return;
     const btn = event.target;
     btn.disabled = true; btn.textContent = 'Chargement…';
     try {
@@ -4997,10 +5009,10 @@ async function subscribePlan(plan) {
       if (cvInfo.cahierCredits > 0) droits.push(`${cvInfo.cahierCredits} cahier(s) en réserve`);
       actions.innerHTML = `
         <button class="gen-btn" onclick="openCahierCreate()">✦ Créer un cahier</button>
-        <button class="result-btn" style="padding:0.75rem 1.25rem" onclick="buyCahierUnit(this)" ${cvInfo.cahierCredits >= cvInfo.maxReserve ? 'disabled title="Réserve pleine"' : ''}>🛒 Acheter un cahier — 2€ (réserve : ${cvInfo.cahierCredits}/${cvInfo.maxReserve})</button>
+        <button class="result-btn web-only" style="padding:0.75rem 1.25rem" onclick="buyCahierUnit(this)" ${cvInfo.cahierCredits >= cvInfo.maxReserve ? 'disabled title="Réserve pleine"' : ''}>🛒 Acheter un cahier — 2€ (réserve : ${cvInfo.cahierCredits}/${cvInfo.maxReserve})</button>
         ${cvInfo.addonActif
           ? `<span class="cv-progress-pill" style="align-self:center">✓ Option cahiers active</span>`
-          : `<button class="result-btn" style="padding:0.75rem 1.25rem" onclick="buyCahierAddon(this)">⚡ Option 2 cahiers/vacances — +2€/mois</button>`}
+          : `<button class="result-btn web-only" style="padding:0.75rem 1.25rem" onclick="buyCahierAddon(this)">⚡ Option 2 cahiers/vacances — +2€/mois</button>`}
         ${droits.length ? `<span style="align-self:center;font-size:0.8rem;color:var(--muted)">${droits.join(' · ')}</span>` : ''}`;
 
       if (!cahiers.length) {
