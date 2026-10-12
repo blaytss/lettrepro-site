@@ -677,6 +677,7 @@
     <button class="sidebar-item" data-page="cv" onclick="showPage('cv', this)"><span class="icon">📄</span> Créer un CV</button>
     <button class="sidebar-item" data-page="improve" onclick="showPage('improve', this)"><span class="icon">✏️</span> Améliorer</button>
     <button class="sidebar-item" data-page="study" onclick="showPage('study', this)"><span class="icon">📚</span> Cours & Révisions</button>
+    <button class="sidebar-item" data-page="enregistrer" onclick="showPage('enregistrer', this)"><span class="icon">🎙</span> Enregistrer un cours</button>
 
     <div class="nav-group-label">Profs & cours particuliers</div>
     <a class="sidebar-item" href="explorer.html"><span class="icon">🔍</span> Explorer les profs</a>
@@ -783,6 +784,40 @@
     #page-cv .cvp.edit [data-b]:hover{background:rgba(232,105,42,.08)}
     @media print{body *{visibility:hidden}#page-cv #cv-page-wrap,#page-cv #cv-page-wrap *{visibility:visible}#page-cv #cv-page-wrap{position:absolute;left:0;top:0;width:100%}#page-cv .cvp{border:0}#page-cv .cvp-photo.vide{visibility:hidden!important}#page-cv .cvp.edit [data-b]{outline:0}}
     </style>
+    <!-- PAGE ENREGISTRER UN COURS -->
+    <div class="page" id="page-enregistrer">
+      <div class="page-header">
+        <h1>🎙 Enregistrer un cours</h1>
+        <p>Enregistre ton cours : l'IA en fait une prise de notes, un résumé et un quiz. 10 crédits par cours.</p>
+      </div>
+      <div id="enr-zone"></div>
+    </div>
+    <style>
+    #page-enregistrer .enr-card{display:block!important;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;max-width:640px}
+    #page-enregistrer .enr-centre{text-align:center}
+    #page-enregistrer .enr-note{display:block!important;max-width:640px;margin-bottom:1rem;padding:.8rem 1rem;border:1px dashed var(--border);border-radius:12px;background:var(--card);color:var(--muted);font-size:.9rem}
+    #page-enregistrer .enr-h2{font-family:'Sora',sans-serif;font-weight:700;font-size:1.1rem;color:var(--text);margin-bottom:.7rem}
+    #page-enregistrer .enr-h3{font-family:'Sora',sans-serif;font-weight:700;font-size:.95rem;color:var(--text);margin:1.3rem 0 .5rem}
+    #page-enregistrer .enr-etapes{margin:0 0 1.2rem 1.2rem;color:var(--text);font-size:.92rem;line-height:1.7}
+    #page-enregistrer .enr-label{display:block;font-size:.76rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:.9rem 0 .35rem}
+    #page-enregistrer .enr-in{display:block;width:100%;padding:.7rem .85rem;border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--text);font-family:inherit;font-size:.95rem}
+    #page-enregistrer .enr-accord{display:flex!important;align-items:flex-start;gap:.6rem;margin:1.1rem 0;padding:.8rem .9rem;border:1px solid rgba(232,105,42,.3);background:rgba(232,105,42,.08);border-radius:10px;font-size:.86rem;line-height:1.5;color:var(--text);cursor:pointer}
+    #page-enregistrer .enr-accord input{margin-top:.2rem;flex:0 0 auto;width:18px;height:18px;accent-color:var(--orange)}
+    #page-enregistrer .enr-btns{display:flex!important;gap:.6rem;flex-wrap:wrap;margin-top:.4rem}
+    #page-enregistrer .enr-btn{padding:.75rem 1.1rem;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--text);font-family:'Sora',sans-serif;font-weight:700;font-size:.92rem;cursor:pointer}
+    #page-enregistrer .enr-btn.plein{background:linear-gradient(135deg,var(--orange),#C0501A);border-color:transparent;color:#fff}
+    #page-enregistrer .enr-btn:disabled{opacity:.5;cursor:not-allowed}
+    #page-enregistrer .enr-petit{color:var(--muted);font-size:.82rem;line-height:1.55;margin-top:1rem}
+    #page-enregistrer .enr-chrono{font-family:'Sora',sans-serif;font-weight:800;font-size:3rem;color:var(--text);margin:.6rem 0 .2rem;font-variant-numeric:tabular-nums}
+    #page-enregistrer .enr-etat{color:var(--muted);font-size:.9rem;margin-bottom:1.2rem}
+    #page-enregistrer .enr-rond{display:flex!important;width:84px;height:84px;margin:0 auto;border-radius:50%;background:rgba(229,72,77,.12);align-items:center;justify-content:center}
+    #page-enregistrer .enr-rond span{display:block;width:30px;height:30px;border-radius:50%;background:#E5484D;animation:enrPulse 1.4s ease-in-out infinite}
+    #page-enregistrer .enr-tourne{display:block!important;width:46px;height:46px;margin:.5rem auto 1rem;border-radius:50%;border:4px solid var(--border);border-top-color:var(--orange);animation:enrTourne .9s linear infinite}
+    #page-enregistrer .enr-resume{display:block!important;font-size:.92rem;line-height:1.65;color:var(--text)}
+    @keyframes enrPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.7);opacity:.6}}
+    @keyframes enrTourne{to{transform:rotate(360deg)}}
+    </style>
+
     <div class="page" id="page-cv">
       <div class="page-header">
         <h1>📄 Créer un CV</h1>
@@ -1481,6 +1516,7 @@
             <tr><td>Choix du nombre de caractères</td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td class="hl"><span class="ck">✓</span></td><td><span class="cr" title="Non inclus dans cette offre">🔒</span></td></tr>
             <tr><td>Création de CV (2 crédits) + 4 modèles de présentation</td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td class="hl"><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
             <tr><td>CV : déplacer librement les blocs et la photo</td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td class="hl"><span class="cr" title="Non inclus dans cette offre">🔒</span></td><td><span class="cr" title="Non inclus dans cette offre">🔒</span></td></tr>
+            <tr><td>Enregistrer un cours : prise de notes, résumé et quiz (10 crédits)</td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td class="hl"><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
             <tr><td>Fiches, résumés et quiz</td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td class="hl"><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
             <tr><td>Refaire un quiz avec de nouvelles questions (2 crédits)</td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td class="hl"><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
             <tr><td>Crédits gagnés aux quiz (jusqu'à 6 au 1er essai, 2 sur un quiz refait)</td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td class="hl"><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
@@ -2548,6 +2584,7 @@ async function subscribePlan(plan) {
     if (name === 'classes')    { loadMyClasses(); startChatPolling(); }
     if (name === 'myprofs')    { loadMyProfs(); }
     if (name === 'planning')   { loadPlanning(); }
+    if (name === 'enregistrer') { if (window.enrInit) enrInit(); }
     if (name === 'quete')      { loadQuete(); }
     if (name === 'cahiers')    { loadCahiers(); }
   }
@@ -5527,6 +5564,7 @@ async function subscribePlan(plan) {
 })();
 </script>
 <script src="rappels.js"></script>
+<script src="enregistrer.js"></script>
 <script src="prof-switch.js"></script>
 <script src="visio-guard.js"></script>
 <script>
