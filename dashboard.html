@@ -1188,10 +1188,10 @@
       <div class="ep-box">
         <div class="ep-ico">📂</div>
         <h3>Ton espace est plein</h3>
-        <p>Ton offre garde tes <strong id="ep-limite">5</strong> lettres les plus récentes. Ta nouvelle lettre est bien enregistrée, mais <strong id="ep-masquees">1</strong> plus ancienne(s) sont maintenant masquée(s) 🔒.</p>
+        <p>Ton offre garde tes <strong id="ep-limite">15</strong> éléments les plus récents (lettres, CV, fiches et quiz). Ta nouvelle création est bien enregistrée, mais <strong id="ep-masquees">1</strong> plus ancien(s) sont maintenant masqué(s) 🔒.</p>
         <p>Veux-tu passer à un abonnement supérieur pour tout retrouver ?</p>
         <button class="ep-main" onclick="closeEspacePlein('abonnement')">⚡ Voir les abonnements</button>
-        <button class="ep-sec" onclick="closeEspacePlein('history')">🗑 Faire de la place dans mes lettres</button>
+        <button class="ep-sec" onclick="closeEspacePlein(); deleteHiddenLetters()">🗑 Supprimer les éléments masqués</button>
         <button class="ep-later" onclick="closeEspacePlein()">Plus tard</button>
       </div>
     </div>
@@ -1483,11 +1483,11 @@
             <tr><td>CV : déplacer librement les blocs et la photo</td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td class="hl"><span class="cr" title="Non inclus dans cette offre">🔒</span></td><td><span class="cr" title="Non inclus dans cette offre">🔒</span></td></tr>
             <tr><td>Fiches, résumés et quiz</td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td class="hl"><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
             <tr><td>Refaire un quiz avec de nouvelles questions (2 crédits)</td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td class="hl"><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
-            <tr><td>Crédits gagnés aux quiz (jusqu'à 6 au 1er essai)</td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td class="hl"><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
+            <tr><td>Crédits gagnés aux quiz (jusqu'à 6 au 1er essai, 2 sur un quiz refait)</td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td class="hl"><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
             <tr><td>Dossiers et sous-dossiers pour ranger tes cours</td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td class="hl"><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
             <tr><td>Planning personnel (calendrier)</td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td class="hl"><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
             <tr><td>Planning : couleurs des événements</td><td>12 couleurs</td><td>6 couleurs</td><td class="hl">6 couleurs</td><td><span class="cr" title="Non inclus dans cette offre">🔒</span></td></tr>
-            <tr><td>Historique des lettres</td><td>Illimité</td><td>50 lettres</td><td class="hl">20 lettres</td><td>5 lettres</td></tr>
+            <tr><td>Espace : lettres, CV, fiches et quiz gardés</td><td>Illimité</td><td>150 éléments</td><td class="hl">60 éléments</td><td>15 éléments</td></tr>
             <tr><td>Achat de crédits supplémentaires</td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td class="hl"><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
             <tr><td>Support prioritaire</td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td class="hl"><span class="cr" title="Non inclus dans cette offre">🔒</span></td><td><span class="cr" title="Non inclus dans cette offre">🔒</span></td></tr>
             <tr><td>Nouvelles fonctions en avant-première</td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td class="hl"><span class="cr" title="Non inclus dans cette offre">🔒</span></td><td><span class="cr" title="Non inclus dans cette offre">🔒</span></td></tr>
@@ -1928,14 +1928,11 @@
       el.innerHTML = `<div class="history-empty"><div class="icon">📄</div><p>Aucune lettre sauvegardée.<br>Génère ta première lettre !</p></div>`;
       return;
     }
-    const plein = histInfo.limite !== null && histInfo.total >= histInfo.limite;
-    const jauge = histInfo.limite === null
-      ? `<div class="hist-jauge">📂 ${histInfo.total} lettre${histInfo.total>1?'s':''} · historique illimité</div>`
-      : `<div class="hist-jauge${plein?' plein':''}">📂 ${Math.min(histInfo.total, histInfo.limite)} / ${histInfo.limite} lettres dans ton historique${plein?' — espace plein':''}</div>`;
+    const jauge = espaceJaugeHTML();
     const masque = histInfo.masquees > 0 ? `
       <div class="hist-lock">
-        <div><strong>🔒 ${histInfo.masquees} lettre${histInfo.masquees>1?'s':''} plus ancienne${histInfo.masquees>1?'s':''} masquée${histInfo.masquees>1?'s':''}</strong><br>
-        <span>Ton offre affiche les ${histInfo.limite} plus récentes. Elles ne sont pas supprimées : elles réapparaissent avec une offre supérieure.</span></div>
+        <div><strong>🔒 ${histInfo.masquees} élément${histInfo.masquees>1?'s':''} plus ancien${histInfo.masquees>1?'s':''} masqué${histInfo.masquees>1?'s':''}</strong><br>
+        <span>Ton offre garde les ${histInfo.limite} plus récents (lettres, CV, fiches et quiz). Rien n'est supprimé : tout réapparaît avec une offre supérieure.</span></div>
         <div class="hist-lock-btns">
           <button class="hist-btn" onclick="showPage('abonnement', document.querySelector('[data-page=abonnement]'))">⚡ Voir les offres</button>
           <button class="hist-btn" onclick="deleteHiddenLetters()">🗑 Les supprimer</button>
@@ -1960,15 +1957,27 @@
     try { const d = await api('GET', '/api/me'); history = d.history || []; histInfo = d.historyInfo || histInfo; } catch (e) {}
     if (document.getElementById('page-history').classList.contains('active')) renderHistory();
   }
+  // Jauge de l'espace global (lettres + CV + fiches + quiz), affichée dans Historique et Mes cours.
+  function espaceJaugeHTML() {
+    const d = histInfo.detail || {}, t = histInfo.total || 0;
+    const quoi = `${d.lettres||0} lettre${(d.lettres||0)>1?'s':''} · ${d.cv||0} CV · ${d.fiches||0} fiche${(d.fiches||0)>1?'s':''} · ${d.quiz||0} quiz`;
+    if (histInfo.limite === null) return `<div class="hist-jauge">📂 ${t} élément${t>1?'s':''} dans ton espace · illimité <span style="opacity:.75">(${quoi})</span></div>`;
+    const plein = t >= histInfo.limite;
+    return `<div class="hist-jauge${plein?' plein':''}">📂 ${Math.min(t, histInfo.limite)} / ${histInfo.limite} éléments dans ton espace${plein?' — espace plein':''} <span style="opacity:.75">(${quoi})</span></div>`;
+  }
+  // Après une génération (lettre, CV, fiche, quiz) : met à jour l'espace et prévient s'il est plein.
   function histAfterGeneration(data) {
+    if (!data) return;
     if (data.historyInfo) histInfo = data.historyInfo;
-    if (histInfo.limite !== null) history = history.slice(0, histInfo.limite);
-    if (data.espacePlein) showEspacePlein();
+    if (data.espacePlein) { histReload(); showEspacePlein(); }
   }
   async function deleteHiddenLetters() {
-    if (!confirm('Supprimer définitivement les ' + histInfo.masquees + ' lettres masquées ?')) return;
-    try { await api('DELETE', '/api/letters/masquees'); await histReload(); showToast('Lettres masquées supprimées', 'success'); }
-    catch (e) { showToast('Erreur : ' + e.message, 'error'); }
+    if (!histInfo.masquees) return;
+    if (!confirm('Supprimer définitivement les ' + histInfo.masquees + ' éléments masqués (les plus anciens) ?')) return;
+    try {
+      await api('DELETE', '/api/espace/masques'); await histReload(); showToast('Éléments masqués supprimés', 'success');
+      if (document.getElementById('cours-content') && document.getElementById('cours-content').offsetParent !== null) loadCours();
+    } catch (e) { showToast('Erreur : ' + e.message, 'error'); }
   }
   function showEspacePlein() {
     document.getElementById('ep-limite').textContent = histInfo.limite;
@@ -2085,10 +2094,10 @@
   function renderAbonnement() {
     const userPlan = currentUser.plan || 'free';
     const planDefs = [
-      { key:'pro',     price:'10,99€', period:'/mois · sans engagement', visio:20, features:['70 crédits / mois','Toutes les langues','Mise en page libre du CV ✓','Planning : 12 couleurs','Historique illimité ✓','Support prioritaire ✓'] },
-      { key:'premium', price:'6,99€', period:'/mois · sans engagement', visio:8, features:['30 crédits / mois','8 langues','Mise en page libre du CV ✓','Planning : 6 couleurs','Historique : 50 lettres','off:Historique illimité'] },
-      { key:'starter', price:'3,99€', period:'/mois · sans engagement', visio:4,  features:['15 crédits / mois','5 langues','Correction de lettre ✓','Planning : 6 couleurs','Historique : 20 lettres','off:Mise en page libre du CV'] },
-      { key:'free',    price:'0€', period:'Pour toujours',           visio:0,  features:['5 crédits / mois','Français uniquement','Lettre, CV, fiches, quiz','Historique : 5 lettres','off:Correction de lettre','off:Couleurs du planning'] }
+      { key:'pro',     price:'10,99€', period:'/mois · sans engagement', visio:20, features:['70 crédits / mois','Toutes les langues','Mise en page libre du CV ✓','Planning : 12 couleurs','Espace illimité ✓','Support prioritaire ✓'] },
+      { key:'premium', price:'6,99€', period:'/mois · sans engagement', visio:8, features:['30 crédits / mois','8 langues','Mise en page libre du CV ✓','Planning : 6 couleurs','Espace : 150 éléments','off:Espace illimité'] },
+      { key:'starter', price:'3,99€', period:'/mois · sans engagement', visio:4,  features:['15 crédits / mois','5 langues','Correction de lettre ✓','Planning : 6 couleurs','Espace : 60 éléments','off:Mise en page libre du CV'] },
+      { key:'free',    price:'0€', period:'Pour toujours',           visio:0,  features:['5 crédits / mois','Français uniquement','Lettre, CV, fiches, quiz','Espace : 15 éléments','off:Correction de lettre','off:Couleurs du planning'] }
     ];
     document.getElementById('plans-grid').innerHTML = planDefs.map(p => {
       const isCurrent = p.key === userPlan;
@@ -2713,7 +2722,7 @@ async function subscribePlan(plan) {
       cvState.id = r.id; cvState.sub = body.objectif; cvState.pos = {};
       cvShow(r.cv); cvSaveLayout();
       if (typeof r.creditsLeft === 'number') { currentUser.credits = r.creditsLeft; refreshUI(); }
-      showToast('CV généré ✓', 'success'); cvLoadList();
+      showToast('CV généré ✓', 'success'); cvLoadList(); histAfterGeneration(r);
     } catch (e) { showToast('Erreur : ' + e.message, 'error'); }
     finally { g.disabled = false; g.textContent = '✦ Générer mon CV'; }
   }
@@ -2886,6 +2895,7 @@ async function subscribePlan(plan) {
       currentUser.credits_used = (currentUser.credits_used || 0) + cost;
       creditLog.unshift({ type:'debit', amount:-cost, description:`Étude — ${mode} (${titre})`, date: new Date().toISOString() });
       currentStudyResult = data;
+      histAfterGeneration(data);
 
       studyImages = []; renderStudyPhotos();   // réinitialiser les photos après génération
 
@@ -3370,13 +3380,14 @@ async function subscribePlan(plan) {
   async function refaireQuiz() {
     if (!activeQuiz || !activeQuiz.quizId) return;
     if ((currentUser.credits || 0) < 2) { showToast('Il te faut 2 crédits pour refaire un quiz.', 'error'); return; }
-    if (!confirm('Refaire un quiz sur le même sujet, avec de nouvelles questions ? Cela coûte 2 crédits.')) return;
+    if (!confirm('Refaire un quiz sur le même sujet, avec de nouvelles questions ? Cela coûte 2 crédits, et tu peux en regagner 2 au maximum.')) return;
     const btn = document.getElementById('refaire-btn');
     if (btn) { btn.disabled = true; btn.textContent = '⏳ Génération du nouveau quiz…'; }
     try {
       const res = await api('POST', `/api/study/quiz/${activeQuiz.quizId}/refaire`);
       if (typeof res.creditsLeft === 'number') { currentUser.credits = res.creditsLeft; refreshUI(); }
       showToast('Nouveau quiz prêt ! (−2 crédits)', 'success');
+      histAfterGeneration(res);
       openQuizFromLibrary(res.quizId);   // ouvre le nouveau quiz
     } catch(e) {
       showToast('Erreur : ' + e.message, 'error');
@@ -3598,6 +3609,7 @@ async function subscribePlan(plan) {
         api('GET', '/api/study/quiz')
       ]);
       coursData = { fiches: fiches || [], quizzes: quizzes || [] };
+      try { const me = await api('GET', '/api/me'); histInfo = me.historyInfo || histInfo; } catch (e) {}
       renderCoursFolders();
     } catch(e) {
       el.innerHTML = `<p style="color:var(--muted);padding:1rem 0">Erreur : ${escapeHtml(e.message)}</p>`;
@@ -3656,7 +3668,8 @@ async function subscribePlan(plan) {
     const el = document.getElementById('cours-content');
     const topFolders = (window._dossiers || []).filter(d => !d.parent_id).sort((a, b) => a.nom.localeCompare(b.nom, 'fr'));
     const hasNone = coursData.fiches.some(f => !f.dossier_id) || coursData.quizzes.some(q => !q.dossier_id);
-    const header = `<div style="margin-bottom:1rem"><button class="photo-add-btn" onclick="newDossierPrompt()">➕ Nouveau dossier</button></div>`;
+    const masqueCours = histInfo.masquees > 0 ? `<div class="hist-jauge" style="margin-top:.5rem">🔒 ${histInfo.masquees} élément${histInfo.masquees>1?'s':''} plus ancien${histInfo.masquees>1?'s':''} masqué${histInfo.masquees>1?'s':''} · <a href="#" onclick="showPage('abonnement', document.querySelector('[data-page=abonnement]'));return false" style="color:var(--orange);font-weight:700">Voir les offres</a> · <a href="#" onclick="deleteHiddenLetters();return false" style="color:var(--muted)">Les supprimer</a></div>` : '';
+    const header = `<div style="margin-bottom:1rem"><button class="photo-add-btn" onclick="newDossierPrompt()">➕ Nouveau dossier</button><div style="margin-top:.8rem">${espaceJaugeHTML()}${masqueCours}</div></div>`;
 
     if (!topFolders.length && !hasNone) {
       el.innerHTML = header + `<div class="history-empty"><div class="icon">📁</div><p>Aucun cours pour l'instant.<br>Génère ton premier contenu de révision !</p></div>`;
