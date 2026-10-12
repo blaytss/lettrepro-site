@@ -852,7 +852,8 @@ RÈGLES D'HUMANISATION OBLIGATOIRES — applique-les systématiquement :
 <script>
   (function() {
     var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-    if (isStandalone || localStorage.getItem('pwa_banner_closed') === '1') return;
+    var dansAppli = !!(window.Capacitor && Capacitor.isNativePlatform && Capacitor.isNativePlatform());   // déjà dans l'appli : rien à installer
+    if (isStandalone || dansAppli || localStorage.getItem('pwa_banner_closed') === '1') return;
     var ua = navigator.userAgent || '';
     var isIOS = /iPhone|iPad|iPod/.test(ua);
     var isAndroid = /Android/.test(ua);
