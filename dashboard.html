@@ -665,7 +665,7 @@
       <div class="dot"></div>
       <span id="nav-credits">—</span> crédits
     </button>
-    <button class="credit-badge" style="color:#3B82F6" onclick="showPage('myprofs', document.querySelector('[data-page=myprofs]'))" title="Crédits visio (profs & visios)">
+    <button class="credit-badge" id="nav-visio-badge" style="color:#3B82F6" onclick="showPage('myprofs', document.querySelector('[data-page=myprofs]'))" title="Crédits visio (profs & visios)">
       <div class="dot" style="background:#3B82F6"></div>
       <span id="nav-visio-credits">—</span> 🎓
     </button>
@@ -712,7 +712,7 @@
     <div class="sidebar-credits">
       <div class="sc-label">Crédits restants</div>
       <div class="sc-val" id="sidebar-credits-val">—</div>
-      <a href="#" onclick="showPage('credits', document.querySelector('[data-page=credits]')); return false;">Acheter des crédits +</a>
+      <a href="#" class="web-only" onclick="showPage('credits', document.querySelector('[data-page=credits]')); return false;">Acheter des crédits +</a>
     </div>
   </aside>
 
@@ -5573,6 +5573,7 @@ async function subscribePlan(plan) {
 (function(){
   fetch(window.API_BASE+'/api/auth/config').then(r=>r.json()).then(function(c){
     if(c && c.salles_enabled===false){ var el=document.getElementById('salles-link'); if(el) el.style.display='none'; }
+    if(c && !c.visio_enabled){ var vb=document.getElementById('nav-visio-badge'); if(vb) vb.style.display='none'; }   // visios éteintes : pas de compteur de crédits visio
   }).catch(function(){});
 })();
 </script>

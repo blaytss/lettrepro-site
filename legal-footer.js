@@ -13,9 +13,12 @@
   var f = document.createElement('footer');
   f.id = 'lp-legal-footer';
   f.setAttribute('style',
+    // display:block forcé : sur le tableau de bord, une règle générale met les blocs en ligne (flex),
+    // ce qui empêchait les liens de passer à la ligne et élargissait toute la page sur téléphone.
+    'display:block!important;width:100%;max-width:100%;box-sizing:border-box;' +
     'margin-top:2.5rem;padding:1.4rem 1rem calc(1.4rem + env(safe-area-inset-bottom));text-align:center;' +
     'font-size:.8rem;color:#8B6E5A;border-top:1px solid rgba(140,110,90,.2);line-height:2');
-  f.innerHTML = '© LettrePro' +
-    links.map(function (l) { return '<a href="' + l[0] + '" style="' + muted + '">' + l[1] + '</a>'; }).join('');
+  f.innerHTML = '© LettrePro ' +
+    links.map(function (l) { return '<a href="' + l[0] + '" style="' + muted + '">' + l[1] + '</a>'; }).join(' ');   // l'espace permet aux liens de passer à la ligne sur téléphone
   document.body.appendChild(f);
 })();
