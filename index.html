@@ -807,7 +807,7 @@ RÈGLES D'HUMANISATION OBLIGATOIRES — applique-les systématiquement :
     document.getElementById('plans-compare').innerHTML = Object.entries(PLANS).map(([key, p]) => `
       <div class="mini-plan ${userPlan === key ? 'current' : ''}">
         <h4>${p.name}</h4>
-        <div class="price">${key === 'free' ? '0€' : key === 'starter' ? '3€' : '5€'}<sub>${key !== 'free' ? '/mois' : ''}</sub></div>
+        <div class="price">${key === 'free' ? '0€' : key === 'starter' ? '3,99€' : '6,99€'}<sub>${key !== 'free' ? '/mois' : ''}</sub></div>
         <ul>
           <li>${p.limit === Infinity ? 'Lettres illimitées' : p.limit + ' lettres/mois'}</li>
           <li>${p.langs.length} langue${p.langs.length > 1 ? 's' : ''}</li>

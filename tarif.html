@@ -32,7 +32,7 @@
     .plan.popular { border-color: var(--orange); background: linear-gradient(160deg, rgba(232,105,42,0.07), var(--surface)); }
     .plan-badge { position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: var(--orange); color: white; font-size: 0.72rem; font-weight: 700; padding: 0.25rem 0.9rem; border-radius: 999px; white-space: nowrap; }
     .plan-name { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.75rem; }
-    .plan-price { font-family: 'Sora', sans-serif; font-size: 3rem; font-weight: 800; color: #1C1107; line-height: 1; }
+    .plan-price { font-family: 'Sora', sans-serif; font-size: 2.4rem; font-weight: 800; color: #1C1107; line-height: 1; }
     .plan-price sub { font-size: 1rem; font-weight: 500; color: var(--muted); }
     .plan-period { color: var(--muted); font-size: 0.82rem; margin: 0.4rem 0 1rem; }
     .plan-desc { color: var(--muted); font-size: 0.85rem; margin-bottom: 1.5rem; line-height: 1.6; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
@@ -103,6 +103,58 @@
 <div class="pricing-grid">
 
   <div class="plan">
+    <div class="plan-name">Pro</div>
+    <div class="plan-price">10,99€<sub>/mois</sub></div>
+    <div class="plan-period">Sans engagement</div>
+    <p class="plan-desc">Le maximum : plus de crédits et aucune limite d'historique.</p>
+    <ul class="plan-features">
+      <li><strong>70 crédits</strong> par mois</li>
+      <li><strong>8 langues</strong></li>
+      <li>Mise en page libre du CV (blocs et photo)</li>
+      <li>Planning : 12 couleurs</li>
+      <li>Historique illimité</li>
+      <li>Support prioritaire</li>
+      <li>Nouvelles fonctions en avant-première</li>
+    </ul>
+    <a href="inscription.html?plan=pro" class="plan-btn outline">Passer Pro</a>
+  </div>
+
+  <div class="plan">
+    <div class="plan-name">Premium</div>
+    <div class="plan-price">6,99€<sub>/mois</sub></div>
+    <div class="plan-period">Sans engagement</div>
+    <p class="plan-desc">Pour aller plus loin, avec un CV entièrement personnalisable.</p>
+    <ul class="plan-features">
+      <li><strong>30 crédits</strong> par mois</li>
+      <li><strong>8 langues</strong></li>
+      <li>Mise en page libre du CV (blocs et photo)</li>
+      <li>Planning : 6 couleurs</li>
+      <li>Historique : 50 lettres</li>
+      <li>Support prioritaire</li>
+      <li class="off">Historique illimité</li>
+    </ul>
+    <a href="inscription.html?plan=premium" class="plan-btn outline">Passer Premium</a>
+  </div>
+
+  <div class="plan popular">
+    <div class="plan-badge">⚡ Le plus populaire</div>
+    <div class="plan-name">Starter</div>
+    <div class="plan-price">3,99€<sub>/mois</sub></div>
+    <div class="plan-period">Sans engagement</div>
+    <p class="plan-desc">Pour candidater et réviser régulièrement.</p>
+    <ul class="plan-features">
+      <li><strong>15 crédits</strong> par mois</li>
+      <li><strong>5 langues</strong></li>
+      <li>Correction de lettre</li>
+      <li>Choix du nombre de caractères</li>
+      <li>Planning : 6 couleurs</li>
+      <li>Historique : 20 lettres</li>
+      <li class="off">Mise en page libre du CV</li>
+    </ul>
+    <a href="inscription.html?plan=starter" class="plan-btn filled">Passer Starter</a>
+  </div>
+
+  <div class="plan">
     <div class="plan-name">Gratuit</div>
     <div class="plan-price">0€</div>
     <div class="plan-period">Pour toujours</div>
@@ -119,58 +171,6 @@
     <a href="inscription.html" class="plan-btn outline">Commencer gratuitement</a>
   </div>
 
-  <div class="plan popular">
-    <div class="plan-badge">⚡ Le plus populaire</div>
-    <div class="plan-name">Starter</div>
-    <div class="plan-price">3€<sub>/mois</sub></div>
-    <div class="plan-period">Sans engagement</div>
-    <p class="plan-desc">Pour candidater et réviser régulièrement.</p>
-    <ul class="plan-features">
-      <li><strong>15 crédits</strong> par mois</li>
-      <li><strong>5 langues</strong></li>
-      <li>Correction de lettre</li>
-      <li>Choix du nombre de caractères</li>
-      <li>Planning : 6 couleurs</li>
-      <li>Historique : 20 lettres</li>
-      <li class="off">Mise en page libre du CV</li>
-    </ul>
-    <a href="inscription.html?plan=starter" class="plan-btn filled">Passer Starter</a>
-  </div>
-
-  <div class="plan">
-    <div class="plan-name">Premium</div>
-    <div class="plan-price">5€<sub>/mois</sub></div>
-    <div class="plan-period">Sans engagement</div>
-    <p class="plan-desc">Pour aller plus loin, avec un CV entièrement personnalisable.</p>
-    <ul class="plan-features">
-      <li><strong>30 crédits</strong> par mois</li>
-      <li><strong>8 langues</strong></li>
-      <li>Mise en page libre du CV (blocs et photo)</li>
-      <li>Planning : 6 couleurs</li>
-      <li>Historique : 50 lettres</li>
-      <li>Support prioritaire</li>
-      <li class="off">Historique illimité</li>
-    </ul>
-    <a href="inscription.html?plan=premium" class="plan-btn outline">Passer Premium</a>
-  </div>
-
-  <div class="plan">
-    <div class="plan-name">Pro</div>
-    <div class="plan-price">9€<sub>/mois</sub></div>
-    <div class="plan-period">Sans engagement</div>
-    <p class="plan-desc">Le maximum : plus de crédits et aucune limite d'historique.</p>
-    <ul class="plan-features">
-      <li><strong>70 crédits</strong> par mois</li>
-      <li><strong>8 langues</strong></li>
-      <li>Mise en page libre du CV (blocs et photo)</li>
-      <li>Planning : 12 couleurs</li>
-      <li>Historique illimité</li>
-      <li>Support prioritaire</li>
-      <li>Nouvelles fonctions en avant-première</li>
-    </ul>
-    <a href="inscription.html?plan=pro" class="plan-btn outline">Passer Pro</a>
-  </div>
-
 </div>
 
 <div class="compare-section">
@@ -180,30 +180,30 @@
     <thead>
       <tr>
         <th>Fonctionnalité</th>
-        <th>Gratuit</th>
-        <th class="highlight">Starter</th>
-        <th>Premium</th>
         <th>Pro</th>
+        <th>Premium</th>
+        <th class="highlight">Starter</th>
+        <th>Gratuit</th>
       </tr>
     </thead>
     <tbody>
-      <tr><td>Crédits mensuels</td><td>5</td><td class="highlight">15</td><td>30</td><td>70</td></tr>
-      <tr><td>Langues disponibles</td><td>1 (FR)</td><td class="highlight">5</td><td>8</td><td>8</td></tr>
-      <tr><td>Lettre de motivation (1 crédit)</td><td><span class="check">✓</span></td><td class="highlight"><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
-      <tr><td>Correction de lettre</td><td><span class="cross" title="Non inclus dans cette offre">🔒</span></td><td class="highlight"><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
-      <tr><td>Choix du nombre de caractères</td><td><span class="cross" title="Non inclus dans cette offre">🔒</span></td><td class="highlight"><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
-      <tr><td>Création de CV (2 crédits) + 4 modèles de présentation</td><td><span class="check">✓</span></td><td class="highlight"><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
-      <tr><td>CV : déplacer librement les blocs et la photo</td><td><span class="cross" title="Non inclus dans cette offre">🔒</span></td><td class="highlight"><span class="cross" title="Non inclus dans cette offre">🔒</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
-      <tr><td>Fiches, résumés et quiz</td><td><span class="check">✓</span></td><td class="highlight"><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
-      <tr><td>Refaire un quiz avec de nouvelles questions (2 crédits)</td><td><span class="check">✓</span></td><td class="highlight"><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
-      <tr><td>Crédits gagnés aux quiz (jusqu'à 6 au 1er essai)</td><td><span class="check">✓</span></td><td class="highlight"><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
-      <tr><td>Dossiers et sous-dossiers pour ranger tes cours</td><td><span class="check">✓</span></td><td class="highlight"><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
-      <tr><td>Planning personnel (calendrier)</td><td><span class="check">✓</span></td><td class="highlight"><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
-      <tr><td>Planning : couleurs des événements</td><td><span class="cross" title="Non inclus dans cette offre">🔒</span></td><td class="highlight">6 couleurs</td><td>6 couleurs</td><td>12 couleurs</td></tr>
-      <tr><td>Historique des lettres</td><td>5 lettres</td><td class="highlight">20 lettres</td><td>50 lettres</td><td>Illimité</td></tr>
-      <tr><td>Achat de crédits supplémentaires</td><td><span class="check">✓</span></td><td class="highlight"><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
-      <tr><td>Support prioritaire</td><td><span class="cross" title="Non inclus dans cette offre">🔒</span></td><td class="highlight"><span class="cross" title="Non inclus dans cette offre">🔒</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
-      <tr><td>Nouvelles fonctions en avant-première</td><td><span class="cross" title="Non inclus dans cette offre">🔒</span></td><td class="highlight"><span class="cross" title="Non inclus dans cette offre">🔒</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>Crédits mensuels</td><td>70</td><td>30</td><td class="highlight">15</td><td>5</td></tr>
+      <tr><td>Langues disponibles</td><td>8</td><td>8</td><td class="highlight">5</td><td>1 (FR)</td></tr>
+      <tr><td>Lettre de motivation (1 crédit)</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td class="highlight"><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>Correction de lettre</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td class="highlight"><span class="check">✓</span></td><td><span class="cross" title="Non inclus dans cette offre">🔒</span></td></tr>
+      <tr><td>Choix du nombre de caractères</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td class="highlight"><span class="check">✓</span></td><td><span class="cross" title="Non inclus dans cette offre">🔒</span></td></tr>
+      <tr><td>Création de CV (2 crédits) + 4 modèles de présentation</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td class="highlight"><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>CV : déplacer librement les blocs et la photo</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td class="highlight"><span class="cross" title="Non inclus dans cette offre">🔒</span></td><td><span class="cross" title="Non inclus dans cette offre">🔒</span></td></tr>
+      <tr><td>Fiches, résumés et quiz</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td class="highlight"><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>Refaire un quiz avec de nouvelles questions (2 crédits)</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td class="highlight"><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>Crédits gagnés aux quiz (jusqu'à 6 au 1er essai)</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td class="highlight"><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>Dossiers et sous-dossiers pour ranger tes cours</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td class="highlight"><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>Planning personnel (calendrier)</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td class="highlight"><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>Planning : couleurs des événements</td><td>12 couleurs</td><td>6 couleurs</td><td class="highlight">6 couleurs</td><td><span class="cross" title="Non inclus dans cette offre">🔒</span></td></tr>
+      <tr><td>Historique des lettres</td><td>Illimité</td><td>50 lettres</td><td class="highlight">20 lettres</td><td>5 lettres</td></tr>
+      <tr><td>Achat de crédits supplémentaires</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td class="highlight"><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>Support prioritaire</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td class="highlight"><span class="cross" title="Non inclus dans cette offre">🔒</span></td><td><span class="cross" title="Non inclus dans cette offre">🔒</span></td></tr>
+      <tr><td>Nouvelles fonctions en avant-première</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td class="highlight"><span class="cross" title="Non inclus dans cette offre">🔒</span></td><td><span class="cross" title="Non inclus dans cette offre">🔒</span></td></tr>
     </tbody>
   </table>
   </div>

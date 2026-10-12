@@ -160,7 +160,7 @@
     <div class="stat-card">
       <div class="label">💶 Revenu mensuel estimé</div>
       <div class="value" id="s-mrr" style="color:var(--green)">—</div>
-      <div class="sub">Starter ×3€ + Premium ×5€</div>
+      <div class="sub">Starter ×3,99€ + Premium ×6,99€</div>
     </div>
   </div>
 
@@ -174,13 +174,13 @@
       <div class="pbar"><div class="pbar-fill" id="p-free-bar" style="background:var(--muted);width:0%"></div></div>
     </div>
     <div class="plan-box">
-      <div class="pname" style="color:var(--orange)">Starter — 3€</div>
+      <div class="pname" style="color:var(--orange)">Starter — 3,99€</div>
       <div class="pcount" id="p-starter" style="color:var(--orange)">—</div>
       <div class="pcredits" id="p-starter-cr">— crédits cumulés</div>
       <div class="pbar"><div class="pbar-fill" id="p-starter-bar" style="background:var(--orange);width:0%"></div></div>
     </div>
     <div class="plan-box">
-      <div class="pname" style="color:var(--gold)">Premium — 5€</div>
+      <div class="pname" style="color:var(--gold)">Premium — 6,99€</div>
       <div class="pcount" id="p-premium" style="color:var(--gold)">—</div>
       <div class="pcredits" id="p-premium-cr">— crédits cumulés</div>
       <div class="pbar"><div class="pbar-fill" id="p-premium-bar" style="background:var(--gold);width:0%"></div></div>
@@ -274,7 +274,7 @@
       const prof    = (bp.prof    || {}).users || 0;
 
       const paid = starter + premium;
-      const mrr  = starter * 3 + premium * 5;
+      const mrr  = Math.round(starter * 3.99 + premium * 6.99);
 
       // Cartes principales
       document.getElementById('s-total').textContent = num(d.total);
