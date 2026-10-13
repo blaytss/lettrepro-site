@@ -27,9 +27,9 @@
     '<a class="sidebar-item" href="dashboard.html?p=improve"><span class="icon">✏️</span> Améliorer</a>' +
     '<a class="sidebar-item" href="dashboard.html?p=study"><span class="icon">📚</span> Cours &amp; Révisions</a>' +
     '<a class="sidebar-item" href="dashboard.html?p=enregistrer"><span class="icon">🎙</span> Enregistrer un cours</a>' +
-    '<a class="sidebar-item" href="explorer.html"><span class="icon">🔍</span> Explorer les profs</a>' +
-    '<a class="sidebar-item" href="dashboard.html?p=myprofs"><span class="icon">👨‍🏫</span> Mes profs</a>' +
-    '<a class="sidebar-item" href="dashboard.html?p=classes"><span class="icon">🎓</span> Mes classes</a>' +
+    '<a class="sidebar-item" data-visio href="explorer.html"><span class="icon">🔍</span> Explorer les profs</a>' +
+    '<a class="sidebar-item" data-visio href="dashboard.html?p=myprofs"><span class="icon">👨‍🏫</span> Mes profs</a>' +
+    '<a class="sidebar-item" data-visio href="dashboard.html?p=classes"><span class="icon">🎓</span> Mes classes</a>' +
     '<a class="sidebar-item" href="dashboard.html?p=planning"><span class="icon">📅</span> Mon planning</a>' +
     '<a class="sidebar-item" href="dashboard.html?p=quete"><span class="icon">🎯</span> Quête du jour</a>' +
     '<a class="sidebar-item" href="dashboard.html?p=cahiers"><span class="icon">🏖️</span> Cahier de vacances</a>' +
@@ -70,6 +70,8 @@
 
     fetch(API + '/api/auth/config').then(function (r) { return r.json(); }).then(function (c) {
       if (c && c.salles_enabled === false) { var s = document.getElementById('lp-salles-link'); if (s) s.style.display = 'none'; }
+      // Visios éteintes : on retire les entrées « profs » du menu (elles mèneraient à des pages vides).
+      if (c && !c.visio_enabled) document.querySelectorAll('#lp-ss [data-visio]').forEach(function (e) { e.style.display = 'none'; });
     }).catch(function () {});
   }
   if (document.body) mount();

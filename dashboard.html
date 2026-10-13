@@ -686,10 +686,10 @@
     <button class="sidebar-item" data-page="study" onclick="showPage('study', this)"><span class="icon">📚</span> Cours & Révisions</button>
     <button class="sidebar-item" data-page="enregistrer" onclick="showPage('enregistrer', this)"><span class="icon">🎙</span> Enregistrer un cours</button>
 
-    <div class="nav-group-label">Profs & cours particuliers</div>
-    <a class="sidebar-item" href="explorer.html"><span class="icon">🔍</span> Explorer les profs</a>
-    <button class="sidebar-item" data-page="myprofs" onclick="showPage('myprofs', this)"><span class="icon">👨‍🏫</span> Mes profs</button>
-    <button class="sidebar-item" data-page="classes" onclick="showPage('classes', this)"><span class="icon">🎓</span> Mes classes</button>
+    <div class="nav-group-label" data-visio>Profs & cours particuliers</div>
+    <a class="sidebar-item" data-visio href="explorer.html"><span class="icon">🔍</span> Explorer les profs</a>
+    <button class="sidebar-item" data-visio data-page="myprofs" onclick="showPage('myprofs', this)"><span class="icon">👨‍🏫</span> Mes profs</button>
+    <button class="sidebar-item" data-visio data-page="classes" onclick="showPage('classes', this)"><span class="icon">🎓</span> Mes classes</button>
 
     <div class="nav-group-label" id="grp-etab" style="display:none">Établissement</div>
     <a class="sidebar-item" id="etab-link" href="#" style="display:none" onclick="gotoEtab();return false;"><span class="icon">🏫</span> Espace établissement</a>
@@ -2157,7 +2157,7 @@
           ? `<button class="plan-action-btn outline" onclick="downgradePlan('free')">Repasser en Gratuit</button>`
           : `<button class="plan-action-btn filled web-only" onclick="subscribePlan('${p.key}')">Passer ${plan.name}</button>`;
       const visioHTML = p.visio > 0
-        ? `<div class="plan-card-credits" style="color:#3B82F6;background:rgba(59,130,246,0.1)">🎓 ${p.visio} crédits visio / mois</div>`
+        ? `<div class="plan-card-credits" data-visio style="color:#3B82F6;background:rgba(59,130,246,0.1)">🎓 ${p.visio} crédits visio / mois</div>`
         : '';
       return `<div class="plan-card ${isCurrent?'current':''}">
         ${badge}
