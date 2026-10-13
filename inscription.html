@@ -80,10 +80,10 @@
     <div class="choice-card" onclick="selectRole('eleve')">
       <span class="emoji">🎓</span>
       <h3>Élève</h3>
-      <p>Tu veux générer des lettres de motivation, réviser avec l'IA et trouver des profs.</p>
+      <p>Tu veux enregistrer tes cours, réviser avec des fiches et des quiz, et préparer tes lettres de motivation et ton CV.</p>
       <button class="choice-btn">Je suis élève →</button>
     </div>
-    <div class="choice-card" onclick="selectRole('prof')">
+    <div class="choice-card" id="choice-prof" onclick="selectRole('prof')">
       <span class="emoji">📚</span>
       <h3>Professeur</h3>
       <p>Tu veux partager tes cours, proposer des visios et accompagner tes élèves.</p>
@@ -98,16 +98,10 @@
     <h1 class="auth-title">Créer un compte</h1>
     <p class="auth-sub">Commence gratuitement, sans carte bancaire.</p>
 
-    <div class="plan-toggle">
-      <button class="plan-opt active" id="btn-free" onclick="selectPlan('free')">Gratuit — 0€</button>
-      <button class="plan-opt" id="btn-starter" onclick="selectPlan('starter')">Starter — 3,99€</button>
-      <button class="plan-opt" id="btn-premium" onclick="selectPlan('premium')">Premium — 6,99€</button>
-    </div>
-
     <div class="perks" id="perks">
-      <div class="perk">5 crédits de bienvenue</div>
+      <div class="perk">Cours enregistrés, fiches, quiz, lettres et CV</div>
+      <div class="perk">Des crédits offerts chaque mois</div>
       <div class="perk">Aucune carte bancaire requise</div>
-      <div class="perk">Accès immédiat</div>
     </div>
 
     <div id="msg" class="msg"></div>
@@ -148,21 +142,16 @@
     document.getElementById('register-screen').style.display = 'flex';
   }
 
-  function selectPlan(plan) {
-    selectedPlan = plan;
-    ['free','starter','premium'].forEach(p => {
-      const btn = document.getElementById('btn-' + p);
-      if (btn) btn.classList.toggle('active', p === plan);
-    });
-    const configs = {
-      free:    { label: 'Créer mon compte gratuit',  perks: ['5 crédits de bienvenue', 'Aucune carte bancaire', 'Accès immédiat'] },
-      starter: { label: 'Créer mon compte Starter',  perks: ['30 crédits / mois', '5 langues disponibles', 'Correction de lettre'] },
-      premium: { label: 'Créer mon compte Premium',  perks: ['150 crédits / mois', '8 langues disponibles', 'Toutes les fonctionnalités'] }
-    };
-    const cfg = configs[plan] || configs.free;
-    document.getElementById('submit-btn').textContent = cfg.label;
-    document.getElementById('perks').innerHTML = cfg.perks.map(p => `<div class="perk">${p}</div>`).join('');
-  }
+  // Le compte est toujours créé en Gratuit ; on change d'offre ensuite, depuis l'onglet Abonnement.
+  function selectPlan() { document.getElementById('submit-btn').textContent = 'Créer mon compte gratuit'; }
+
+  // L'espace professeur dépend des visios : tant qu'elles sont éteintes, on ne propose que le compte élève.
+  fetch(API_BASE + '/api/auth/config').then(r => r.json()).then(c => {
+    if (c && !c.visio_enabled) {
+      const p = document.getElementById('choice-prof'); if (p) p.style.display = 'none';
+      if (document.getElementById('choice-screen').style.display !== 'none') selectRole('eleve');
+    }
+  }).catch(() => {});
 
   function ageFromDate(v){
     if(!v) return null;
@@ -212,7 +201,7 @@
       const res  = await fetch(API_BASE + '/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prenom, nom, email, password, plan: selectedPlan, date_naissance, parent_email, ref: (window.getRefCode ? window.getRefCode() : '') })
+        body: JSON.stringify({ prenom, nom, email, password, date_naissance, parent_email, ref: (window.getRefCode ? window.getRefCode() : '') })
       });
       const data = await res.json();
 
