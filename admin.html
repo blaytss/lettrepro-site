@@ -193,6 +193,14 @@
     </div>
   </div>
 
+  <!-- EMAILS : diagnostic d'envoi -->
+  <div class="section-title">📧 Emails (activation des comptes, parents, mot de passe)</div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.2rem 1.3rem;margin-bottom:2rem">
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:.9rem">Envoie un email d'essai à ton adresse pour vérifier que le serveur arrive à envoyer des emails.</p>
+    <button id="mail-test-btn" onclick="testEmail()" style="background:var(--orange);color:#fff;border:none;border-radius:9px;padding:.6rem 1.1rem;font-weight:700;cursor:pointer;font-family:inherit">Tester l'envoi d'email</button>
+    <div id="mail-test-out" style="margin-top:1rem;font-size:.9rem;line-height:1.6"></div>
+  </div>
+
   <!-- UTILISATEURS -->
   <div class="section-title" style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;flex-wrap:wrap">
     <span>Utilisateurs</span>
@@ -237,6 +245,32 @@
   // Pas de token = pas connecté → on renvoie vers la connexion
   if (!localStorage.getItem('lp_token')) {
     window.location.href = 'login.html';
+  }
+
+  // Diagnostic emails : affiche la réponse du service d'envoi en clair.
+  async function testEmail() {
+    const btn = document.getElementById('mail-test-btn'), out = document.getElementById('mail-test-out');
+    const esc = t => String(t).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+    btn.disabled = true; out.innerHTML = '<span style="color:var(--muted)">Envoi en cours…</span>';
+    try {
+      const d = await api('POST', '/api/admin/test-email');
+      const lignes = ['Expéditeur : <b>' + esc(d.expediteur || '(vide)') + '</b>', 'Adresse IP du serveur : <b>' + esc(d.ip_serveur || 'inconnue') + '</b>',
+                      'Adresse du site utilisée dans les liens : <b>' + esc(d.site || '') + '</b>'];
+      if (d.ok) {
+        out.innerHTML = '<div style="color:var(--green);font-weight:700">✅ Email envoyé à ' + esc(d.destinataire) + '. Regarde ta boîte (et les spams).</div>' + lignes.join('<br>');
+      } else {
+        const e = d.erreur || '';
+        let aide = '';
+        if (/unrecognised IP|authorised_ips|unauthorized/i.test(e) && /IP/i.test(e)) aide = 'Brevo refuse l\'adresse IP du serveur. Dans Brevo : menu du compte → Sécurité → « IP autorisées » → désactive le blocage des IP inconnues (l\'IP du serveur change à chaque mise à jour).';
+        else if (/Key not found|api-key|401/i.test(e)) aide = 'La clé Brevo n\'est pas reconnue. Vérifie la variable BREVO_API_KEY sur Railway (clé « API », pas « SMTP »).';
+        else if (/sender|expéditeur/i.test(e)) aide = 'L\'adresse d\'expéditeur n\'est pas validée dans Brevo (Expéditeurs, domaines et IP dédiées → Expéditeurs).';
+        else if (/non configur|pas configur/i.test(e)) aide = 'Ajoute BREVO_API_KEY et BREVO_SENDER_EMAIL dans les variables Railway.';
+        out.innerHTML = '<div style="color:var(--red);font-weight:700">❌ L\'email n\'est pas parti.</div>' +
+          (aide ? '<div style="margin:.4rem 0;padding:.7rem .9rem;border:1px solid var(--border);border-radius:10px;background:var(--card)">' + aide + '</div>' : '') +
+          '<div style="color:var(--muted);font-size:.82rem;margin:.4rem 0">Réponse exacte : ' + esc(e) + '</div>' + lignes.join('<br>');
+      }
+    } catch (e) { out.innerHTML = '<span style="color:var(--red)">Erreur : ' + esc(e.message) + '</span>'; }
+    btn.disabled = false;
   }
 
   async function api(method, path) {
