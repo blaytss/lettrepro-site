@@ -2,6 +2,11 @@
 // En local (localhost) : backend local. En ligne : backend Railway.
 (function () {
   var host = location.hostname;
+  // Site ouvert en http:// : on repasse tout de suite en https:// (redirection HTTPS de secours).
+  if (location.protocol === 'http:' && /(^|\.)lettrepro\.app$/.test(host)) {
+    location.replace('https://' + location.host + location.pathname + location.search + location.hash);
+    return;
+  }
   if (window.LETTREPRO_API) {
     window.API_BASE = window.LETTREPRO_API;
   } else if (host === 'localhost' || host === '127.0.0.1' || host === '') {
@@ -16,7 +21,7 @@
     if (m && m[1]) {
       var code = m[1].toUpperCase();
       var exp = new Date(Date.now() + 30 * 864e5).toUTCString();
-      document.cookie = 'lp_ref=' + code + '; expires=' + exp + '; path=/; SameSite=Lax';
+      document.cookie = 'lp_ref=' + code + '; expires=' + exp + '; path=/; SameSite=Lax' + (location.protocol === 'https:' ? '; Secure' : '');
       try { localStorage.setItem('lp_ref', code); } catch (e) {}
     }
   } catch (e) {}

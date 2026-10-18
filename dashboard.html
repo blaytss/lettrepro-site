@@ -1487,6 +1487,15 @@
         </button>
       </div>
 
+      <!-- DÉCONNEXION DE TOUS LES APPAREILS -->
+      <div style="margin-top:1rem;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.75rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+        <div>
+          <p style="font-weight:600;color:var(--text);margin-bottom:0.25rem">Se déconnecter de tous les appareils</p>
+          <p style="color:var(--muted);font-size:0.82rem;margin:0">Utile si tu t'es connecté sur un ordinateur qui n'est pas à toi, ou si tu penses que quelqu'un utilise ton compte.</p>
+        </div>
+        <button onclick="logoutAll()" style="background:transparent;border:1px solid var(--border);color:var(--text);border-radius:9px;padding:0.65rem 1.5rem;font-size:0.88rem;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer">Déconnecter partout</button>
+      </div>
+
       <!-- ZONE DE DANGER : SUPPRESSION -->
       <div class="account-card" style="margin-top:1.5rem;border-color:rgba(220,50,50,0.35);background:linear-gradient(160deg,rgba(220,50,50,0.05),var(--surface))">
         <h3 style="color:#FF6B6B;border-bottom-color:rgba(220,50,50,0.25)">⚠️ Zone de danger</h3>
@@ -4411,14 +4420,21 @@ async function subscribePlan(plan) {
     const btn = document.getElementById('pw-btn');
     btn.disabled = true;
     try {
-      await api('POST', '/api/account/password', { current: cur, new: nw });
+      const rep = await api('POST', '/api/account/password', { current: cur, new: nw });
+      if (rep && rep.token) localStorage.setItem('lp_token', rep.token);   // les autres appareils sont déconnectés, pas celui-ci
       ['pw-current','pw-new','pw-confirm'].forEach(id => document.getElementById(id).value = '');
-      msg.className = 'msg success'; msg.textContent = '✓ Mot de passe modifié avec succès.';
+      msg.className = 'msg success'; msg.textContent = '✓ Mot de passe modifié. Tes autres appareils ont été déconnectés.';
       showToast('🔑 Mot de passe modifié', 'success');
     } catch(e) {
       msg.className = 'msg error'; msg.textContent = 'Erreur : ' + e.message;
     }
     btn.disabled = false;
+  }
+
+  async function logoutAll() {
+    if (!confirm('Se déconnecter de tous les appareils, y compris celui-ci ?')) return;
+    try { await api('POST', '/api/account/logout-all'); } catch (e) {}
+    logout(true);
   }
 
   async function deleteAccount() {
